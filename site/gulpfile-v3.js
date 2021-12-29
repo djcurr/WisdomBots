@@ -20,8 +20,8 @@ var pkg = require('./package.json')
 var production = false;
 
 var file = {
-  html:   'src/**/*.html',
-  scss:   'src/assets/scss/**/*.scss',
+  html:   'src/index.html',
+  scss:   'src/assets/scss/page.scss',
   js:     'src/assets/js/src/**/*.js',
 }
 
@@ -49,27 +49,7 @@ var browsers = [
 ];
 
 
-/*
-|--------------------------------------------------------------------------
-| Serve
-|--------------------------------------------------------------------------
-|
-*/
-gulp.task('reload', function() {
-  browserSync.reload();
-});
 
-gulp.task('serve', ['sass'], function() {
-  browserSync({
-    server: 'src/'
-  });
-
-  gulp.watch( file.scss, ['sass'] );
-  gulp.watch( file.js, function() {
-    sequence('js', 'reload');
-  });
-  gulp.watch( file.html, ['reload'] );
-});
 
 
 /*
@@ -218,5 +198,28 @@ gulp.task('dist', function(cb) {
   sequence('distClean', 'dev', 'distCopy', cb);
 });
 
-gulp.task('watch', ['serve']);
-gulp.task('default', ['serve']);
+/*
+|--------------------------------------------------------------------------
+| Serve
+|--------------------------------------------------------------------------
+|
+*/
+gulp.task('reload', function() {
+  browserSync.reload();
+});
+
+gulp.task('serve', gulp.series('sass', function() {
+  browserSync({
+    server: 'src/'
+  });
+
+  gulp.watch( file.scss, gulp.series('sass') );
+  gulp.watch( file.js, function() {
+    sequence('js', 'reload');
+  });
+  gulp.watch("./src/index.html").on('change', browserSync.reload);
+  gulp.watch( file.html, gulp.series('reload') );
+}));
+
+gulp.task('watch', gulp.series('serve'));
+gulp.task('default', gulp.series('serve'));
