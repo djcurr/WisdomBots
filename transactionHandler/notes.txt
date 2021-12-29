@@ -1,0 +1,18 @@
+click next
+post (email, product, address)
+store email and add address and wallet in db
+generate wallet
+
+loading...
+
+response (wallet, value)
+
+create buy button with wallet and value
+metamask popup
+post (hash) -> begin searching
+
+waiting for confirmation...
+
+return product key and download linked
+find email from address
+send email with link and key

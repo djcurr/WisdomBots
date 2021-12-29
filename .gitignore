@@ -47,6 +47,7 @@ site/node_modules/
 node_modules/
 jspm_packages/
 package-lock.json
+example/
 
 # TypeScript v1 declaration files
 typings/
