@@ -87,4 +87,5 @@ validate(hash, product, expiration) {
 response (product key, download link)
 
 //TODO Download link
-//TODO Finish client side
+//TODO Cleanup bugs in bots
+//TODO Create telegram, twitter, youtube, email

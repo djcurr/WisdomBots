@@ -46,7 +46,6 @@ const dir = {
 */
 function reload(done) {
   browserSync.reload();
-  done();
 };
 
 function serve(done) {
@@ -54,9 +53,9 @@ function serve(done) {
     server: 'src/'
   });
 
-  gulp.watch( file.scss, scss );
+  gulp.watch( file.scss ).on('change', reload);;
   gulp.watch( file.js, gulp.series(js, reload));
-  gulp.watch( file.html, reload );
+  gulp.watch( file.html ).on('change', reload);
   gulp.watch("./src/*.html").on('change', reload);
   gulp.watch("./src/assets/css/page.css").on('change', reload);
   done();
