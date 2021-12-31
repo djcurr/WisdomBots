@@ -1,0 +1,10 @@
+[server]
+port = "3002"
+ssl = false
+key = "6FBBD7P95OE8UT5Q"
+
+[database]
+host = "127.0.0.1:3306"
+db = "wisdomBots"
+username = "dumb"
+password = "wisdom"

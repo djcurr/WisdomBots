@@ -1,18 +1,90 @@
 click next
-post (email, product, address)
-store email and add address and wallet in db
+post newUser(email, product, address, expiration)
 generate wallet
+if email exists {
+    add address
+} else if address exists {
+    add email
+} else {
+    newUser
+}
+
+Schema {
+    {
+        emails:{
+            String: bool,
+        },
+        wallet: {
+            address: String,
+            key: String,
+        },
+        addresses: {
+            String,
+        }
+        keys: {
+            {
+                product: String,
+                key: String,
+                paid: bool,
+            },
+        },
+    },
+}
+
+value(product) {
+    return value, product
+}
 
 loading...
 
-response (wallet, value)
+response (walletAddress, value, product, expiration)
 
-create buy button with wallet and value
+{
+    walletAddress: String,
+    value: int,
+    product: String,
+    expiration: String,
+}
+
+create buy button with wallet and value, product and expiration in data
+{
+    to: address,
+    value: value,
+}
 metamask popup
-post (hash) -> begin searching
+post validate(hash, product, expiration)
+{
+    hash: String,
+    product: String,
+    expiration: String
+}
 
 waiting for confirmation...
 
-return product key and download linked
-find email from address
-send email with link and key
+validate(hash, product, expiration) {
+    scan block(hash) {
+        if hash.value >= product.value && find(address).wallet == hash.to {
+            generate key
+            find(address) {
+                send email.len - 1 {
+                    key,
+                    link,
+                }
+                update keys: {
+                    product: product,
+                    key: key,
+                    paid: true,
+                }
+            }
+            response {
+                key: String,
+                link: String,
+            }
+        }
+    }
+}
+
+response (product key, download link)
+
+//TODO Download link
+//TODO Finish client side
