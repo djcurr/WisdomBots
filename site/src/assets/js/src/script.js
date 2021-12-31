@@ -48,13 +48,12 @@ $(function() {
             "expiration": formData[1].value
         }
 
-        $.post( "http://localhost:8080/buy", JSON.stringify(formObj), function(result) {
-            buyResult = result
+        $.post( "http://localhost:8080/buy", JSON.stringify(formObj), async function(result) {
+            buyResult = await result
+            $("#onboarding").hide()
+            $("#next").hide()
+            $("#send").show()
         }, 'json');
-
-        $("#onboarding").hide()
-        $("#next").hide()
-        $("#send").show()
 
     });
 

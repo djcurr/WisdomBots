@@ -343,7 +343,7 @@ func validateTx(hash string, product string, expiration string) (string, string)
 			time.Sleep(time.Second)
 		}
 		key, expirationDate := generateLicense(product, expiration)
-		sendEmail(result.Emails[len(result.Emails)-1], key, product, expiration)
+		sendEmail(result.Emails[len(result.Emails)-1], key, product, expirationDate)
 		updateKeys = keys{
 			Product:    product,
 			Key:        key,
@@ -351,7 +351,7 @@ func validateTx(hash string, product string, expiration string) (string, string)
 		}
 
 		filterId := bson.M{"_id": bson.M{"$eq": result.ID}}
-		update := bson.M{"$push": bson.D{primitive.E{Key: "keys", Value: bson.D{primitive.E{Key: "product", Value: updateKeys.Product}, {Key: "key", Value: updateKeys.Key}, primitive.E{Key: "expiration", Value: expiration}}}, primitive.E{Key: "hashes", Value: hash}}}
+		update := bson.M{"$push": bson.D{primitive.E{Key: "keys", Value: bson.D{primitive.E{Key: "product", Value: updateKeys.Product}, {Key: "key", Value: updateKeys.Key}, primitive.E{Key: "expiration", Value: updateKeys.Expiration}}}, primitive.E{Key: "hashes", Value: hash}}}
 		_, err = coll.UpdateOne(context.TODO(), filterId, update)
 		if err != nil {
 			panic(err)
@@ -437,7 +437,7 @@ func sendEmail(to string, key string, product string, expiration string) {
 	m.SetHeader("Subject", "WisdomBots Product Key")
 
 	// Set E-Mail body. You can set plain text or html with text/html
-	m.SetBody("text/plain", "Your activation key for "+product+" is: "+key+" and expires on"+expiration+" UTC")
+	m.SetBody("text/plain", "Your activation key for "+product+" is: "+key+" and expires on "+expiration+" UTC.")
 
 	// Settings for SMTP server
 	d := gomail.NewDialer("smtp.aol.com", 465, "djcurr@aol.com", "onqpjlkchatkwbqa")
