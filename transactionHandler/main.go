@@ -15,6 +15,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	_ "github.com/go-sql-driver/mysql"
 	gomail "gopkg.in/mail.v2"
 
@@ -50,7 +51,7 @@ type keys struct {
 
 type initialResponse struct {
 	WalletAddress string
-	Value         int
+	Value         string
 	Expiration    string
 	Product       string
 }
@@ -80,6 +81,10 @@ func main() {
 	coll = mongoClient.Database("wisdombots").Collection("transactions")
 
 	router := gin.Default()
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+
+	router.Use(cors.New(config))
 	router.POST("/buy", postUser)
 	router.POST("/validate", validate)
 
@@ -252,17 +257,17 @@ func generateWallet() (string, string) {
 	return fmt.Sprint(hexutil.Encode(privateKeyBytes)[2:]), fmt.Sprint(address)
 }
 
-func value(product string, expiration string) int {
+func value(product string, expiration string) string {
 	if product == "Presale Bot" && expiration == "monthly" {
-		return 10
+		return "0.001"
 	} else if product == "Presale Bot" && expiration == "lifetime" {
-		return 1
+		return "0.001"
 	} else if product == "Telegram Bot" && expiration == "monthly" {
-		return 5
+		return "0.001"
 	} else if product == "Telegram Bot" && expiration == "lifetime" {
-		return 2
+		return "0.001"
 	} else {
-		return 0
+		return "0"
 	}
 }
 

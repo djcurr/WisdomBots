@@ -273,34 +273,39 @@
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
 
-                <div class="modal-body">
+                <div class="modal-body align-items-center">
                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
-                  <form class="input-round">
+                  <form class="input-round" id="onboarding">
 
                     <div class="form-group">
-                      <input class="form-control" type="text" placeholder="Email Address">
+                      <input class="form-control" type="text" name="email" placeholder="Email Address">
                     </div>
     
     
                     <div class="form-group">
-                      <select class="form-control" placeholder="Select input">
-                        <option>Monthly</option>
-                        <option>Yearly</option>
+                      <select class="form-control" placeholder="Select input" name="subscription">
+                        <option value="monthly">Monthly</option>
+                        <option value="lifetime">Lifetime</option>
                       </select>
                     </div>
 
                     <div class="form-group">
-                      <select class="form-control" placeholder="Select input">
-                        <option>Telegram Bot</option>
-                        <option>Presale Sniper</option>
+                      <select class="form-control" placeholder="Select input" name="product">
+                        <option value="Telegram Bot">Telegram Bot</option>
+                        <option value="Presale Bot">Presale Sniper</option>
                       </select>
                     </div>
 
-                    <a class="btn btn-xl btn-round btn-success">Buy Now</a>
+                    
                            
                   </form>
+                  <button class="btn btn-xl btn-round btn-success" style="display: block; margin: 0 auto;" id="connect">Connect</button>
+                  <button class="btn btn-xl btn-round btn-success" style="display: block; margin: 0 auto;" id="next">Next</button>
+                  <button class="btn btn-xl btn-round btn-success" style="display: block; margin: 0 auto;" id="send">Send</button>
+                  <h1 id="loading" class="text-center">Waiting for transaction to confirm...</h1>
+                  <h1 id="result" class="text-center"></h1>
                 </div>
 
               </div>
@@ -419,8 +424,9 @@
 
 
     <!-- Scripts -->
-    <script src="../assets/js/page.min.js"></script>
-    <script src="../assets/js/script.js"></script>
+    <script src="./assets/js/page.js"></script>
+    <script src="./assets/js/src/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 
   </body>
 </html>
