@@ -88,7 +88,7 @@ $(function() {
             $("#loading").hide()
             $("#result").show()
 
-            $("#result").html("Your key is: " + validateResult.key + " and expires on " + validateResult.expiration)
+            $("#result").html("Your key is: <code>" + validateResult.key + "</code> and expires on <code>" + validateResult.expiration + "</code>")
         }, 'json');    
 
     })

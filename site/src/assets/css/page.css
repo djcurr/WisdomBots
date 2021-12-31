@@ -57,6 +57,10 @@
 *::after {
   box-sizing: border-box; }
 
+code {
+  color: black !important;
+}
+
 html {
   font-family: "Open Sans", sans-serif;
   line-height: 1.15;

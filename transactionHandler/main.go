@@ -13,6 +13,7 @@ import (
 	"modules/licensing"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -106,8 +107,6 @@ func postUser(c *gin.Context) {
 
 	addressFilter := bson.D{primitive.E{Key: "addresses", Value: newUser.Addresses[0]}}
 	addressExists, _ := coll.CountDocuments(context.TODO(), addressFilter, opts)
-
-	fmt.Println(addressExists, emailExists)
 
 	if emailExists == 0 && addressExists == 1 {
 
@@ -308,8 +307,8 @@ func validateTx(hash string, product string, expiration string) (string, string)
 	}
 
 	var result user
-	fmt.Println(sender)
-	filter := bson.D{primitive.E{Key: "addresses", Value: fmt.Sprint(sender)}}
+	senderAddress := strings.ToLower(fmt.Sprint(sender))
+	filter := bson.D{primitive.E{Key: "addresses", Value: senderAddress}}
 
 	err = coll.FindOne(context.TODO(), filter).Decode(&result)
 	if err != nil {

@@ -6,6 +6,7 @@ replace modules/licensing => ./licensing
 
 require (
 	github.com/ethereum/go-ethereum v1.10.14
+	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-sql-driver/mysql v1.4.1
 	go.mongodb.org/mongo-driver v1.8.1
