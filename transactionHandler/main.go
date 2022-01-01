@@ -13,11 +13,13 @@ import (
 	"modules/licensing"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 	gomail "gopkg.in/mail.v2"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -63,12 +65,78 @@ type transaction struct {
 	Expiration string
 }
 
+type EnvironmentVariables struct {
+	ApiURL              string
+	MongoURL            string
+	MongoDBName         string
+	MongoCollection     string
+	MonthlyPresaleStr   string
+	LifetimePresaleStr  string
+	MonthlyTelegramStr  string
+	LifetimeTelegramStr string
+	EthHost             string
+	MySqlUser           string
+	MySqlPass           string
+	MySqlHost           string
+	MySqlDatabase       string
+	LicenseServerKey    string
+	FromEmail           string
+	EmailUser           string
+	EmailPassword       string
+	EmailHost           string
+}
+
+var envConfig *EnvironmentVariables
+
+func NewConfig() *EnvironmentVariables {
+	return &EnvironmentVariables{
+		ApiURL:              os.Getenv("API_URL"),
+		MongoURL:            os.Getenv("MONGO_URL"),
+		MongoDBName:         os.Getenv("MONGO_DB"),
+		MongoCollection:     os.Getenv("MONGO_COLLECTION"),
+		MonthlyPresaleStr:   os.Getenv("MONTHLY_PRESALE_PRICE"),
+		LifetimePresaleStr:  os.Getenv("LIFETIME_PRESALE_PRICE"),
+		MonthlyTelegramStr:  os.Getenv("MONTHLY_TELEGRAM_PRICE"),
+		LifetimeTelegramStr: os.Getenv("LIFETIME_TELEGRAM_PRICE"),
+		EthHost:             os.Getenv("ETH_HOST"),
+		MySqlUser:           os.Getenv("MYSQL_USER"),
+		MySqlPass:           os.Getenv("MYSQL_PASS"),
+		MySqlHost:           os.Getenv("MYSQL_HOST"),
+		MySqlDatabase:       os.Getenv("MYSQL_DATABASE"),
+		LicenseServerKey:    os.Getenv("LICENSE_SERVER_KEY"),
+		FromEmail:           os.Getenv("FROM_EMAIL"),
+		EmailUser:           os.Getenv("EMAIL_USER"),
+		EmailPassword:       os.Getenv("EMAIL_PASSWORD"),
+		EmailHost:           os.Getenv("EMAIL_HOST"),
+	}
+}
+
+func init() {
+	PROD := false
+	if PROD {
+		err := godotenv.Load(".env.production")
+
+		if err != nil {
+			log.Fatalf("Error loading .env file")
+		}
+	} else {
+		err := godotenv.Load(".env.development")
+
+		if err != nil {
+			log.Fatalf("Error loading .env file")
+		}
+	}
+}
+
 var mongoClient *mongo.Client
 var coll *mongo.Collection
 
 func main() {
+
+	envConfig = NewConfig()
+
 	var err error
-	mongoClient, err = mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb+srv://test:test123@wisdombots.vpyln.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	mongoClient, err = mongo.Connect(context.TODO(), options.Client().ApplyURI(envConfig.MongoURL))
 	if err != nil {
 		panic(err)
 	}
@@ -79,17 +147,17 @@ func main() {
 		}
 	}()
 
-	coll = mongoClient.Database("wisdombots").Collection("transactions")
+	coll = mongoClient.Database(envConfig.MongoDBName).Collection(envConfig.MongoCollection)
 
 	router := gin.Default()
-	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
 
-	router.Use(cors.New(config))
+	router.Use(cors.New(corsConfig))
 	router.POST("/buy", postUser)
 	router.POST("/validate", validate)
 
-	router.Run("localhost:8080")
+	router.Run(envConfig.ApiURL)
 }
 
 func postUser(c *gin.Context) {
@@ -258,13 +326,13 @@ func generateWallet() (string, string) {
 
 func value(product string, expiration string) string {
 	if product == "Presale Bot" && expiration == "monthly" {
-		return "0.001"
+		return envConfig.MonthlyPresaleStr
 	} else if product == "Presale Bot" && expiration == "lifetime" {
-		return "0.001"
+		return envConfig.LifetimePresaleStr
 	} else if product == "Telegram Bot" && expiration == "monthly" {
-		return "0.001"
+		return envConfig.MonthlyTelegramStr
 	} else if product == "Telegram Bot" && expiration == "lifetime" {
-		return "0.001"
+		return envConfig.LifetimeTelegramStr
 	} else {
 		return "0"
 	}
@@ -272,20 +340,24 @@ func value(product string, expiration string) string {
 
 func bigValue(product string, expiration string) *big.Int {
 	if product == "Presale Bot" && expiration == "monthly" {
-		return toWei(0.001)
+		float, _ := strconv.ParseFloat(envConfig.MonthlyPresaleStr, 64)
+		return toWei(float)
 	} else if product == "Presale Bot" && expiration == "lifetime" {
-		return toWei(0.001)
+		float, _ := strconv.ParseFloat(envConfig.LifetimePresaleStr, 64)
+		return toWei(float)
 	} else if product == "Telegram Bot" && expiration == "monthly" {
-		return toWei(0.001)
+		float, _ := strconv.ParseFloat(envConfig.MonthlyTelegramStr, 64)
+		return toWei(float)
 	} else if product == "Telegram Bot" && expiration == "lifetime" {
-		return toWei(0.001)
+		float, _ := strconv.ParseFloat(envConfig.LifetimePresaleStr, 64)
+		return toWei(float)
 	} else {
 		return toWei(0)
 	}
 }
 
 func validateTx(hash string, product string, expiration string) (string, string) {
-	client, err := ethclient.Dial("https://data-seed-prebsc-1-s1.binance.org:8545/")
+	client, err := ethclient.Dial(envConfig.EthHost)
 	if err != nil {
 		panic(err)
 	}
@@ -365,9 +437,9 @@ func toWei(value float64) *big.Int {
 }
 
 func generateLicense(product string, expiration string) (string, string) {
-	// db, err = sql.Open("mysql", USERNAME+":"+PASSWORD+"@tcp("+HOST+")/"+DATABASE)
+
 	rand.Seed(time.Now().UnixNano())
-	db, err := sql.Open("mysql", "dumb:wisdom@tcp(localhost:3306)/wisdomBots")
+	db, err := sql.Open("mysql", envConfig.MySqlUser+":"+envConfig.MySqlPass+"@tcp("+envConfig.MySqlHost+")/"+envConfig.MySqlDatabase)
 	if err != nil {
 		panic(err)
 	}
@@ -383,19 +455,19 @@ func generateLicense(product string, expiration string) (string, string) {
 
 	tmpemail := "example@example.com"
 	email := "example@example.com"
-	key := "36da890059bbe90d71edbb86a7fcb2fbb82d2d8692b54bb6b95bc454ae667800"
+	key := envConfig.LicenseServerKey
 	var licenseTable string
 	var expirationDate string
 
 	if product == "Presale Bot" && expiration == "monthly" {
 		licenseTable = "presaleBotLicenses"
-		expirationDate = time.Now().AddDate(0, 1, 0).Format("2006-01-02")
+		expirationDate = time.Now().AddDate(0, 1, 1).Format("2006-01-02")
 	} else if product == "Presale Bot" && expiration == "lifetime" {
 		licenseTable = "presaleBotLicenses"
 		expirationDate = time.Now().AddDate(80, 0, 0).Format("2006-01-02")
 	} else if product == "Telegram Bot" && expiration == "monthly" {
 		licenseTable = "telegramBotLicenses"
-		expirationDate = time.Now().AddDate(0, 1, 0).Format("2006-01-02")
+		expirationDate = time.Now().AddDate(0, 1, 1).Format("2006-01-02")
 	} else if product == "Telegram Bot" && expiration == "lifetime" {
 		licenseTable = "telegramBotLicenses"
 		expirationDate = time.Now().AddDate(80, 0, 0).Format("2006-01-02")
@@ -428,7 +500,7 @@ func sendEmail(to string, key string, product string, expiration string) {
 	m := gomail.NewMessage()
 
 	// Set E-Mail sender
-	m.SetHeader("From", "djcurr@aol.com")
+	m.SetHeader("From", envConfig.FromEmail)
 
 	// Set E-Mail receivers
 	m.SetHeader("To", to)
@@ -440,7 +512,7 @@ func sendEmail(to string, key string, product string, expiration string) {
 	m.SetBody("text/plain", "Your activation key for "+product+" is: "+key+" and expires on "+expiration+" UTC.")
 
 	// Settings for SMTP server
-	d := gomail.NewDialer("smtp.aol.com", 465, "djcurr@aol.com", "onqpjlkchatkwbqa")
+	d := gomail.NewDialer(envConfig.EmailHost, 465, envConfig.EmailUser, envConfig.EmailPassword)
 
 	// This is only needed when SSL/TLS certificate is not valid on server.
 	// In production this should be set to false.
