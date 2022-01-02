@@ -11,3 +11,4 @@
 - [ ] Make licensing use HWID
 - [ ] Update support and social media links on site
 - [ ] Minify
+- [ ] SEO
