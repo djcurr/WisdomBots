@@ -155,12 +155,12 @@ func main() {
 	router := gin.Default()
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true
+	router.SetTrustedProxies(nil)
 
 	router.Use(cors.New(corsConfig))
 	router.POST("/buy", postUser)
 	router.POST("/validate", validate)
 
-	router.Run(envConfig.ApiURL)
 	if PROD {
 		router.RunTLS(envConfig.ApiURL, "/home/wisdombots/fullchain.pem", "/home/wisdombots/privkey.pem")
 	} else {
