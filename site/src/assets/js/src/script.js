@@ -48,7 +48,7 @@ $(function() {
             "expiration": formData[1].value
         }
 
-        $.post( "http://localhost:8080/buy", JSON.stringify(formObj), async function(result) {
+        $.post( "https://wisdom-bots.com:8181/buy", JSON.stringify(formObj), async function(result) { //http://localhost:8080/buy
             buyResult = await result
             $("#onboarding").hide()
             $("#next").hide()
@@ -81,13 +81,13 @@ $(function() {
             "expiration": buyResult.Expiration
         }
 
-        $.post( "http://localhost:8080/validate", JSON.stringify(valObj), function(result) {
+        $.post( "https://wisdom-bots.com:8181/validate", JSON.stringify(valObj), function(result) { //http://localhost:8080/validate
             validateResult = result
 
             $("#loading").hide()
             $("#result").show()
 
-            $("#result").html("Your key is: <code>" + validateResult.key + "</code> and expires on <code>" + validateResult.expiration + "</code>")
+            $("#result").html("Your key and download link have been emailed to you. Your product is valid until <code>" + validateResult.expiration + "</code>")
         }, 'json');    
 
     })

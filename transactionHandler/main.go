@@ -111,8 +111,9 @@ func NewConfig() *EnvironmentVariables {
 	}
 }
 
+var PROD = true
+
 func init() {
-	PROD := false
 	if PROD {
 		err := godotenv.Load(".env.production")
 
@@ -132,6 +133,8 @@ var mongoClient *mongo.Client
 var coll *mongo.Collection
 
 func main() {
+
+	gin.SetMode(gin.ReleaseMode)
 
 	envConfig = NewConfig()
 
@@ -158,6 +161,11 @@ func main() {
 	router.POST("/validate", validate)
 
 	router.Run(envConfig.ApiURL)
+	if PROD {
+		router.RunTLS(envConfig.ApiURL, "/home/wisdombots/fullchain.pem", "/home/wisdombots/privkey.pem")
+	} else {
+		router.Run(envConfig.ApiURL)
+	}
 }
 
 func postUser(c *gin.Context) {
@@ -265,6 +273,14 @@ func postUser(c *gin.Context) {
 		c.IndentedJSON(http.StatusCreated, response)
 
 	} else if addressExists == 1 && emailExists == 1 {
+		filter := bson.D{primitive.E{Key: "addresses", Value: newUser.Addresses[0]}}
+
+		update := bson.M{"$push": bson.D{primitive.E{Key: "emails", Value: newUser.Emails[0]}}}
+
+		_, err = coll.UpdateOne(context.TODO(), filter, update)
+		if err != nil {
+			panic(err)
+		}
 
 		var existingUser user
 		existingFilter := bson.D{primitive.E{Key: "emails", Value: newUser.Emails[0]}}
@@ -406,11 +422,10 @@ func validateTx(hash string, product string, expiration string) (string, string)
 			if err != nil {
 				panic(err)
 			}
-			if counter == 10 {
+			if counter == 30 {
 				fmt.Println("panic")
 				log.Panic("timeout")
 			}
-			fmt.Println("pending")
 			counter += 1
 			time.Sleep(time.Second)
 		}
@@ -500,7 +515,7 @@ func sendEmail(to string, key string, product string, expiration string) {
 	m := gomail.NewMessage()
 
 	// Set E-Mail sender
-	m.SetHeader("From", envConfig.FromEmail)
+	m.SetHeader("From", m.FormatAddress(envConfig.FromEmail, "Wisdom Bots Licensing"))
 
 	// Set E-Mail receivers
 	m.SetHeader("To", to)
