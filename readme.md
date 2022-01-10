@@ -12,3 +12,4 @@
 - [ ] Update support and social media links on site
 - [ ] Minify
 - [ ] SEO
+- [ ] Create favicon

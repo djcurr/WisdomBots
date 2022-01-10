@@ -11,6 +11,7 @@
 */
 
 $(function() {
+    $.getScript("https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js")
 
     const web3 = new Web3()
 
