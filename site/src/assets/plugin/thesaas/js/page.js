@@ -32,7 +32,7 @@ require('./vendors/aos.js');            // 14 kb
 //require('./vendors/photoswipe.js');     // 45 kb
 //require('./vendors/shuffle.js');        // 25 kb
 //require('./vendors/slick.js');          // 43 kb
-require('./vendors/typed.js');          // 11 kb
+//require('./vendors/typed.js');          // 11 kb
 
 
 /*
