@@ -11,9 +11,8 @@
 */
 
 $(function() {
-    $.getScript("https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js")
-
-    const web3 = new Web3()
+    $.getScript("https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js", function () {
+        const web3 = new Web3()
 
     $("#next").hide()
     $("#send").hide()
@@ -91,6 +90,7 @@ $(function() {
             $("#result").html("Your key and download link have been emailed to you. Your product is valid until <code>" + validateResult.expiration + "</code>")
         }, 'json');    
 
+    })
     })
     
 });
