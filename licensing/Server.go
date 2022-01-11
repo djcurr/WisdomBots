@@ -160,12 +160,12 @@ func checkPresaleBotHandler(response http.ResponseWriter, request *http.Request)
 	license := request.FormValue("license")
 	var tmpexp string
 	decrypted := licensing.Decrypt(KEY, license)
-	err := db.QueryRow("SELECT experation FROM presalebotlicenses WHERE license='" + decrypted + "'").Scan(&tmpexp)
+	err := db.QueryRow("SELECT experation FROM presaleBotLicenses WHERE license='" + decrypted + "'").Scan(&tmpexp)
 	if err == sql.ErrNoRows { //No License for Key found
 		fmt.Fprintf(response, "Bad.")
 	} else { //Check Experation date
 		ip := strings.Split(request.RemoteAddr, ":")[0]
-		_, err := db.Exec("UPDATE presalebotlicenses SET ip='" + ip + "' WHERE license='" + decrypted + "'")
+		_, err := db.Exec("UPDATE presaleBotLicenses SET ip='" + ip + "' WHERE license='" + decrypted + "'")
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -187,12 +187,12 @@ func checkTelegramBotHandler(response http.ResponseWriter, request *http.Request
 	license := request.FormValue("license")
 	var tmpexp string
 	decrypted := licensing.Decrypt(KEY, license)
-	err := db.QueryRow("SELECT experation FROM telegrambotlicenses WHERE license='" + decrypted + "'").Scan(&tmpexp)
+	err := db.QueryRow("SELECT experation FROM telegramBotLicenses WHERE license='" + decrypted + "'").Scan(&tmpexp)
 	if err == sql.ErrNoRows { //No License for Key found
 		fmt.Fprintf(response, "Bad.")
 	} else { //Check Experation date
 		ip := strings.Split(request.RemoteAddr, ":")[0]
-		_, err := db.Exec("UPDATE telegrambotlicenses SET ip='" + ip + "' WHERE license='" + decrypted + "'")
+		_, err := db.Exec("UPDATE telegramBotLicenses SET ip='" + ip + "' WHERE license='" + decrypted + "'")
 		if err != nil {
 			fmt.Println(err)
 		}
