@@ -76,6 +76,7 @@
     "npm": ">=3.10"
   },
   "dependencies": {
+    "gulp-compress": "0.0.9",
     "natives": "^1.1.6",
     "npm": "^6.13.4"
   }
