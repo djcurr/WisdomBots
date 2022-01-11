@@ -159,7 +159,7 @@ func checkPresaleBotHandler(response http.ResponseWriter, request *http.Request)
 	request.ParseForm()
 	license := request.FormValue("license")
 	var tmpexp string
-	decrypted := licensing.Decrypt(KEY, license)
+	var decrypted string = license
 	err := db.QueryRow("SELECT experation FROM presaleBotLicenses WHERE license='" + decrypted + "'").Scan(&tmpexp)
 	if err == sql.ErrNoRows { //No License for Key found
 		fmt.Fprintf(response, "Bad.")
@@ -186,7 +186,7 @@ func checkTelegramBotHandler(response http.ResponseWriter, request *http.Request
 	request.ParseForm()
 	license := request.FormValue("license")
 	var tmpexp string
-	decrypted := licensing.Decrypt(KEY, license)
+	var decrypted string = license
 	err := db.QueryRow("SELECT experation FROM telegramBotLicenses WHERE license='" + decrypted + "'").Scan(&tmpexp)
 	if err == sql.ErrNoRows { //No License for Key found
 		fmt.Fprintf(response, "Bad.")
@@ -313,7 +313,7 @@ func main() {
 				}
 			} else {
 				fmt.Println("License already in database?")
-				fmt.Println("License:", licensing.Encrypt(KEY, license))
+				fmt.Println("License:", license)
 				fmt.Println("Email:", tmpemail)
 				fmt.Println("")
 				goto Menu
@@ -325,7 +325,7 @@ func main() {
 			fmt.Println("License Experation:", experation)
 			fmt.Println("Save this as license.dat")
 			fmt.Println("")
-			fmt.Println(licensing.Encrypt(KEY, license))
+			fmt.Println(license)
 			fmt.Println("")
 
 		case "remove":

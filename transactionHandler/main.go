@@ -84,6 +84,8 @@ type EnvironmentVariables struct {
 	EmailUser           string
 	EmailPassword       string
 	EmailHost           string
+	PresaleBotDownload  string
+	TelegramBotDownload string
 }
 
 var envConfig *EnvironmentVariables
@@ -108,10 +110,13 @@ func NewConfig() *EnvironmentVariables {
 		EmailUser:           os.Getenv("EMAIL_USER"),
 		EmailPassword:       os.Getenv("EMAIL_PASSWORD"),
 		EmailHost:           os.Getenv("EMAIL_HOST"),
+		PresaleBotDownload:  os.Getenv("PRESALE_BOT_DOWNLOAD"),
+		TelegramBotDownload: os.Getenv("TELEGRAM_BOT_DOWNLOAD"),
 	}
 }
 
 var PROD = true
+var TLS = true
 
 func init() {
 	if PROD {
@@ -161,7 +166,7 @@ func main() {
 	router.POST("/buy", postUser)
 	router.POST("/validate", validate)
 
-	if PROD {
+	if TLS {
 		router.RunTLS(envConfig.ApiURL, "/home/wisdombots/fullchain.pem", "/home/wisdombots/privkey.pem")
 	} else {
 		router.Run(envConfig.ApiURL)
@@ -317,7 +322,17 @@ func validate(c *gin.Context) {
 	}
 	genKey, expiration := validateTx(newTransaction.Hash, newTransaction.Product, newTransaction.Expiration)
 
-	response := bson.M{"key": genKey, "expiration": expiration}
+	var link string
+
+	if newTransaction.Product == "Presale Bot" {
+		link = envConfig.PresaleBotDownload
+	} else if newTransaction.Product == "Telegram Bot" {
+		link = envConfig.TelegramBotDownload
+	} else {
+		link = ""
+	}
+
+	response := bson.M{"key": genKey, "expiration": expiration, "link": link}
 	c.IndentedJSON(http.StatusCreated, response)
 }
 
@@ -498,7 +513,7 @@ func generateLicense(product string, expiration string) (string, string) {
 			fmt.Println("License:", licensing.Encrypt(key, license))
 		}
 	}
-	return licensing.Encrypt(key, license), expirationDate
+	return license, expirationDate
 }
 
 func randomString(n int) string {
@@ -513,6 +528,15 @@ func randomString(n int) string {
 
 func sendEmail(to string, key string, product string, expiration string) {
 	m := gomail.NewMessage()
+	var link string
+
+	if product == "Presale Bot" {
+		link = envConfig.PresaleBotDownload
+	} else if product == "Telegram Bot" {
+		link = envConfig.TelegramBotDownload
+	} else {
+		link = ""
+	}
 
 	// Set E-Mail sender
 	m.SetHeader("From", m.FormatAddress(envConfig.FromEmail, "Wisdom Bots Licensing"))
@@ -524,7 +548,7 @@ func sendEmail(to string, key string, product string, expiration string) {
 	m.SetHeader("Subject", "WisdomBots Product Key")
 
 	// Set E-Mail body. You can set plain text or html with text/html
-	m.SetBody("text/plain", "Your activation key for "+product+" is: "+key+" and expires on "+expiration+" UTC.")
+	m.SetBody("text/plain", "Your activation key for "+product+" is: "+key+" and expires on "+expiration+" UTC. Your download link is "+link)
 
 	// Settings for SMTP server
 	d := gomail.NewDialer(envConfig.EmailHost, 465, envConfig.EmailUser, envConfig.EmailPassword)

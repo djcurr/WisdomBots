@@ -87,7 +87,7 @@ $(function() {
             $("#loading").hide()
             $("#result").show()
 
-            $("#result").html("Your key and download link have been emailed to you. Your product is valid until <code>" + validateResult.expiration + "</code>")
+            $("#result").html("Your key and download link have been emailed to you. Your product key is: <code>" + validateResult.key + "</code> and is valid until <code>" + validateResult.expiration + "</code>. <a href=" + validateResult.link + ">Download Now</a>")
         }, 'json');    
 
     })

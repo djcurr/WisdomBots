@@ -1,8 +1,9 @@
 ### TODO
 
-- [ ] Create download link and license key file
-- [ ] Cleanup bugs in bots
-- [ ] Implement licensing in bots
+- [x] Create download link and license key file
+- [x] Cleanup bugs in bots
+- [x] Implement licensing in bots
+- [ ] Implement licensing server
 - [x] Create Telegram
 - [x] Create Twitter
 - [x] Create YouTube

@@ -6,5 +6,5 @@ key = "36da890059bbe90d71edbb86a7fcb2fbb82d2d8692b54bb6b95bc454ae667800"
 [database]
 host = "127.0.0.1:3306"
 db = "wisdomBots"
-username = "licensing"
+username = "dumb"
 password = "wisdom"
