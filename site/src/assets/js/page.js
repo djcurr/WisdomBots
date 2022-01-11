@@ -113,16 +113,16 @@ __webpack_require__(1);
 |
 */
 __webpack_require__(12);            // 14 kb
-//__webpack_require__(14);  // 03 kb
-//__webpack_require__(15);      // 05 kb
-//__webpack_require__(17);        // 13 kb
-//__webpack_require__(20);         // 15 kb
-//__webpack_require__(53);       // 23 kb
-//__webpack_require__(56);           // 07 kb
-//__webpack_require__(58);     // 45 kb
-//__webpack_require__(60);        // 25 kb
-//__webpack_require__(63);          // 43 kb
-//__webpack_require__(65);          // 11 kb
+// require('../../plugin/thesaas/js/vendors/constellation.js');  // 03 kb
+// require('../../plugin/thesaas/js/vendors/countdown.js');      // 05 kb
+// require('../../plugin/thesaas/js/vendors/countup.js');        // 13 kb
+// require('../../plugin/thesaas/js/vendors/granim.js');         // 15 kb
+// require('../../plugin/thesaas/js/vendors/jarallax.js');       // 23 kb
+// require('../../plugin/thesaas/js/vendors/lity.js');           // 07 kb
+// require('../../plugin/thesaas/js/vendors/photoswipe.js');     // 45 kb
+// require('../../plugin/thesaas/js/vendors/shuffle.js');        // 25 kb
+// require('../../plugin/thesaas/js/vendors/slick.js');          // 43 kb
+// require('../../plugin/thesaas/js/vendors/typed.js');          // 11 kb
 
 
 /*
@@ -133,7 +133,7 @@ __webpack_require__(12);            // 14 kb
 | Split the application code to several files. This file is required.
 |
 */
-__webpack_require__(67);
+__webpack_require__(14);
 
 
 /*
@@ -144,7 +144,7 @@ __webpack_require__(67);
 | Modify some variables to personalize your project. This file is required.
 |
 */
-__webpack_require__(85);
+__webpack_require__(32);
 
 
 /*
@@ -156,7 +156,7 @@ __webpack_require__(85);
 | files and import the other files here or inside script.js.
 |
 */
-__webpack_require__(86);
+__webpack_require__(33);
 
 
 /***/ }),
@@ -286,17 +286,17 @@ $(function() {
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
- * jQuery JavaScript Library v3.4.1
+ * jQuery JavaScript Library v3.6.0
  * https://jquery.com/
  *
  * Includes Sizzle.js
  * https://sizzlejs.com/
  *
- * Copyright JS Foundation and other contributors
+ * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license
  * https://jquery.org/license
  *
- * Date: 2019-05-01T21:04Z
+ * Date: 2021-03-02T17:08Z
  */
 ( function( global, factory ) {
 
@@ -334,13 +334,16 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 var arr = [];
 
-var document = window.document;
-
 var getProto = Object.getPrototypeOf;
 
 var slice = arr.slice;
 
-var concat = arr.concat;
+var flat = arr.flat ? function( array ) {
+	return arr.flat.call( array );
+} : function( array ) {
+	return arr.concat.apply( [], array );
+};
+
 
 var push = arr.push;
 
@@ -360,18 +363,24 @@ var support = {};
 
 var isFunction = function isFunction( obj ) {
 
-      // Support: Chrome <=57, Firefox <=52
-      // In some browsers, typeof returns "function" for HTML <object> elements
-      // (i.e., `typeof document.createElement( "object" ) === "function"`).
-      // We don't want to classify *any* DOM node as a function.
-      return typeof obj === "function" && typeof obj.nodeType !== "number";
-  };
+		// Support: Chrome <=57, Firefox <=52
+		// In some browsers, typeof returns "function" for HTML <object> elements
+		// (i.e., `typeof document.createElement( "object" ) === "function"`).
+		// We don't want to classify *any* DOM node as a function.
+		// Support: QtWeb <=3.8.5, WebKit <=534.34, wkhtmltopdf tool <=0.12.5
+		// Plus for old WebKit, typeof returns "function" for HTML collections
+		// (e.g., `typeof document.getElementsByTagName("div") === "function"`). (gh-4756)
+		return typeof obj === "function" && typeof obj.nodeType !== "number" &&
+			typeof obj.item !== "function";
+	};
 
 
 var isWindow = function isWindow( obj ) {
 		return obj != null && obj === obj.window;
 	};
 
+
+var document = window.document;
 
 
 
@@ -429,7 +438,7 @@ function toType( obj ) {
 
 
 var
-	version = "3.4.1",
+	version = "3.6.0",
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -437,11 +446,7 @@ var
 		// The jQuery object is actually just the init constructor 'enhanced'
 		// Need init if jQuery is called (just allow error to be thrown if not included)
 		return new jQuery.fn.init( selector, context );
-	},
-
-	// Support: Android <=4.0 only
-	// Make sure we trim BOM and NBSP
-	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+	};
 
 jQuery.fn = jQuery.prototype = {
 
@@ -505,6 +510,18 @@ jQuery.fn = jQuery.prototype = {
 
 	last: function() {
 		return this.eq( -1 );
+	},
+
+	even: function() {
+		return this.pushStack( jQuery.grep( this, function( _elem, i ) {
+			return ( i + 1 ) % 2;
+		} ) );
+	},
+
+	odd: function() {
+		return this.pushStack( jQuery.grep( this, function( _elem, i ) {
+			return i % 2;
+		} ) );
 	},
 
 	eq: function( i ) {
@@ -640,9 +657,10 @@ jQuery.extend( {
 		return true;
 	},
 
-	// Evaluates a script in a global context
-	globalEval: function( code, options ) {
-		DOMEval( code, { nonce: options && options.nonce } );
+	// Evaluates a script in a provided context; falls back to the global one
+	// if not specified.
+	globalEval: function( code, options, doc ) {
+		DOMEval( code, { nonce: options && options.nonce }, doc );
 	},
 
 	each: function( obj, callback ) {
@@ -666,13 +684,6 @@ jQuery.extend( {
 		return obj;
 	},
 
-	// Support: Android <=4.0 only
-	trim: function( text ) {
-		return text == null ?
-			"" :
-			( text + "" ).replace( rtrim, "" );
-	},
-
 	// results is for internal usage only
 	makeArray: function( arr, results ) {
 		var ret = results || [];
@@ -681,7 +692,7 @@ jQuery.extend( {
 			if ( isArrayLike( Object( arr ) ) ) {
 				jQuery.merge( ret,
 					typeof arr === "string" ?
-					[ arr ] : arr
+						[ arr ] : arr
 				);
 			} else {
 				push.call( ret, arr );
@@ -759,7 +770,7 @@ jQuery.extend( {
 		}
 
 		// Flatten any nested arrays
-		return concat.apply( [], ret );
+		return flat( ret );
 	},
 
 	// A global GUID counter for objects
@@ -776,9 +787,9 @@ if ( typeof Symbol === "function" ) {
 
 // Populate the class2type map
 jQuery.each( "Boolean Number String Function Array Date RegExp Object Error Symbol".split( " " ),
-function( i, name ) {
-	class2type[ "[object " + name + "]" ] = name.toLowerCase();
-} );
+	function( _i, name ) {
+		class2type[ "[object " + name + "]" ] = name.toLowerCase();
+	} );
 
 function isArrayLike( obj ) {
 
@@ -798,17 +809,16 @@ function isArrayLike( obj ) {
 }
 var Sizzle =
 /*!
- * Sizzle CSS Selector Engine v2.3.4
+ * Sizzle CSS Selector Engine v2.3.6
  * https://sizzlejs.com/
  *
  * Copyright JS Foundation and other contributors
  * Released under the MIT license
  * https://js.foundation/
  *
- * Date: 2019-04-08
+ * Date: 2021-02-16
  */
-(function( window ) {
-
+( function( window ) {
 var i,
 	support,
 	Expr,
@@ -848,59 +858,70 @@ var i,
 	},
 
 	// Instance methods
-	hasOwn = ({}).hasOwnProperty,
+	hasOwn = ( {} ).hasOwnProperty,
 	arr = [],
 	pop = arr.pop,
-	push_native = arr.push,
+	pushNative = arr.push,
 	push = arr.push,
 	slice = arr.slice,
+
 	// Use a stripped-down indexOf as it's faster than native
 	// https://jsperf.com/thor-indexof-vs-for/5
 	indexOf = function( list, elem ) {
 		var i = 0,
 			len = list.length;
 		for ( ; i < len; i++ ) {
-			if ( list[i] === elem ) {
+			if ( list[ i ] === elem ) {
 				return i;
 			}
 		}
 		return -1;
 	},
 
-	booleans = "checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|ismap|loop|multiple|open|readonly|required|scoped",
+	booleans = "checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|" +
+		"ismap|loop|multiple|open|readonly|required|scoped",
 
 	// Regular expressions
 
 	// http://www.w3.org/TR/css3-selectors/#whitespace
 	whitespace = "[\\x20\\t\\r\\n\\f]",
 
-	// http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
-	identifier = "(?:\\\\.|[\\w-]|[^\0-\\xa0])+",
+	// https://www.w3.org/TR/css-syntax-3/#ident-token-diagram
+	identifier = "(?:\\\\[\\da-fA-F]{1,6}" + whitespace +
+		"?|\\\\[^\\r\\n\\f]|[\\w-]|[^\0-\\x7f])+",
 
 	// Attribute selectors: http://www.w3.org/TR/selectors/#attribute-selectors
 	attributes = "\\[" + whitespace + "*(" + identifier + ")(?:" + whitespace +
+
 		// Operator (capture 2)
 		"*([*^$|!~]?=)" + whitespace +
-		// "Attribute values must be CSS identifiers [capture 5] or strings [capture 3 or capture 4]"
-		"*(?:'((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\"|(" + identifier + "))|)" + whitespace +
-		"*\\]",
+
+		// "Attribute values must be CSS identifiers [capture 5]
+		// or strings [capture 3 or capture 4]"
+		"*(?:'((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\"|(" + identifier + "))|)" +
+		whitespace + "*\\]",
 
 	pseudos = ":(" + identifier + ")(?:\\((" +
+
 		// To reduce the number of selectors needing tokenize in the preFilter, prefer arguments:
 		// 1. quoted (capture 3; capture 4 or capture 5)
 		"('((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\")|" +
+
 		// 2. simple (capture 6)
 		"((?:\\\\.|[^\\\\()[\\]]|" + attributes + ")*)|" +
+
 		// 3. anything else (capture 2)
 		".*" +
 		")\\)|)",
 
 	// Leading and non-escaped trailing whitespace, capturing some non-whitespace characters preceding the latter
 	rwhitespace = new RegExp( whitespace + "+", "g" ),
-	rtrim = new RegExp( "^" + whitespace + "+|((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$", "g" ),
+	rtrim = new RegExp( "^" + whitespace + "+|((?:^|[^\\\\])(?:\\\\.)*)" +
+		whitespace + "+$", "g" ),
 
 	rcomma = new RegExp( "^" + whitespace + "*," + whitespace + "*" ),
-	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace + "*" ),
+	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace +
+		"*" ),
 	rdescend = new RegExp( whitespace + "|>" ),
 
 	rpseudo = new RegExp( pseudos ),
@@ -912,14 +933,16 @@ var i,
 		"TAG": new RegExp( "^(" + identifier + "|[*])" ),
 		"ATTR": new RegExp( "^" + attributes ),
 		"PSEUDO": new RegExp( "^" + pseudos ),
-		"CHILD": new RegExp( "^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\(" + whitespace +
-			"*(even|odd|(([+-]|)(\\d*)n|)" + whitespace + "*(?:([+-]|)" + whitespace +
-			"*(\\d+)|))" + whitespace + "*\\)|)", "i" ),
+		"CHILD": new RegExp( "^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\(" +
+			whitespace + "*(even|odd|(([+-]|)(\\d*)n|)" + whitespace + "*(?:([+-]|)" +
+			whitespace + "*(\\d+)|))" + whitespace + "*\\)|)", "i" ),
 		"bool": new RegExp( "^(?:" + booleans + ")$", "i" ),
+
 		// For use in libraries implementing .is()
 		// We use this for POS matching in `select`
-		"needsContext": new RegExp( "^" + whitespace + "*[>+~]|:(even|odd|eq|gt|lt|nth|first|last)(?:\\(" +
-			whitespace + "*((?:-\\d)?\\d*)" + whitespace + "*\\)|)(?=[^-]|$)", "i" )
+		"needsContext": new RegExp( "^" + whitespace +
+			"*[>+~]|:(even|odd|eq|gt|lt|nth|first|last)(?:\\(" + whitespace +
+			"*((?:-\\d)?\\d*)" + whitespace + "*\\)|)(?=[^-]|$)", "i" )
 	},
 
 	rhtml = /HTML$/i,
@@ -935,18 +958,21 @@ var i,
 
 	// CSS escapes
 	// http://www.w3.org/TR/CSS21/syndata.html#escaped-characters
-	runescape = new RegExp( "\\\\([\\da-f]{1,6}" + whitespace + "?|(" + whitespace + ")|.)", "ig" ),
-	funescape = function( _, escaped, escapedWhitespace ) {
-		var high = "0x" + escaped - 0x10000;
-		// NaN means non-codepoint
-		// Support: Firefox<24
-		// Workaround erroneous numeric interpretation of +"0x"
-		return high !== high || escapedWhitespace ?
-			escaped :
+	runescape = new RegExp( "\\\\[\\da-fA-F]{1,6}" + whitespace + "?|\\\\([^\\r\\n\\f])", "g" ),
+	funescape = function( escape, nonHex ) {
+		var high = "0x" + escape.slice( 1 ) - 0x10000;
+
+		return nonHex ?
+
+			// Strip the backslash prefix from a non-hex escape sequence
+			nonHex :
+
+			// Replace a hexadecimal escape sequence with the encoded Unicode code point
+			// Support: IE <=11+
+			// For values outside the Basic Multilingual Plane (BMP), manually construct a
+			// surrogate pair
 			high < 0 ?
-				// BMP codepoint
 				String.fromCharCode( high + 0x10000 ) :
-				// Supplemental Plane codepoint (surrogate pair)
 				String.fromCharCode( high >> 10 | 0xD800, high & 0x3FF | 0xDC00 );
 	},
 
@@ -962,7 +988,8 @@ var i,
 			}
 
 			// Control characters and (dependent upon position) numbers get escaped as code points
-			return ch.slice( 0, -1 ) + "\\" + ch.charCodeAt( ch.length - 1 ).toString( 16 ) + " ";
+			return ch.slice( 0, -1 ) + "\\" +
+				ch.charCodeAt( ch.length - 1 ).toString( 16 ) + " ";
 		}
 
 		// Other potentially-special ASCII characters get backslash-escaped
@@ -987,18 +1014,20 @@ var i,
 // Optimize for push.apply( _, NodeList )
 try {
 	push.apply(
-		(arr = slice.call( preferredDoc.childNodes )),
+		( arr = slice.call( preferredDoc.childNodes ) ),
 		preferredDoc.childNodes
 	);
+
 	// Support: Android<4.0
 	// Detect silently failing push.apply
+	// eslint-disable-next-line no-unused-expressions
 	arr[ preferredDoc.childNodes.length ].nodeType;
 } catch ( e ) {
 	push = { apply: arr.length ?
 
 		// Leverage slice if possible
 		function( target, els ) {
-			push_native.apply( target, slice.call(els) );
+			pushNative.apply( target, slice.call( els ) );
 		} :
 
 		// Support: IE<9
@@ -1006,8 +1035,9 @@ try {
 		function( target, els ) {
 			var j = target.length,
 				i = 0;
+
 			// Can't trust NodeList.length
-			while ( (target[j++] = els[i++]) ) {}
+			while ( ( target[ j++ ] = els[ i++ ] ) ) {}
 			target.length = j - 1;
 		}
 	};
@@ -1031,24 +1061,21 @@ function Sizzle( selector, context, results, seed ) {
 
 	// Try to shortcut find operations (as opposed to filters) in HTML documents
 	if ( !seed ) {
-
-		if ( ( context ? context.ownerDocument || context : preferredDoc ) !== document ) {
-			setDocument( context );
-		}
+		setDocument( context );
 		context = context || document;
 
 		if ( documentIsHTML ) {
 
 			// If the selector is sufficiently simple, try using a "get*By*" DOM method
 			// (excepting DocumentFragment context, where the methods don't exist)
-			if ( nodeType !== 11 && (match = rquickExpr.exec( selector )) ) {
+			if ( nodeType !== 11 && ( match = rquickExpr.exec( selector ) ) ) {
 
 				// ID selector
-				if ( (m = match[1]) ) {
+				if ( ( m = match[ 1 ] ) ) {
 
 					// Document context
 					if ( nodeType === 9 ) {
-						if ( (elem = context.getElementById( m )) ) {
+						if ( ( elem = context.getElementById( m ) ) ) {
 
 							// Support: IE, Opera, Webkit
 							// TODO: identify versions
@@ -1067,7 +1094,7 @@ function Sizzle( selector, context, results, seed ) {
 						// Support: IE, Opera, Webkit
 						// TODO: identify versions
 						// getElementById can match elements by name instead of ID
-						if ( newContext && (elem = newContext.getElementById( m )) &&
+						if ( newContext && ( elem = newContext.getElementById( m ) ) &&
 							contains( context, elem ) &&
 							elem.id === m ) {
 
@@ -1077,12 +1104,12 @@ function Sizzle( selector, context, results, seed ) {
 					}
 
 				// Type selector
-				} else if ( match[2] ) {
+				} else if ( match[ 2 ] ) {
 					push.apply( results, context.getElementsByTagName( selector ) );
 					return results;
 
 				// Class selector
-				} else if ( (m = match[3]) && support.getElementsByClassName &&
+				} else if ( ( m = match[ 3 ] ) && support.getElementsByClassName &&
 					context.getElementsByClassName ) {
 
 					push.apply( results, context.getElementsByClassName( m ) );
@@ -1093,11 +1120,11 @@ function Sizzle( selector, context, results, seed ) {
 			// Take advantage of querySelectorAll
 			if ( support.qsa &&
 				!nonnativeSelectorCache[ selector + " " ] &&
-				(!rbuggyQSA || !rbuggyQSA.test( selector )) &&
+				( !rbuggyQSA || !rbuggyQSA.test( selector ) ) &&
 
 				// Support: IE 8 only
 				// Exclude object elements
-				(nodeType !== 1 || context.nodeName.toLowerCase() !== "object") ) {
+				( nodeType !== 1 || context.nodeName.toLowerCase() !== "object" ) ) {
 
 				newSelector = selector;
 				newContext = context;
@@ -1106,27 +1133,36 @@ function Sizzle( selector, context, results, seed ) {
 				// descendant combinators, which is not what we want.
 				// In such cases, we work around the behavior by prefixing every selector in the
 				// list with an ID selector referencing the scope context.
+				// The technique has to be used as well when a leading combinator is used
+				// as such selectors are not recognized by querySelectorAll.
 				// Thanks to Andrew Dupont for this technique.
-				if ( nodeType === 1 && rdescend.test( selector ) ) {
+				if ( nodeType === 1 &&
+					( rdescend.test( selector ) || rcombinators.test( selector ) ) ) {
 
-					// Capture the context ID, setting it first if necessary
-					if ( (nid = context.getAttribute( "id" )) ) {
-						nid = nid.replace( rcssescape, fcssescape );
-					} else {
-						context.setAttribute( "id", (nid = expando) );
+					// Expand context for sibling selectors
+					newContext = rsibling.test( selector ) && testContext( context.parentNode ) ||
+						context;
+
+					// We can use :scope instead of the ID hack if the browser
+					// supports it & if we're not changing the context.
+					if ( newContext !== context || !support.scope ) {
+
+						// Capture the context ID, setting it first if necessary
+						if ( ( nid = context.getAttribute( "id" ) ) ) {
+							nid = nid.replace( rcssescape, fcssescape );
+						} else {
+							context.setAttribute( "id", ( nid = expando ) );
+						}
 					}
 
 					// Prefix every selector in the list
 					groups = tokenize( selector );
 					i = groups.length;
 					while ( i-- ) {
-						groups[i] = "#" + nid + " " + toSelector( groups[i] );
+						groups[ i ] = ( nid ? "#" + nid : ":scope" ) + " " +
+							toSelector( groups[ i ] );
 					}
 					newSelector = groups.join( "," );
-
-					// Expand context for sibling selectors
-					newContext = rsibling.test( selector ) && testContext( context.parentNode ) ||
-						context;
 				}
 
 				try {
@@ -1159,12 +1195,14 @@ function createCache() {
 	var keys = [];
 
 	function cache( key, value ) {
+
 		// Use (key + " ") to avoid collision with native prototype properties (see Issue #157)
 		if ( keys.push( key + " " ) > Expr.cacheLength ) {
+
 			// Only keep the most recent entries
 			delete cache[ keys.shift() ];
 		}
-		return (cache[ key + " " ] = value);
+		return ( cache[ key + " " ] = value );
 	}
 	return cache;
 }
@@ -1183,17 +1221,19 @@ function markFunction( fn ) {
  * @param {Function} fn Passed the created element and returns a boolean result
  */
 function assert( fn ) {
-	var el = document.createElement("fieldset");
+	var el = document.createElement( "fieldset" );
 
 	try {
 		return !!fn( el );
-	} catch (e) {
+	} catch ( e ) {
 		return false;
 	} finally {
+
 		// Remove from its parent by default
 		if ( el.parentNode ) {
 			el.parentNode.removeChild( el );
 		}
+
 		// release memory in IE
 		el = null;
 	}
@@ -1205,11 +1245,11 @@ function assert( fn ) {
  * @param {Function} handler The method that will be applied
  */
 function addHandle( attrs, handler ) {
-	var arr = attrs.split("|"),
+	var arr = attrs.split( "|" ),
 		i = arr.length;
 
 	while ( i-- ) {
-		Expr.attrHandle[ arr[i] ] = handler;
+		Expr.attrHandle[ arr[ i ] ] = handler;
 	}
 }
 
@@ -1231,7 +1271,7 @@ function siblingCheck( a, b ) {
 
 	// Check if b follows a
 	if ( cur ) {
-		while ( (cur = cur.nextSibling) ) {
+		while ( ( cur = cur.nextSibling ) ) {
 			if ( cur === b ) {
 				return -1;
 			}
@@ -1259,7 +1299,7 @@ function createInputPseudo( type ) {
 function createButtonPseudo( type ) {
 	return function( elem ) {
 		var name = elem.nodeName.toLowerCase();
-		return (name === "input" || name === "button") && elem.type === type;
+		return ( name === "input" || name === "button" ) && elem.type === type;
 	};
 }
 
@@ -1302,7 +1342,7 @@ function createDisabledPseudo( disabled ) {
 					// Where there is no isDisabled, check manually
 					/* jshint -W018 */
 					elem.isDisabled !== !disabled &&
-						inDisabledFieldset( elem ) === disabled;
+					inDisabledFieldset( elem ) === disabled;
 			}
 
 			return elem.disabled === disabled;
@@ -1324,21 +1364,21 @@ function createDisabledPseudo( disabled ) {
  * @param {Function} fn
  */
 function createPositionalPseudo( fn ) {
-	return markFunction(function( argument ) {
+	return markFunction( function( argument ) {
 		argument = +argument;
-		return markFunction(function( seed, matches ) {
+		return markFunction( function( seed, matches ) {
 			var j,
 				matchIndexes = fn( [], seed.length, argument ),
 				i = matchIndexes.length;
 
 			// Match elements found at the specified indexes
 			while ( i-- ) {
-				if ( seed[ (j = matchIndexes[i]) ] ) {
-					seed[j] = !(matches[j] = seed[j]);
+				if ( seed[ ( j = matchIndexes[ i ] ) ] ) {
+					seed[ j ] = !( matches[ j ] = seed[ j ] );
 				}
 			}
-		});
-	});
+		} );
+	} );
 }
 
 /**
@@ -1359,8 +1399,8 @@ support = Sizzle.support = {};
  * @returns {Boolean} True iff elem is a non-HTML XML node
  */
 isXML = Sizzle.isXML = function( elem ) {
-	var namespace = elem.namespaceURI,
-		docElem = (elem.ownerDocument || elem).documentElement;
+	var namespace = elem && elem.namespaceURI,
+		docElem = elem && ( elem.ownerDocument || elem ).documentElement;
 
 	// Support: IE <=8
 	// Assume HTML when documentElement doesn't yet exist, such as inside loading iframes
@@ -1378,7 +1418,11 @@ setDocument = Sizzle.setDocument = function( node ) {
 		doc = node ? node.ownerDocument || node : preferredDoc;
 
 	// Return early if doc is invalid or already selected
-	if ( doc === document || doc.nodeType !== 9 || !doc.documentElement ) {
+	// Support: IE 11+, Edge 17 - 18+
+	// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+	// two documents; shallow comparisons work.
+	// eslint-disable-next-line eqeqeq
+	if ( doc == document || doc.nodeType !== 9 || !doc.documentElement ) {
 		return document;
 	}
 
@@ -1387,10 +1431,14 @@ setDocument = Sizzle.setDocument = function( node ) {
 	docElem = document.documentElement;
 	documentIsHTML = !isXML( document );
 
-	// Support: IE 9-11, Edge
+	// Support: IE 9 - 11+, Edge 12 - 18+
 	// Accessing iframe documents after unload throws "permission denied" errors (jQuery #13936)
-	if ( preferredDoc !== document &&
-		(subWindow = document.defaultView) && subWindow.top !== subWindow ) {
+	// Support: IE 11+, Edge 17 - 18+
+	// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+	// two documents; shallow comparisons work.
+	// eslint-disable-next-line eqeqeq
+	if ( preferredDoc != document &&
+		( subWindow = document.defaultView ) && subWindow.top !== subWindow ) {
 
 		// Support: IE 11, Edge
 		if ( subWindow.addEventListener ) {
@@ -1402,25 +1450,36 @@ setDocument = Sizzle.setDocument = function( node ) {
 		}
 	}
 
+	// Support: IE 8 - 11+, Edge 12 - 18+, Chrome <=16 - 25 only, Firefox <=3.6 - 31 only,
+	// Safari 4 - 5 only, Opera <=11.6 - 12.x only
+	// IE/Edge & older browsers don't support the :scope pseudo-class.
+	// Support: Safari 6.0 only
+	// Safari 6.0 supports :scope but it's an alias of :root there.
+	support.scope = assert( function( el ) {
+		docElem.appendChild( el ).appendChild( document.createElement( "div" ) );
+		return typeof el.querySelectorAll !== "undefined" &&
+			!el.querySelectorAll( ":scope fieldset div" ).length;
+	} );
+
 	/* Attributes
 	---------------------------------------------------------------------- */
 
 	// Support: IE<8
 	// Verify that getAttribute really returns attributes and not properties
 	// (excepting IE8 booleans)
-	support.attributes = assert(function( el ) {
+	support.attributes = assert( function( el ) {
 		el.className = "i";
-		return !el.getAttribute("className");
-	});
+		return !el.getAttribute( "className" );
+	} );
 
 	/* getElement(s)By*
 	---------------------------------------------------------------------- */
 
 	// Check if getElementsByTagName("*") returns only elements
-	support.getElementsByTagName = assert(function( el ) {
-		el.appendChild( document.createComment("") );
-		return !el.getElementsByTagName("*").length;
-	});
+	support.getElementsByTagName = assert( function( el ) {
+		el.appendChild( document.createComment( "" ) );
+		return !el.getElementsByTagName( "*" ).length;
+	} );
 
 	// Support: IE<9
 	support.getElementsByClassName = rnative.test( document.getElementsByClassName );
@@ -1429,38 +1488,38 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// Check if getElementById returns elements by name
 	// The broken getElementById methods don't pick up programmatically-set names,
 	// so use a roundabout getElementsByName test
-	support.getById = assert(function( el ) {
+	support.getById = assert( function( el ) {
 		docElem.appendChild( el ).id = expando;
 		return !document.getElementsByName || !document.getElementsByName( expando ).length;
-	});
+	} );
 
 	// ID filter and find
 	if ( support.getById ) {
-		Expr.filter["ID"] = function( id ) {
+		Expr.filter[ "ID" ] = function( id ) {
 			var attrId = id.replace( runescape, funescape );
 			return function( elem ) {
-				return elem.getAttribute("id") === attrId;
+				return elem.getAttribute( "id" ) === attrId;
 			};
 		};
-		Expr.find["ID"] = function( id, context ) {
+		Expr.find[ "ID" ] = function( id, context ) {
 			if ( typeof context.getElementById !== "undefined" && documentIsHTML ) {
 				var elem = context.getElementById( id );
 				return elem ? [ elem ] : [];
 			}
 		};
 	} else {
-		Expr.filter["ID"] =  function( id ) {
+		Expr.filter[ "ID" ] =  function( id ) {
 			var attrId = id.replace( runescape, funescape );
 			return function( elem ) {
 				var node = typeof elem.getAttributeNode !== "undefined" &&
-					elem.getAttributeNode("id");
+					elem.getAttributeNode( "id" );
 				return node && node.value === attrId;
 			};
 		};
 
 		// Support: IE 6 - 7 only
 		// getElementById is not reliable as a find shortcut
-		Expr.find["ID"] = function( id, context ) {
+		Expr.find[ "ID" ] = function( id, context ) {
 			if ( typeof context.getElementById !== "undefined" && documentIsHTML ) {
 				var node, i, elems,
 					elem = context.getElementById( id );
@@ -1468,7 +1527,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 				if ( elem ) {
 
 					// Verify the id attribute
-					node = elem.getAttributeNode("id");
+					node = elem.getAttributeNode( "id" );
 					if ( node && node.value === id ) {
 						return [ elem ];
 					}
@@ -1476,8 +1535,8 @@ setDocument = Sizzle.setDocument = function( node ) {
 					// Fall back on getElementsByName
 					elems = context.getElementsByName( id );
 					i = 0;
-					while ( (elem = elems[i++]) ) {
-						node = elem.getAttributeNode("id");
+					while ( ( elem = elems[ i++ ] ) ) {
+						node = elem.getAttributeNode( "id" );
 						if ( node && node.value === id ) {
 							return [ elem ];
 						}
@@ -1490,7 +1549,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 	}
 
 	// Tag
-	Expr.find["TAG"] = support.getElementsByTagName ?
+	Expr.find[ "TAG" ] = support.getElementsByTagName ?
 		function( tag, context ) {
 			if ( typeof context.getElementsByTagName !== "undefined" ) {
 				return context.getElementsByTagName( tag );
@@ -1505,12 +1564,13 @@ setDocument = Sizzle.setDocument = function( node ) {
 			var elem,
 				tmp = [],
 				i = 0,
+
 				// By happy coincidence, a (broken) gEBTN appears on DocumentFragment nodes too
 				results = context.getElementsByTagName( tag );
 
 			// Filter out possible comments
 			if ( tag === "*" ) {
-				while ( (elem = results[i++]) ) {
+				while ( ( elem = results[ i++ ] ) ) {
 					if ( elem.nodeType === 1 ) {
 						tmp.push( elem );
 					}
@@ -1522,7 +1582,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 		};
 
 	// Class
-	Expr.find["CLASS"] = support.getElementsByClassName && function( className, context ) {
+	Expr.find[ "CLASS" ] = support.getElementsByClassName && function( className, context ) {
 		if ( typeof context.getElementsByClassName !== "undefined" && documentIsHTML ) {
 			return context.getElementsByClassName( className );
 		}
@@ -1543,10 +1603,14 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// See https://bugs.jquery.com/ticket/13378
 	rbuggyQSA = [];
 
-	if ( (support.qsa = rnative.test( document.querySelectorAll )) ) {
+	if ( ( support.qsa = rnative.test( document.querySelectorAll ) ) ) {
+
 		// Build QSA regex
 		// Regex strategy adopted from Diego Perini
-		assert(function( el ) {
+		assert( function( el ) {
+
+			var input;
+
 			// Select is set to empty string on purpose
 			// This is to test IE's treatment of not explicitly
 			// setting a boolean content attribute,
@@ -1560,78 +1624,98 @@ setDocument = Sizzle.setDocument = function( node ) {
 			// Nothing should be selected when empty strings follow ^= or $= or *=
 			// The test attribute must be unknown in Opera but "safe" for WinRT
 			// https://msdn.microsoft.com/en-us/library/ie/hh465388.aspx#attribute_section
-			if ( el.querySelectorAll("[msallowcapture^='']").length ) {
+			if ( el.querySelectorAll( "[msallowcapture^='']" ).length ) {
 				rbuggyQSA.push( "[*^$]=" + whitespace + "*(?:''|\"\")" );
 			}
 
 			// Support: IE8
 			// Boolean attributes and "value" are not treated correctly
-			if ( !el.querySelectorAll("[selected]").length ) {
+			if ( !el.querySelectorAll( "[selected]" ).length ) {
 				rbuggyQSA.push( "\\[" + whitespace + "*(?:value|" + booleans + ")" );
 			}
 
 			// Support: Chrome<29, Android<4.4, Safari<7.0+, iOS<7.0+, PhantomJS<1.9.8+
 			if ( !el.querySelectorAll( "[id~=" + expando + "-]" ).length ) {
-				rbuggyQSA.push("~=");
+				rbuggyQSA.push( "~=" );
+			}
+
+			// Support: IE 11+, Edge 15 - 18+
+			// IE 11/Edge don't find elements on a `[name='']` query in some cases.
+			// Adding a temporary attribute to the document before the selection works
+			// around the issue.
+			// Interestingly, IE 10 & older don't seem to have the issue.
+			input = document.createElement( "input" );
+			input.setAttribute( "name", "" );
+			el.appendChild( input );
+			if ( !el.querySelectorAll( "[name='']" ).length ) {
+				rbuggyQSA.push( "\\[" + whitespace + "*name" + whitespace + "*=" +
+					whitespace + "*(?:''|\"\")" );
 			}
 
 			// Webkit/Opera - :checked should return selected option elements
 			// http://www.w3.org/TR/2011/REC-css3-selectors-20110929/#checked
 			// IE8 throws error here and will not see later tests
-			if ( !el.querySelectorAll(":checked").length ) {
-				rbuggyQSA.push(":checked");
+			if ( !el.querySelectorAll( ":checked" ).length ) {
+				rbuggyQSA.push( ":checked" );
 			}
 
 			// Support: Safari 8+, iOS 8+
 			// https://bugs.webkit.org/show_bug.cgi?id=136851
 			// In-page `selector#id sibling-combinator selector` fails
 			if ( !el.querySelectorAll( "a#" + expando + "+*" ).length ) {
-				rbuggyQSA.push(".#.+[+~]");
+				rbuggyQSA.push( ".#.+[+~]" );
 			}
-		});
 
-		assert(function( el ) {
+			// Support: Firefox <=3.6 - 5 only
+			// Old Firefox doesn't throw on a badly-escaped identifier.
+			el.querySelectorAll( "\\\f" );
+			rbuggyQSA.push( "[\\r\\n\\f]" );
+		} );
+
+		assert( function( el ) {
 			el.innerHTML = "<a href='' disabled='disabled'></a>" +
 				"<select disabled='disabled'><option/></select>";
 
 			// Support: Windows 8 Native Apps
 			// The type and name attributes are restricted during .innerHTML assignment
-			var input = document.createElement("input");
+			var input = document.createElement( "input" );
 			input.setAttribute( "type", "hidden" );
 			el.appendChild( input ).setAttribute( "name", "D" );
 
 			// Support: IE8
 			// Enforce case-sensitivity of name attribute
-			if ( el.querySelectorAll("[name=d]").length ) {
+			if ( el.querySelectorAll( "[name=d]" ).length ) {
 				rbuggyQSA.push( "name" + whitespace + "*[*^$|!~]?=" );
 			}
 
 			// FF 3.5 - :enabled/:disabled and hidden elements (hidden elements are still enabled)
 			// IE8 throws error here and will not see later tests
-			if ( el.querySelectorAll(":enabled").length !== 2 ) {
+			if ( el.querySelectorAll( ":enabled" ).length !== 2 ) {
 				rbuggyQSA.push( ":enabled", ":disabled" );
 			}
 
 			// Support: IE9-11+
 			// IE's :disabled selector does not pick up the children of disabled fieldsets
 			docElem.appendChild( el ).disabled = true;
-			if ( el.querySelectorAll(":disabled").length !== 2 ) {
+			if ( el.querySelectorAll( ":disabled" ).length !== 2 ) {
 				rbuggyQSA.push( ":enabled", ":disabled" );
 			}
 
+			// Support: Opera 10 - 11 only
 			// Opera 10-11 does not throw on post-comma invalid pseudos
-			el.querySelectorAll("*,:x");
-			rbuggyQSA.push(",.*:");
-		});
+			el.querySelectorAll( "*,:x" );
+			rbuggyQSA.push( ",.*:" );
+		} );
 	}
 
-	if ( (support.matchesSelector = rnative.test( (matches = docElem.matches ||
+	if ( ( support.matchesSelector = rnative.test( ( matches = docElem.matches ||
 		docElem.webkitMatchesSelector ||
 		docElem.mozMatchesSelector ||
 		docElem.oMatchesSelector ||
-		docElem.msMatchesSelector) )) ) {
+		docElem.msMatchesSelector ) ) ) ) {
 
-		assert(function( el ) {
+		assert( function( el ) {
+
 			// Check to see if it's possible to do matchesSelector
 			// on a disconnected node (IE 9)
 			support.disconnectedMatch = matches.call( el, "*" );
@@ -1640,11 +1724,11 @@ setDocument = Sizzle.setDocument = function( node ) {
 			// Gecko does not error, returns false instead
 			matches.call( el, "[s!='']:x" );
 			rbuggyMatches.push( "!=", pseudos );
-		});
+		} );
 	}
 
-	rbuggyQSA = rbuggyQSA.length && new RegExp( rbuggyQSA.join("|") );
-	rbuggyMatches = rbuggyMatches.length && new RegExp( rbuggyMatches.join("|") );
+	rbuggyQSA = rbuggyQSA.length && new RegExp( rbuggyQSA.join( "|" ) );
+	rbuggyMatches = rbuggyMatches.length && new RegExp( rbuggyMatches.join( "|" ) );
 
 	/* Contains
 	---------------------------------------------------------------------- */
@@ -1661,11 +1745,11 @@ setDocument = Sizzle.setDocument = function( node ) {
 				adown.contains ?
 					adown.contains( bup ) :
 					a.compareDocumentPosition && a.compareDocumentPosition( bup ) & 16
-			));
+			) );
 		} :
 		function( a, b ) {
 			if ( b ) {
-				while ( (b = b.parentNode) ) {
+				while ( ( b = b.parentNode ) ) {
 					if ( b === a ) {
 						return true;
 					}
@@ -1694,7 +1778,11 @@ setDocument = Sizzle.setDocument = function( node ) {
 		}
 
 		// Calculate position if both inputs belong to the same document
-		compare = ( a.ownerDocument || a ) === ( b.ownerDocument || b ) ?
+		// Support: IE 11+, Edge 17 - 18+
+		// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+		// two documents; shallow comparisons work.
+		// eslint-disable-next-line eqeqeq
+		compare = ( a.ownerDocument || a ) == ( b.ownerDocument || b ) ?
 			a.compareDocumentPosition( b ) :
 
 			// Otherwise we know they are disconnected
@@ -1702,13 +1790,24 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 		// Disconnected nodes
 		if ( compare & 1 ||
-			(!support.sortDetached && b.compareDocumentPosition( a ) === compare) ) {
+			( !support.sortDetached && b.compareDocumentPosition( a ) === compare ) ) {
 
 			// Choose the first element that is related to our preferred document
-			if ( a === document || a.ownerDocument === preferredDoc && contains(preferredDoc, a) ) {
+			// Support: IE 11+, Edge 17 - 18+
+			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+			// two documents; shallow comparisons work.
+			// eslint-disable-next-line eqeqeq
+			if ( a == document || a.ownerDocument == preferredDoc &&
+				contains( preferredDoc, a ) ) {
 				return -1;
 			}
-			if ( b === document || b.ownerDocument === preferredDoc && contains(preferredDoc, b) ) {
+
+			// Support: IE 11+, Edge 17 - 18+
+			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+			// two documents; shallow comparisons work.
+			// eslint-disable-next-line eqeqeq
+			if ( b == document || b.ownerDocument == preferredDoc &&
+				contains( preferredDoc, b ) ) {
 				return 1;
 			}
 
@@ -1721,6 +1820,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 		return compare & 4 ? -1 : 1;
 	} :
 	function( a, b ) {
+
 		// Exit early if the nodes are identical
 		if ( a === b ) {
 			hasDuplicate = true;
@@ -1736,8 +1836,14 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 		// Parentless nodes are either documents or disconnected
 		if ( !aup || !bup ) {
-			return a === document ? -1 :
-				b === document ? 1 :
+
+			// Support: IE 11+, Edge 17 - 18+
+			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+			// two documents; shallow comparisons work.
+			/* eslint-disable eqeqeq */
+			return a == document ? -1 :
+				b == document ? 1 :
+				/* eslint-enable eqeqeq */
 				aup ? -1 :
 				bup ? 1 :
 				sortInput ?
@@ -1751,26 +1857,32 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 		// Otherwise we need full lists of their ancestors for comparison
 		cur = a;
-		while ( (cur = cur.parentNode) ) {
+		while ( ( cur = cur.parentNode ) ) {
 			ap.unshift( cur );
 		}
 		cur = b;
-		while ( (cur = cur.parentNode) ) {
+		while ( ( cur = cur.parentNode ) ) {
 			bp.unshift( cur );
 		}
 
 		// Walk down the tree looking for a discrepancy
-		while ( ap[i] === bp[i] ) {
+		while ( ap[ i ] === bp[ i ] ) {
 			i++;
 		}
 
 		return i ?
+
 			// Do a sibling check if the nodes have a common ancestor
-			siblingCheck( ap[i], bp[i] ) :
+			siblingCheck( ap[ i ], bp[ i ] ) :
 
 			// Otherwise nodes in our document sort first
-			ap[i] === preferredDoc ? -1 :
-			bp[i] === preferredDoc ? 1 :
+			// Support: IE 11+, Edge 17 - 18+
+			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+			// two documents; shallow comparisons work.
+			/* eslint-disable eqeqeq */
+			ap[ i ] == preferredDoc ? -1 :
+			bp[ i ] == preferredDoc ? 1 :
+			/* eslint-enable eqeqeq */
 			0;
 	};
 
@@ -1782,10 +1894,7 @@ Sizzle.matches = function( expr, elements ) {
 };
 
 Sizzle.matchesSelector = function( elem, expr ) {
-	// Set document vars if needed
-	if ( ( elem.ownerDocument || elem ) !== document ) {
-		setDocument( elem );
-	}
+	setDocument( elem );
 
 	if ( support.matchesSelector && documentIsHTML &&
 		!nonnativeSelectorCache[ expr + " " ] &&
@@ -1797,12 +1906,13 @@ Sizzle.matchesSelector = function( elem, expr ) {
 
 			// IE 9's matchesSelector returns false on disconnected nodes
 			if ( ret || support.disconnectedMatch ||
-					// As well, disconnected nodes are said to be in a document
-					// fragment in IE 9
-					elem.document && elem.document.nodeType !== 11 ) {
+
+				// As well, disconnected nodes are said to be in a document
+				// fragment in IE 9
+				elem.document && elem.document.nodeType !== 11 ) {
 				return ret;
 			}
-		} catch (e) {
+		} catch ( e ) {
 			nonnativeSelectorCache( expr, true );
 		}
 	}
@@ -1811,20 +1921,31 @@ Sizzle.matchesSelector = function( elem, expr ) {
 };
 
 Sizzle.contains = function( context, elem ) {
+
 	// Set document vars if needed
-	if ( ( context.ownerDocument || context ) !== document ) {
+	// Support: IE 11+, Edge 17 - 18+
+	// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+	// two documents; shallow comparisons work.
+	// eslint-disable-next-line eqeqeq
+	if ( ( context.ownerDocument || context ) != document ) {
 		setDocument( context );
 	}
 	return contains( context, elem );
 };
 
 Sizzle.attr = function( elem, name ) {
+
 	// Set document vars if needed
-	if ( ( elem.ownerDocument || elem ) !== document ) {
+	// Support: IE 11+, Edge 17 - 18+
+	// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+	// two documents; shallow comparisons work.
+	// eslint-disable-next-line eqeqeq
+	if ( ( elem.ownerDocument || elem ) != document ) {
 		setDocument( elem );
 	}
 
 	var fn = Expr.attrHandle[ name.toLowerCase() ],
+
 		// Don't get fooled by Object.prototype properties (jQuery #13807)
 		val = fn && hasOwn.call( Expr.attrHandle, name.toLowerCase() ) ?
 			fn( elem, name, !documentIsHTML ) :
@@ -1834,13 +1955,13 @@ Sizzle.attr = function( elem, name ) {
 		val :
 		support.attributes || !documentIsHTML ?
 			elem.getAttribute( name ) :
-			(val = elem.getAttributeNode(name)) && val.specified ?
+			( val = elem.getAttributeNode( name ) ) && val.specified ?
 				val.value :
 				null;
 };
 
 Sizzle.escape = function( sel ) {
-	return (sel + "").replace( rcssescape, fcssescape );
+	return ( sel + "" ).replace( rcssescape, fcssescape );
 };
 
 Sizzle.error = function( msg ) {
@@ -1863,7 +1984,7 @@ Sizzle.uniqueSort = function( results ) {
 	results.sort( sortOrder );
 
 	if ( hasDuplicate ) {
-		while ( (elem = results[i++]) ) {
+		while ( ( elem = results[ i++ ] ) ) {
 			if ( elem === results[ i ] ) {
 				j = duplicates.push( i );
 			}
@@ -1891,17 +2012,21 @@ getText = Sizzle.getText = function( elem ) {
 		nodeType = elem.nodeType;
 
 	if ( !nodeType ) {
+
 		// If no nodeType, this is expected to be an array
-		while ( (node = elem[i++]) ) {
+		while ( ( node = elem[ i++ ] ) ) {
+
 			// Do not traverse comment nodes
 			ret += getText( node );
 		}
 	} else if ( nodeType === 1 || nodeType === 9 || nodeType === 11 ) {
+
 		// Use textContent for elements
 		// innerText usage removed for consistency of new lines (jQuery #11153)
 		if ( typeof elem.textContent === "string" ) {
 			return elem.textContent;
 		} else {
+
 			// Traverse its children
 			for ( elem = elem.firstChild; elem; elem = elem.nextSibling ) {
 				ret += getText( elem );
@@ -1910,6 +2035,7 @@ getText = Sizzle.getText = function( elem ) {
 	} else if ( nodeType === 3 || nodeType === 4 ) {
 		return elem.nodeValue;
 	}
+
 	// Do not include comment or processing instruction nodes
 
 	return ret;
@@ -1937,19 +2063,21 @@ Expr = Sizzle.selectors = {
 
 	preFilter: {
 		"ATTR": function( match ) {
-			match[1] = match[1].replace( runescape, funescape );
+			match[ 1 ] = match[ 1 ].replace( runescape, funescape );
 
 			// Move the given value to match[3] whether quoted or unquoted
-			match[3] = ( match[3] || match[4] || match[5] || "" ).replace( runescape, funescape );
+			match[ 3 ] = ( match[ 3 ] || match[ 4 ] ||
+				match[ 5 ] || "" ).replace( runescape, funescape );
 
-			if ( match[2] === "~=" ) {
-				match[3] = " " + match[3] + " ";
+			if ( match[ 2 ] === "~=" ) {
+				match[ 3 ] = " " + match[ 3 ] + " ";
 			}
 
 			return match.slice( 0, 4 );
 		},
 
 		"CHILD": function( match ) {
+
 			/* matches from matchExpr["CHILD"]
 				1 type (only|nth|...)
 				2 what (child|of-type)
@@ -1960,22 +2088,25 @@ Expr = Sizzle.selectors = {
 				7 sign of y-component
 				8 y of y-component
 			*/
-			match[1] = match[1].toLowerCase();
+			match[ 1 ] = match[ 1 ].toLowerCase();
 
-			if ( match[1].slice( 0, 3 ) === "nth" ) {
+			if ( match[ 1 ].slice( 0, 3 ) === "nth" ) {
+
 				// nth-* requires argument
-				if ( !match[3] ) {
-					Sizzle.error( match[0] );
+				if ( !match[ 3 ] ) {
+					Sizzle.error( match[ 0 ] );
 				}
 
 				// numeric x and y parameters for Expr.filter.CHILD
 				// remember that false/true cast respectively to 0/1
-				match[4] = +( match[4] ? match[5] + (match[6] || 1) : 2 * ( match[3] === "even" || match[3] === "odd" ) );
-				match[5] = +( ( match[7] + match[8] ) || match[3] === "odd" );
+				match[ 4 ] = +( match[ 4 ] ?
+					match[ 5 ] + ( match[ 6 ] || 1 ) :
+					2 * ( match[ 3 ] === "even" || match[ 3 ] === "odd" ) );
+				match[ 5 ] = +( ( match[ 7 ] + match[ 8 ] ) || match[ 3 ] === "odd" );
 
-			// other types prohibit arguments
-			} else if ( match[3] ) {
-				Sizzle.error( match[0] );
+				// other types prohibit arguments
+			} else if ( match[ 3 ] ) {
+				Sizzle.error( match[ 0 ] );
 			}
 
 			return match;
@@ -1983,26 +2114,28 @@ Expr = Sizzle.selectors = {
 
 		"PSEUDO": function( match ) {
 			var excess,
-				unquoted = !match[6] && match[2];
+				unquoted = !match[ 6 ] && match[ 2 ];
 
-			if ( matchExpr["CHILD"].test( match[0] ) ) {
+			if ( matchExpr[ "CHILD" ].test( match[ 0 ] ) ) {
 				return null;
 			}
 
 			// Accept quoted arguments as-is
-			if ( match[3] ) {
-				match[2] = match[4] || match[5] || "";
+			if ( match[ 3 ] ) {
+				match[ 2 ] = match[ 4 ] || match[ 5 ] || "";
 
 			// Strip excess characters from unquoted arguments
 			} else if ( unquoted && rpseudo.test( unquoted ) &&
+
 				// Get excess from tokenize (recursively)
-				(excess = tokenize( unquoted, true )) &&
+				( excess = tokenize( unquoted, true ) ) &&
+
 				// advance to the next closing parenthesis
-				(excess = unquoted.indexOf( ")", unquoted.length - excess ) - unquoted.length) ) {
+				( excess = unquoted.indexOf( ")", unquoted.length - excess ) - unquoted.length ) ) {
 
 				// excess is a negative index
-				match[0] = match[0].slice( 0, excess );
-				match[2] = unquoted.slice( 0, excess );
+				match[ 0 ] = match[ 0 ].slice( 0, excess );
+				match[ 2 ] = unquoted.slice( 0, excess );
 			}
 
 			// Return only captures needed by the pseudo filter method (type and argument)
@@ -2015,7 +2148,9 @@ Expr = Sizzle.selectors = {
 		"TAG": function( nodeNameSelector ) {
 			var nodeName = nodeNameSelector.replace( runescape, funescape ).toLowerCase();
 			return nodeNameSelector === "*" ?
-				function() { return true; } :
+				function() {
+					return true;
+				} :
 				function( elem ) {
 					return elem.nodeName && elem.nodeName.toLowerCase() === nodeName;
 				};
@@ -2025,10 +2160,16 @@ Expr = Sizzle.selectors = {
 			var pattern = classCache[ className + " " ];
 
 			return pattern ||
-				(pattern = new RegExp( "(^|" + whitespace + ")" + className + "(" + whitespace + "|$)" )) &&
-				classCache( className, function( elem ) {
-					return pattern.test( typeof elem.className === "string" && elem.className || typeof elem.getAttribute !== "undefined" && elem.getAttribute("class") || "" );
-				});
+				( pattern = new RegExp( "(^|" + whitespace +
+					")" + className + "(" + whitespace + "|$)" ) ) && classCache(
+						className, function( elem ) {
+							return pattern.test(
+								typeof elem.className === "string" && elem.className ||
+								typeof elem.getAttribute !== "undefined" &&
+									elem.getAttribute( "class" ) ||
+								""
+							);
+				} );
 		},
 
 		"ATTR": function( name, operator, check ) {
@@ -2044,6 +2185,8 @@ Expr = Sizzle.selectors = {
 
 				result += "";
 
+				/* eslint-disable max-len */
+
 				return operator === "=" ? result === check :
 					operator === "!=" ? result !== check :
 					operator === "^=" ? check && result.indexOf( check ) === 0 :
@@ -2052,10 +2195,12 @@ Expr = Sizzle.selectors = {
 					operator === "~=" ? ( " " + result.replace( rwhitespace, " " ) + " " ).indexOf( check ) > -1 :
 					operator === "|=" ? result === check || result.slice( 0, check.length + 1 ) === check + "-" :
 					false;
+				/* eslint-enable max-len */
+
 			};
 		},
 
-		"CHILD": function( type, what, argument, first, last ) {
+		"CHILD": function( type, what, _argument, first, last ) {
 			var simple = type.slice( 0, 3 ) !== "nth",
 				forward = type.slice( -4 ) !== "last",
 				ofType = what === "of-type";
@@ -2067,7 +2212,7 @@ Expr = Sizzle.selectors = {
 					return !!elem.parentNode;
 				} :
 
-				function( elem, context, xml ) {
+				function( elem, _context, xml ) {
 					var cache, uniqueCache, outerCache, node, nodeIndex, start,
 						dir = simple !== forward ? "nextSibling" : "previousSibling",
 						parent = elem.parentNode,
@@ -2081,7 +2226,7 @@ Expr = Sizzle.selectors = {
 						if ( simple ) {
 							while ( dir ) {
 								node = elem;
-								while ( (node = node[ dir ]) ) {
+								while ( ( node = node[ dir ] ) ) {
 									if ( ofType ?
 										node.nodeName.toLowerCase() === name :
 										node.nodeType === 1 ) {
@@ -2089,6 +2234,7 @@ Expr = Sizzle.selectors = {
 										return false;
 									}
 								}
+
 								// Reverse direction for :only-* (if we haven't yet done so)
 								start = dir = type === "only" && !start && "nextSibling";
 							}
@@ -2104,22 +2250,22 @@ Expr = Sizzle.selectors = {
 
 							// ...in a gzip-friendly way
 							node = parent;
-							outerCache = node[ expando ] || (node[ expando ] = {});
+							outerCache = node[ expando ] || ( node[ expando ] = {} );
 
 							// Support: IE <9 only
 							// Defend against cloned attroperties (jQuery gh-1709)
 							uniqueCache = outerCache[ node.uniqueID ] ||
-								(outerCache[ node.uniqueID ] = {});
+								( outerCache[ node.uniqueID ] = {} );
 
 							cache = uniqueCache[ type ] || [];
 							nodeIndex = cache[ 0 ] === dirruns && cache[ 1 ];
 							diff = nodeIndex && cache[ 2 ];
 							node = nodeIndex && parent.childNodes[ nodeIndex ];
 
-							while ( (node = ++nodeIndex && node && node[ dir ] ||
+							while ( ( node = ++nodeIndex && node && node[ dir ] ||
 
 								// Fallback to seeking `elem` from the start
-								(diff = nodeIndex = 0) || start.pop()) ) {
+								( diff = nodeIndex = 0 ) || start.pop() ) ) {
 
 								// When found, cache indexes on `parent` and break
 								if ( node.nodeType === 1 && ++diff && node === elem ) {
@@ -2129,16 +2275,18 @@ Expr = Sizzle.selectors = {
 							}
 
 						} else {
+
 							// Use previously-cached element index if available
 							if ( useCache ) {
+
 								// ...in a gzip-friendly way
 								node = elem;
-								outerCache = node[ expando ] || (node[ expando ] = {});
+								outerCache = node[ expando ] || ( node[ expando ] = {} );
 
 								// Support: IE <9 only
 								// Defend against cloned attroperties (jQuery gh-1709)
 								uniqueCache = outerCache[ node.uniqueID ] ||
-									(outerCache[ node.uniqueID ] = {});
+									( outerCache[ node.uniqueID ] = {} );
 
 								cache = uniqueCache[ type ] || [];
 								nodeIndex = cache[ 0 ] === dirruns && cache[ 1 ];
@@ -2148,9 +2296,10 @@ Expr = Sizzle.selectors = {
 							// xml :nth-child(...)
 							// or :nth-last-child(...) or :nth(-last)?-of-type(...)
 							if ( diff === false ) {
+
 								// Use the same loop as above to seek `elem` from the start
-								while ( (node = ++nodeIndex && node && node[ dir ] ||
-									(diff = nodeIndex = 0) || start.pop()) ) {
+								while ( ( node = ++nodeIndex && node && node[ dir ] ||
+									( diff = nodeIndex = 0 ) || start.pop() ) ) {
 
 									if ( ( ofType ?
 										node.nodeName.toLowerCase() === name :
@@ -2159,12 +2308,13 @@ Expr = Sizzle.selectors = {
 
 										// Cache the index of each encountered element
 										if ( useCache ) {
-											outerCache = node[ expando ] || (node[ expando ] = {});
+											outerCache = node[ expando ] ||
+												( node[ expando ] = {} );
 
 											// Support: IE <9 only
 											// Defend against cloned attroperties (jQuery gh-1709)
 											uniqueCache = outerCache[ node.uniqueID ] ||
-												(outerCache[ node.uniqueID ] = {});
+												( outerCache[ node.uniqueID ] = {} );
 
 											uniqueCache[ type ] = [ dirruns, diff ];
 										}
@@ -2185,6 +2335,7 @@ Expr = Sizzle.selectors = {
 		},
 
 		"PSEUDO": function( pseudo, argument ) {
+
 			// pseudo-class names are case-insensitive
 			// http://www.w3.org/TR/selectors/#pseudo-classes
 			// Prioritize by case sensitivity in case custom pseudos are added with uppercase letters
@@ -2204,15 +2355,15 @@ Expr = Sizzle.selectors = {
 			if ( fn.length > 1 ) {
 				args = [ pseudo, pseudo, "", argument ];
 				return Expr.setFilters.hasOwnProperty( pseudo.toLowerCase() ) ?
-					markFunction(function( seed, matches ) {
+					markFunction( function( seed, matches ) {
 						var idx,
 							matched = fn( seed, argument ),
 							i = matched.length;
 						while ( i-- ) {
-							idx = indexOf( seed, matched[i] );
-							seed[ idx ] = !( matches[ idx ] = matched[i] );
+							idx = indexOf( seed, matched[ i ] );
+							seed[ idx ] = !( matches[ idx ] = matched[ i ] );
 						}
-					}) :
+					} ) :
 					function( elem ) {
 						return fn( elem, 0, args );
 					};
@@ -2223,8 +2374,10 @@ Expr = Sizzle.selectors = {
 	},
 
 	pseudos: {
+
 		// Potentially complex pseudos
-		"not": markFunction(function( selector ) {
+		"not": markFunction( function( selector ) {
+
 			// Trim the selector passed to compile
 			// to avoid treating leading and trailing
 			// spaces as combinators
@@ -2233,39 +2386,40 @@ Expr = Sizzle.selectors = {
 				matcher = compile( selector.replace( rtrim, "$1" ) );
 
 			return matcher[ expando ] ?
-				markFunction(function( seed, matches, context, xml ) {
+				markFunction( function( seed, matches, _context, xml ) {
 					var elem,
 						unmatched = matcher( seed, null, xml, [] ),
 						i = seed.length;
 
 					// Match elements unmatched by `matcher`
 					while ( i-- ) {
-						if ( (elem = unmatched[i]) ) {
-							seed[i] = !(matches[i] = elem);
+						if ( ( elem = unmatched[ i ] ) ) {
+							seed[ i ] = !( matches[ i ] = elem );
 						}
 					}
-				}) :
-				function( elem, context, xml ) {
-					input[0] = elem;
+				} ) :
+				function( elem, _context, xml ) {
+					input[ 0 ] = elem;
 					matcher( input, null, xml, results );
+
 					// Don't keep the element (issue #299)
-					input[0] = null;
+					input[ 0 ] = null;
 					return !results.pop();
 				};
-		}),
+		} ),
 
-		"has": markFunction(function( selector ) {
+		"has": markFunction( function( selector ) {
 			return function( elem ) {
 				return Sizzle( selector, elem ).length > 0;
 			};
-		}),
+		} ),
 
-		"contains": markFunction(function( text ) {
+		"contains": markFunction( function( text ) {
 			text = text.replace( runescape, funescape );
 			return function( elem ) {
 				return ( elem.textContent || getText( elem ) ).indexOf( text ) > -1;
 			};
-		}),
+		} ),
 
 		// "Whether an element is represented by a :lang() selector
 		// is based solely on the element's language value
@@ -2275,25 +2429,26 @@ Expr = Sizzle.selectors = {
 		// The identifier C does not have to be a valid language name."
 		// http://www.w3.org/TR/selectors/#lang-pseudo
 		"lang": markFunction( function( lang ) {
+
 			// lang value must be a valid identifier
-			if ( !ridentifier.test(lang || "") ) {
+			if ( !ridentifier.test( lang || "" ) ) {
 				Sizzle.error( "unsupported lang: " + lang );
 			}
 			lang = lang.replace( runescape, funescape ).toLowerCase();
 			return function( elem ) {
 				var elemLang;
 				do {
-					if ( (elemLang = documentIsHTML ?
+					if ( ( elemLang = documentIsHTML ?
 						elem.lang :
-						elem.getAttribute("xml:lang") || elem.getAttribute("lang")) ) {
+						elem.getAttribute( "xml:lang" ) || elem.getAttribute( "lang" ) ) ) {
 
 						elemLang = elemLang.toLowerCase();
 						return elemLang === lang || elemLang.indexOf( lang + "-" ) === 0;
 					}
-				} while ( (elem = elem.parentNode) && elem.nodeType === 1 );
+				} while ( ( elem = elem.parentNode ) && elem.nodeType === 1 );
 				return false;
 			};
-		}),
+		} ),
 
 		// Miscellaneous
 		"target": function( elem ) {
@@ -2306,7 +2461,9 @@ Expr = Sizzle.selectors = {
 		},
 
 		"focus": function( elem ) {
-			return elem === document.activeElement && (!document.hasFocus || document.hasFocus()) && !!(elem.type || elem.href || ~elem.tabIndex);
+			return elem === document.activeElement &&
+				( !document.hasFocus || document.hasFocus() ) &&
+				!!( elem.type || elem.href || ~elem.tabIndex );
 		},
 
 		// Boolean properties
@@ -2314,16 +2471,20 @@ Expr = Sizzle.selectors = {
 		"disabled": createDisabledPseudo( true ),
 
 		"checked": function( elem ) {
+
 			// In CSS3, :checked should return both checked and selected elements
 			// http://www.w3.org/TR/2011/REC-css3-selectors-20110929/#checked
 			var nodeName = elem.nodeName.toLowerCase();
-			return (nodeName === "input" && !!elem.checked) || (nodeName === "option" && !!elem.selected);
+			return ( nodeName === "input" && !!elem.checked ) ||
+				( nodeName === "option" && !!elem.selected );
 		},
 
 		"selected": function( elem ) {
+
 			// Accessing this property makes selected-by-default
 			// options in Safari work properly
 			if ( elem.parentNode ) {
+				// eslint-disable-next-line no-unused-expressions
 				elem.parentNode.selectedIndex;
 			}
 
@@ -2332,6 +2493,7 @@ Expr = Sizzle.selectors = {
 
 		// Contents
 		"empty": function( elem ) {
+
 			// http://www.w3.org/TR/selectors/#empty-pseudo
 			// :empty is negated by element (1) or content nodes (text: 3; cdata: 4; entity ref: 5),
 			//   but not by others (comment: 8; processing instruction: 7; etc.)
@@ -2345,7 +2507,7 @@ Expr = Sizzle.selectors = {
 		},
 
 		"parent": function( elem ) {
-			return !Expr.pseudos["empty"]( elem );
+			return !Expr.pseudos[ "empty" ]( elem );
 		},
 
 		// Element/input types
@@ -2369,39 +2531,40 @@ Expr = Sizzle.selectors = {
 
 				// Support: IE<8
 				// New HTML5 attribute values (e.g., "search") appear with elem.type === "text"
-				( (attr = elem.getAttribute("type")) == null || attr.toLowerCase() === "text" );
+				( ( attr = elem.getAttribute( "type" ) ) == null ||
+					attr.toLowerCase() === "text" );
 		},
 
 		// Position-in-collection
-		"first": createPositionalPseudo(function() {
+		"first": createPositionalPseudo( function() {
 			return [ 0 ];
-		}),
+		} ),
 
-		"last": createPositionalPseudo(function( matchIndexes, length ) {
+		"last": createPositionalPseudo( function( _matchIndexes, length ) {
 			return [ length - 1 ];
-		}),
+		} ),
 
-		"eq": createPositionalPseudo(function( matchIndexes, length, argument ) {
+		"eq": createPositionalPseudo( function( _matchIndexes, length, argument ) {
 			return [ argument < 0 ? argument + length : argument ];
-		}),
+		} ),
 
-		"even": createPositionalPseudo(function( matchIndexes, length ) {
+		"even": createPositionalPseudo( function( matchIndexes, length ) {
 			var i = 0;
 			for ( ; i < length; i += 2 ) {
 				matchIndexes.push( i );
 			}
 			return matchIndexes;
-		}),
+		} ),
 
-		"odd": createPositionalPseudo(function( matchIndexes, length ) {
+		"odd": createPositionalPseudo( function( matchIndexes, length ) {
 			var i = 1;
 			for ( ; i < length; i += 2 ) {
 				matchIndexes.push( i );
 			}
 			return matchIndexes;
-		}),
+		} ),
 
-		"lt": createPositionalPseudo(function( matchIndexes, length, argument ) {
+		"lt": createPositionalPseudo( function( matchIndexes, length, argument ) {
 			var i = argument < 0 ?
 				argument + length :
 				argument > length ?
@@ -2411,19 +2574,19 @@ Expr = Sizzle.selectors = {
 				matchIndexes.push( i );
 			}
 			return matchIndexes;
-		}),
+		} ),
 
-		"gt": createPositionalPseudo(function( matchIndexes, length, argument ) {
+		"gt": createPositionalPseudo( function( matchIndexes, length, argument ) {
 			var i = argument < 0 ? argument + length : argument;
 			for ( ; ++i < length; ) {
 				matchIndexes.push( i );
 			}
 			return matchIndexes;
-		})
+		} )
 	}
 };
 
-Expr.pseudos["nth"] = Expr.pseudos["eq"];
+Expr.pseudos[ "nth" ] = Expr.pseudos[ "eq" ];
 
 // Add button/input type pseudos
 for ( i in { radio: true, checkbox: true, file: true, password: true, image: true } ) {
@@ -2454,37 +2617,39 @@ tokenize = Sizzle.tokenize = function( selector, parseOnly ) {
 	while ( soFar ) {
 
 		// Comma and first run
-		if ( !matched || (match = rcomma.exec( soFar )) ) {
+		if ( !matched || ( match = rcomma.exec( soFar ) ) ) {
 			if ( match ) {
+
 				// Don't consume trailing commas as valid
-				soFar = soFar.slice( match[0].length ) || soFar;
+				soFar = soFar.slice( match[ 0 ].length ) || soFar;
 			}
-			groups.push( (tokens = []) );
+			groups.push( ( tokens = [] ) );
 		}
 
 		matched = false;
 
 		// Combinators
-		if ( (match = rcombinators.exec( soFar )) ) {
+		if ( ( match = rcombinators.exec( soFar ) ) ) {
 			matched = match.shift();
-			tokens.push({
+			tokens.push( {
 				value: matched,
+
 				// Cast descendant combinators to space
-				type: match[0].replace( rtrim, " " )
-			});
+				type: match[ 0 ].replace( rtrim, " " )
+			} );
 			soFar = soFar.slice( matched.length );
 		}
 
 		// Filters
 		for ( type in Expr.filter ) {
-			if ( (match = matchExpr[ type ].exec( soFar )) && (!preFilters[ type ] ||
-				(match = preFilters[ type ]( match ))) ) {
+			if ( ( match = matchExpr[ type ].exec( soFar ) ) && ( !preFilters[ type ] ||
+				( match = preFilters[ type ]( match ) ) ) ) {
 				matched = match.shift();
-				tokens.push({
+				tokens.push( {
 					value: matched,
 					type: type,
 					matches: match
-				});
+				} );
 				soFar = soFar.slice( matched.length );
 			}
 		}
@@ -2501,6 +2666,7 @@ tokenize = Sizzle.tokenize = function( selector, parseOnly ) {
 		soFar.length :
 		soFar ?
 			Sizzle.error( selector ) :
+
 			// Cache the tokens
 			tokenCache( selector, groups ).slice( 0 );
 };
@@ -2510,7 +2676,7 @@ function toSelector( tokens ) {
 		len = tokens.length,
 		selector = "";
 	for ( ; i < len; i++ ) {
-		selector += tokens[i].value;
+		selector += tokens[ i ].value;
 	}
 	return selector;
 }
@@ -2523,9 +2689,10 @@ function addCombinator( matcher, combinator, base ) {
 		doneName = done++;
 
 	return combinator.first ?
+
 		// Check against closest ancestor/preceding element
 		function( elem, context, xml ) {
-			while ( (elem = elem[ dir ]) ) {
+			while ( ( elem = elem[ dir ] ) ) {
 				if ( elem.nodeType === 1 || checkNonElements ) {
 					return matcher( elem, context, xml );
 				}
@@ -2540,7 +2707,7 @@ function addCombinator( matcher, combinator, base ) {
 
 			// We can't set arbitrary data on XML nodes, so they don't benefit from combinator caching
 			if ( xml ) {
-				while ( (elem = elem[ dir ]) ) {
+				while ( ( elem = elem[ dir ] ) ) {
 					if ( elem.nodeType === 1 || checkNonElements ) {
 						if ( matcher( elem, context, xml ) ) {
 							return true;
@@ -2548,27 +2715,29 @@ function addCombinator( matcher, combinator, base ) {
 					}
 				}
 			} else {
-				while ( (elem = elem[ dir ]) ) {
+				while ( ( elem = elem[ dir ] ) ) {
 					if ( elem.nodeType === 1 || checkNonElements ) {
-						outerCache = elem[ expando ] || (elem[ expando ] = {});
+						outerCache = elem[ expando ] || ( elem[ expando ] = {} );
 
 						// Support: IE <9 only
 						// Defend against cloned attroperties (jQuery gh-1709)
-						uniqueCache = outerCache[ elem.uniqueID ] || (outerCache[ elem.uniqueID ] = {});
+						uniqueCache = outerCache[ elem.uniqueID ] ||
+							( outerCache[ elem.uniqueID ] = {} );
 
 						if ( skip && skip === elem.nodeName.toLowerCase() ) {
 							elem = elem[ dir ] || elem;
-						} else if ( (oldCache = uniqueCache[ key ]) &&
+						} else if ( ( oldCache = uniqueCache[ key ] ) &&
 							oldCache[ 0 ] === dirruns && oldCache[ 1 ] === doneName ) {
 
 							// Assign to newCache so results back-propagate to previous elements
-							return (newCache[ 2 ] = oldCache[ 2 ]);
+							return ( newCache[ 2 ] = oldCache[ 2 ] );
 						} else {
+
 							// Reuse newcache so results back-propagate to previous elements
 							uniqueCache[ key ] = newCache;
 
 							// A match means we're done; a fail means we have to keep checking
-							if ( (newCache[ 2 ] = matcher( elem, context, xml )) ) {
+							if ( ( newCache[ 2 ] = matcher( elem, context, xml ) ) ) {
 								return true;
 							}
 						}
@@ -2584,20 +2753,20 @@ function elementMatcher( matchers ) {
 		function( elem, context, xml ) {
 			var i = matchers.length;
 			while ( i-- ) {
-				if ( !matchers[i]( elem, context, xml ) ) {
+				if ( !matchers[ i ]( elem, context, xml ) ) {
 					return false;
 				}
 			}
 			return true;
 		} :
-		matchers[0];
+		matchers[ 0 ];
 }
 
 function multipleContexts( selector, contexts, results ) {
 	var i = 0,
 		len = contexts.length;
 	for ( ; i < len; i++ ) {
-		Sizzle( selector, contexts[i], results );
+		Sizzle( selector, contexts[ i ], results );
 	}
 	return results;
 }
@@ -2610,7 +2779,7 @@ function condense( unmatched, map, filter, context, xml ) {
 		mapped = map != null;
 
 	for ( ; i < len; i++ ) {
-		if ( (elem = unmatched[i]) ) {
+		if ( ( elem = unmatched[ i ] ) ) {
 			if ( !filter || filter( elem, context, xml ) ) {
 				newUnmatched.push( elem );
 				if ( mapped ) {
@@ -2630,14 +2799,18 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 	if ( postFinder && !postFinder[ expando ] ) {
 		postFinder = setMatcher( postFinder, postSelector );
 	}
-	return markFunction(function( seed, results, context, xml ) {
+	return markFunction( function( seed, results, context, xml ) {
 		var temp, i, elem,
 			preMap = [],
 			postMap = [],
 			preexisting = results.length,
 
 			// Get initial elements from seed or context
-			elems = seed || multipleContexts( selector || "*", context.nodeType ? [ context ] : context, [] ),
+			elems = seed || multipleContexts(
+				selector || "*",
+				context.nodeType ? [ context ] : context,
+				[]
+			),
 
 			// Prefilter to get matcher input, preserving a map for seed-results synchronization
 			matcherIn = preFilter && ( seed || !selector ) ?
@@ -2645,6 +2818,7 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 				elems,
 
 			matcherOut = matcher ?
+
 				// If we have a postFinder, or filtered seed, or non-seed postFilter or preexisting results,
 				postFinder || ( seed ? preFilter : preexisting || postFilter ) ?
 
@@ -2668,8 +2842,8 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 			// Un-match failing elements by moving them back to matcherIn
 			i = temp.length;
 			while ( i-- ) {
-				if ( (elem = temp[i]) ) {
-					matcherOut[ postMap[i] ] = !(matcherIn[ postMap[i] ] = elem);
+				if ( ( elem = temp[ i ] ) ) {
+					matcherOut[ postMap[ i ] ] = !( matcherIn[ postMap[ i ] ] = elem );
 				}
 			}
 		}
@@ -2677,25 +2851,27 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 		if ( seed ) {
 			if ( postFinder || preFilter ) {
 				if ( postFinder ) {
+
 					// Get the final matcherOut by condensing this intermediate into postFinder contexts
 					temp = [];
 					i = matcherOut.length;
 					while ( i-- ) {
-						if ( (elem = matcherOut[i]) ) {
+						if ( ( elem = matcherOut[ i ] ) ) {
+
 							// Restore matcherIn since elem is not yet a final match
-							temp.push( (matcherIn[i] = elem) );
+							temp.push( ( matcherIn[ i ] = elem ) );
 						}
 					}
-					postFinder( null, (matcherOut = []), temp, xml );
+					postFinder( null, ( matcherOut = [] ), temp, xml );
 				}
 
 				// Move matched elements from seed to results to keep them synchronized
 				i = matcherOut.length;
 				while ( i-- ) {
-					if ( (elem = matcherOut[i]) &&
-						(temp = postFinder ? indexOf( seed, elem ) : preMap[i]) > -1 ) {
+					if ( ( elem = matcherOut[ i ] ) &&
+						( temp = postFinder ? indexOf( seed, elem ) : preMap[ i ] ) > -1 ) {
 
-						seed[temp] = !(results[temp] = elem);
+						seed[ temp ] = !( results[ temp ] = elem );
 					}
 				}
 			}
@@ -2713,14 +2889,14 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 				push.apply( results, matcherOut );
 			}
 		}
-	});
+	} );
 }
 
 function matcherFromTokens( tokens ) {
 	var checkContext, matcher, j,
 		len = tokens.length,
-		leadingRelative = Expr.relative[ tokens[0].type ],
-		implicitRelative = leadingRelative || Expr.relative[" "],
+		leadingRelative = Expr.relative[ tokens[ 0 ].type ],
+		implicitRelative = leadingRelative || Expr.relative[ " " ],
 		i = leadingRelative ? 1 : 0,
 
 		// The foundational matcher ensures that elements are reachable from top-level context(s)
@@ -2732,38 +2908,43 @@ function matcherFromTokens( tokens ) {
 		}, implicitRelative, true ),
 		matchers = [ function( elem, context, xml ) {
 			var ret = ( !leadingRelative && ( xml || context !== outermostContext ) ) || (
-				(checkContext = context).nodeType ?
+				( checkContext = context ).nodeType ?
 					matchContext( elem, context, xml ) :
 					matchAnyContext( elem, context, xml ) );
+
 			// Avoid hanging onto element (issue #299)
 			checkContext = null;
 			return ret;
 		} ];
 
 	for ( ; i < len; i++ ) {
-		if ( (matcher = Expr.relative[ tokens[i].type ]) ) {
-			matchers = [ addCombinator(elementMatcher( matchers ), matcher) ];
+		if ( ( matcher = Expr.relative[ tokens[ i ].type ] ) ) {
+			matchers = [ addCombinator( elementMatcher( matchers ), matcher ) ];
 		} else {
-			matcher = Expr.filter[ tokens[i].type ].apply( null, tokens[i].matches );
+			matcher = Expr.filter[ tokens[ i ].type ].apply( null, tokens[ i ].matches );
 
 			// Return special upon seeing a positional matcher
 			if ( matcher[ expando ] ) {
+
 				// Find the next relative operator (if any) for proper handling
 				j = ++i;
 				for ( ; j < len; j++ ) {
-					if ( Expr.relative[ tokens[j].type ] ) {
+					if ( Expr.relative[ tokens[ j ].type ] ) {
 						break;
 					}
 				}
 				return setMatcher(
 					i > 1 && elementMatcher( matchers ),
 					i > 1 && toSelector(
-						// If the preceding token was a descendant combinator, insert an implicit any-element `*`
-						tokens.slice( 0, i - 1 ).concat({ value: tokens[ i - 2 ].type === " " ? "*" : "" })
+
+					// If the preceding token was a descendant combinator, insert an implicit any-element `*`
+					tokens
+						.slice( 0, i - 1 )
+						.concat( { value: tokens[ i - 2 ].type === " " ? "*" : "" } )
 					).replace( rtrim, "$1" ),
 					matcher,
 					i < j && matcherFromTokens( tokens.slice( i, j ) ),
-					j < len && matcherFromTokens( (tokens = tokens.slice( j )) ),
+					j < len && matcherFromTokens( ( tokens = tokens.slice( j ) ) ),
 					j < len && toSelector( tokens )
 				);
 			}
@@ -2784,28 +2965,40 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 				unmatched = seed && [],
 				setMatched = [],
 				contextBackup = outermostContext,
+
 				// We must always have either seed elements or outermost context
-				elems = seed || byElement && Expr.find["TAG"]( "*", outermost ),
+				elems = seed || byElement && Expr.find[ "TAG" ]( "*", outermost ),
+
 				// Use integer dirruns iff this is the outermost matcher
-				dirrunsUnique = (dirruns += contextBackup == null ? 1 : Math.random() || 0.1),
+				dirrunsUnique = ( dirruns += contextBackup == null ? 1 : Math.random() || 0.1 ),
 				len = elems.length;
 
 			if ( outermost ) {
-				outermostContext = context === document || context || outermost;
+
+				// Support: IE 11+, Edge 17 - 18+
+				// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+				// two documents; shallow comparisons work.
+				// eslint-disable-next-line eqeqeq
+				outermostContext = context == document || context || outermost;
 			}
 
 			// Add elements passing elementMatchers directly to results
 			// Support: IE<9, Safari
 			// Tolerate NodeList properties (IE: "length"; Safari: <number>) matching elements by id
-			for ( ; i !== len && (elem = elems[i]) != null; i++ ) {
+			for ( ; i !== len && ( elem = elems[ i ] ) != null; i++ ) {
 				if ( byElement && elem ) {
 					j = 0;
-					if ( !context && elem.ownerDocument !== document ) {
+
+					// Support: IE 11+, Edge 17 - 18+
+					// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+					// two documents; shallow comparisons work.
+					// eslint-disable-next-line eqeqeq
+					if ( !context && elem.ownerDocument != document ) {
 						setDocument( elem );
 						xml = !documentIsHTML;
 					}
-					while ( (matcher = elementMatchers[j++]) ) {
-						if ( matcher( elem, context || document, xml) ) {
+					while ( ( matcher = elementMatchers[ j++ ] ) ) {
+						if ( matcher( elem, context || document, xml ) ) {
 							results.push( elem );
 							break;
 						}
@@ -2817,8 +3010,9 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 
 				// Track unmatched elements for set filters
 				if ( bySet ) {
+
 					// They will have gone through all possible matchers
-					if ( (elem = !matcher && elem) ) {
+					if ( ( elem = !matcher && elem ) ) {
 						matchedCount--;
 					}
 
@@ -2842,16 +3036,17 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 			// numerically zero.
 			if ( bySet && i !== matchedCount ) {
 				j = 0;
-				while ( (matcher = setMatchers[j++]) ) {
+				while ( ( matcher = setMatchers[ j++ ] ) ) {
 					matcher( unmatched, setMatched, context, xml );
 				}
 
 				if ( seed ) {
+
 					// Reintegrate element matches to eliminate the need for sorting
 					if ( matchedCount > 0 ) {
 						while ( i-- ) {
-							if ( !(unmatched[i] || setMatched[i]) ) {
-								setMatched[i] = pop.call( results );
+							if ( !( unmatched[ i ] || setMatched[ i ] ) ) {
+								setMatched[ i ] = pop.call( results );
 							}
 						}
 					}
@@ -2892,13 +3087,14 @@ compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
 		cached = compilerCache[ selector + " " ];
 
 	if ( !cached ) {
+
 		// Generate a function of recursive functions that can be used to check each element
 		if ( !match ) {
 			match = tokenize( selector );
 		}
 		i = match.length;
 		while ( i-- ) {
-			cached = matcherFromTokens( match[i] );
+			cached = matcherFromTokens( match[ i ] );
 			if ( cached[ expando ] ) {
 				setMatchers.push( cached );
 			} else {
@@ -2907,7 +3103,10 @@ compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
 		}
 
 		// Cache the compiled function
-		cached = compilerCache( selector, matcherFromGroupMatchers( elementMatchers, setMatchers ) );
+		cached = compilerCache(
+			selector,
+			matcherFromGroupMatchers( elementMatchers, setMatchers )
+		);
 
 		// Save selector and tokenization
 		cached.selector = selector;
@@ -2927,7 +3126,7 @@ compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
 select = Sizzle.select = function( selector, context, results, seed ) {
 	var i, tokens, token, type, find,
 		compiled = typeof selector === "function" && selector,
-		match = !seed && tokenize( (selector = compiled.selector || selector) );
+		match = !seed && tokenize( ( selector = compiled.selector || selector ) );
 
 	results = results || [];
 
@@ -2936,11 +3135,12 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 	if ( match.length === 1 ) {
 
 		// Reduce context if the leading compound selector is an ID
-		tokens = match[0] = match[0].slice( 0 );
-		if ( tokens.length > 2 && (token = tokens[0]).type === "ID" &&
-				context.nodeType === 9 && documentIsHTML && Expr.relative[ tokens[1].type ] ) {
+		tokens = match[ 0 ] = match[ 0 ].slice( 0 );
+		if ( tokens.length > 2 && ( token = tokens[ 0 ] ).type === "ID" &&
+			context.nodeType === 9 && documentIsHTML && Expr.relative[ tokens[ 1 ].type ] ) {
 
-			context = ( Expr.find["ID"]( token.matches[0].replace(runescape, funescape), context ) || [] )[0];
+			context = ( Expr.find[ "ID" ]( token.matches[ 0 ]
+				.replace( runescape, funescape ), context ) || [] )[ 0 ];
 			if ( !context ) {
 				return results;
 
@@ -2953,20 +3153,22 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 		}
 
 		// Fetch a seed set for right-to-left matching
-		i = matchExpr["needsContext"].test( selector ) ? 0 : tokens.length;
+		i = matchExpr[ "needsContext" ].test( selector ) ? 0 : tokens.length;
 		while ( i-- ) {
-			token = tokens[i];
+			token = tokens[ i ];
 
 			// Abort if we hit a combinator
-			if ( Expr.relative[ (type = token.type) ] ) {
+			if ( Expr.relative[ ( type = token.type ) ] ) {
 				break;
 			}
-			if ( (find = Expr.find[ type ]) ) {
+			if ( ( find = Expr.find[ type ] ) ) {
+
 				// Search, expanding context for leading sibling combinators
-				if ( (seed = find(
-					token.matches[0].replace( runescape, funescape ),
-					rsibling.test( tokens[0].type ) && testContext( context.parentNode ) || context
-				)) ) {
+				if ( ( seed = find(
+					token.matches[ 0 ].replace( runescape, funescape ),
+					rsibling.test( tokens[ 0 ].type ) && testContext( context.parentNode ) ||
+						context
+				) ) ) {
 
 					// If seed is empty or no tokens remain, we can return early
 					tokens.splice( i, 1 );
@@ -2997,7 +3199,7 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 // One-time assignments
 
 // Sort stability
-support.sortStable = expando.split("").sort( sortOrder ).join("") === expando;
+support.sortStable = expando.split( "" ).sort( sortOrder ).join( "" ) === expando;
 
 // Support: Chrome 14-35+
 // Always assume duplicates if they aren't passed to the comparison function
@@ -3008,58 +3210,59 @@ setDocument();
 
 // Support: Webkit<537.32 - Safari 6.0.3/Chrome 25 (fixed in Chrome 27)
 // Detached nodes confoundingly follow *each other*
-support.sortDetached = assert(function( el ) {
+support.sortDetached = assert( function( el ) {
+
 	// Should return 1, but returns 4 (following)
-	return el.compareDocumentPosition( document.createElement("fieldset") ) & 1;
-});
+	return el.compareDocumentPosition( document.createElement( "fieldset" ) ) & 1;
+} );
 
 // Support: IE<8
 // Prevent attribute/property "interpolation"
 // https://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
-if ( !assert(function( el ) {
+if ( !assert( function( el ) {
 	el.innerHTML = "<a href='#'></a>";
-	return el.firstChild.getAttribute("href") === "#" ;
-}) ) {
+	return el.firstChild.getAttribute( "href" ) === "#";
+} ) ) {
 	addHandle( "type|href|height|width", function( elem, name, isXML ) {
 		if ( !isXML ) {
 			return elem.getAttribute( name, name.toLowerCase() === "type" ? 1 : 2 );
 		}
-	});
+	} );
 }
 
 // Support: IE<9
 // Use defaultValue in place of getAttribute("value")
-if ( !support.attributes || !assert(function( el ) {
+if ( !support.attributes || !assert( function( el ) {
 	el.innerHTML = "<input/>";
 	el.firstChild.setAttribute( "value", "" );
 	return el.firstChild.getAttribute( "value" ) === "";
-}) ) {
-	addHandle( "value", function( elem, name, isXML ) {
+} ) ) {
+	addHandle( "value", function( elem, _name, isXML ) {
 		if ( !isXML && elem.nodeName.toLowerCase() === "input" ) {
 			return elem.defaultValue;
 		}
-	});
+	} );
 }
 
 // Support: IE<9
 // Use getAttributeNode to fetch booleans when getAttribute lies
-if ( !assert(function( el ) {
-	return el.getAttribute("disabled") == null;
-}) ) {
+if ( !assert( function( el ) {
+	return el.getAttribute( "disabled" ) == null;
+} ) ) {
 	addHandle( booleans, function( elem, name, isXML ) {
 		var val;
 		if ( !isXML ) {
 			return elem[ name ] === true ? name.toLowerCase() :
-					(val = elem.getAttributeNode( name )) && val.specified ?
+				( val = elem.getAttributeNode( name ) ) && val.specified ?
 					val.value :
-				null;
+					null;
 		}
-	});
+	} );
 }
 
 return Sizzle;
 
-})( window );
+} )( window );
 
 
 
@@ -3112,9 +3315,9 @@ var rneedsContext = jQuery.expr.match.needsContext;
 
 function nodeName( elem, name ) {
 
-  return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
+	return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
 
-};
+}
 var rsingleTag = ( /^<([a-z][^\/\0>:\x20\t\r\n\f]*)[\x20\t\r\n\f]*\/?>(?:<\/\1>|)$/i );
 
 
@@ -3428,7 +3631,7 @@ jQuery.each( {
 	parents: function( elem ) {
 		return dir( elem, "parentNode" );
 	},
-	parentsUntil: function( elem, i, until ) {
+	parentsUntil: function( elem, _i, until ) {
 		return dir( elem, "parentNode", until );
 	},
 	next: function( elem ) {
@@ -3443,10 +3646,10 @@ jQuery.each( {
 	prevAll: function( elem ) {
 		return dir( elem, "previousSibling" );
 	},
-	nextUntil: function( elem, i, until ) {
+	nextUntil: function( elem, _i, until ) {
 		return dir( elem, "nextSibling", until );
 	},
-	prevUntil: function( elem, i, until ) {
+	prevUntil: function( elem, _i, until ) {
 		return dir( elem, "previousSibling", until );
 	},
 	siblings: function( elem ) {
@@ -3456,7 +3659,13 @@ jQuery.each( {
 		return siblings( elem.firstChild );
 	},
 	contents: function( elem ) {
-		if ( typeof elem.contentDocument !== "undefined" ) {
+		if ( elem.contentDocument != null &&
+
+			// Support: IE 11+
+			// <object> elements with no `data` attribute has an object
+			// `contentDocument` with a `null` prototype.
+			getProto( elem.contentDocument ) ) {
+
 			return elem.contentDocument;
 		}
 
@@ -3799,7 +4008,7 @@ jQuery.extend( {
 					var fns = arguments;
 
 					return jQuery.Deferred( function( newDefer ) {
-						jQuery.each( tuples, function( i, tuple ) {
+						jQuery.each( tuples, function( _i, tuple ) {
 
 							// Map tuples (progress, done, fail) to arguments (done, fail, progress)
 							var fn = isFunction( fns[ tuple[ 4 ] ] ) && fns[ tuple[ 4 ] ];
@@ -4079,8 +4288,8 @@ jQuery.extend( {
 			resolveContexts = Array( i ),
 			resolveValues = slice.call( arguments ),
 
-			// the master Deferred
-			master = jQuery.Deferred(),
+			// the primary Deferred
+			primary = jQuery.Deferred(),
 
 			// subordinate callback factory
 			updateFunc = function( i ) {
@@ -4088,30 +4297,30 @@ jQuery.extend( {
 					resolveContexts[ i ] = this;
 					resolveValues[ i ] = arguments.length > 1 ? slice.call( arguments ) : value;
 					if ( !( --remaining ) ) {
-						master.resolveWith( resolveContexts, resolveValues );
+						primary.resolveWith( resolveContexts, resolveValues );
 					}
 				};
 			};
 
 		// Single- and empty arguments are adopted like Promise.resolve
 		if ( remaining <= 1 ) {
-			adoptValue( singleValue, master.done( updateFunc( i ) ).resolve, master.reject,
+			adoptValue( singleValue, primary.done( updateFunc( i ) ).resolve, primary.reject,
 				!remaining );
 
 			// Use .then() to unwrap secondary thenables (cf. gh-3000)
-			if ( master.state() === "pending" ||
+			if ( primary.state() === "pending" ||
 				isFunction( resolveValues[ i ] && resolveValues[ i ].then ) ) {
 
-				return master.then();
+				return primary.then();
 			}
 		}
 
 		// Multiple arguments are aggregated like Promise.all array elements
 		while ( i-- ) {
-			adoptValue( resolveValues[ i ], updateFunc( i ), master.reject );
+			adoptValue( resolveValues[ i ], updateFunc( i ), primary.reject );
 		}
 
-		return master.promise();
+		return primary.promise();
 	}
 } );
 
@@ -4252,7 +4461,7 @@ var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 			// ...except when executing function values
 			} else {
 				bulk = fn;
-				fn = function( elem, key, value ) {
+				fn = function( elem, _key, value ) {
 					return bulk.call( jQuery( elem ), value );
 				};
 			}
@@ -4262,8 +4471,8 @@ var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 			for ( ; i < len; i++ ) {
 				fn(
 					elems[ i ], key, raw ?
-					value :
-					value.call( elems[ i ], i, fn( elems[ i ], key ) )
+						value :
+						value.call( elems[ i ], i, fn( elems[ i ], key ) )
 				);
 			}
 		}
@@ -4287,7 +4496,7 @@ var rmsPrefix = /^-ms-/,
 	rdashAlpha = /-([a-z])/g;
 
 // Used by camelCase as callback to replace()
-function fcamelCase( all, letter ) {
+function fcamelCase( _all, letter ) {
 	return letter.toUpperCase();
 }
 
@@ -4815,27 +5024,6 @@ var isHiddenWithinTree = function( elem, el ) {
 			jQuery.css( elem, "display" ) === "none";
 	};
 
-var swap = function( elem, options, callback, args ) {
-	var ret, name,
-		old = {};
-
-	// Remember the old values, and insert the new ones
-	for ( name in options ) {
-		old[ name ] = elem.style[ name ];
-		elem.style[ name ] = options[ name ];
-	}
-
-	ret = callback.apply( elem, args || [] );
-
-	// Revert the old values
-	for ( name in options ) {
-		elem.style[ name ] = old[ name ];
-	}
-
-	return ret;
-};
-
-
 
 
 function adjustCSS( elem, prop, valueParts, tween ) {
@@ -5006,11 +5194,40 @@ var rscriptType = ( /^$|^module$|\/(?:java|ecma)script/i );
 
 
 
-// We have to close these tags to support XHTML (#13200)
-var wrapMap = {
+( function() {
+	var fragment = document.createDocumentFragment(),
+		div = fragment.appendChild( document.createElement( "div" ) ),
+		input = document.createElement( "input" );
+
+	// Support: Android 4.0 - 4.3 only
+	// Check state lost if the name is set (#11217)
+	// Support: Windows Web Apps (WWA)
+	// `name` and `type` must use .setAttribute for WWA (#14901)
+	input.setAttribute( "type", "radio" );
+	input.setAttribute( "checked", "checked" );
+	input.setAttribute( "name", "t" );
+
+	div.appendChild( input );
+
+	// Support: Android <=4.1 only
+	// Older WebKit doesn't clone checked state correctly in fragments
+	support.checkClone = div.cloneNode( true ).cloneNode( true ).lastChild.checked;
+
+	// Support: IE <=11 only
+	// Make sure textarea (and checkbox) defaultValue is properly cloned
+	div.innerHTML = "<textarea>x</textarea>";
+	support.noCloneChecked = !!div.cloneNode( true ).lastChild.defaultValue;
 
 	// Support: IE <=9 only
-	option: [ 1, "<select multiple='multiple'>", "</select>" ],
+	// IE <=9 replaces <option> tags with their contents when inserted outside of
+	// the select element.
+	div.innerHTML = "<option></option>";
+	support.option = !!div.lastChild;
+} )();
+
+
+// We have to close these tags to support XHTML (#13200)
+var wrapMap = {
 
 	// XHTML parsers do not magically insert elements in the
 	// same way that tag soup parsers do. So we cannot shorten
@@ -5023,11 +5240,13 @@ var wrapMap = {
 	_default: [ 0, "", "" ]
 };
 
-// Support: IE <=9 only
-wrapMap.optgroup = wrapMap.option;
-
 wrapMap.tbody = wrapMap.tfoot = wrapMap.colgroup = wrapMap.caption = wrapMap.thead;
 wrapMap.th = wrapMap.td;
+
+// Support: IE <=9 only
+if ( !support.option ) {
+	wrapMap.optgroup = wrapMap.option = [ 1, "<select multiple='multiple'>", "</select>" ];
+}
 
 
 function getAll( context, tag ) {
@@ -5161,36 +5380,7 @@ function buildFragment( elems, context, scripts, selection, ignored ) {
 }
 
 
-( function() {
-	var fragment = document.createDocumentFragment(),
-		div = fragment.appendChild( document.createElement( "div" ) ),
-		input = document.createElement( "input" );
-
-	// Support: Android 4.0 - 4.3 only
-	// Check state lost if the name is set (#11217)
-	// Support: Windows Web Apps (WWA)
-	// `name` and `type` must use .setAttribute for WWA (#14901)
-	input.setAttribute( "type", "radio" );
-	input.setAttribute( "checked", "checked" );
-	input.setAttribute( "name", "t" );
-
-	div.appendChild( input );
-
-	// Support: Android <=4.1 only
-	// Older WebKit doesn't clone checked state correctly in fragments
-	support.checkClone = div.cloneNode( true ).cloneNode( true ).lastChild.checked;
-
-	// Support: IE <=11 only
-	// Make sure textarea (and checkbox) defaultValue is properly cloned
-	div.innerHTML = "<textarea>x</textarea>";
-	support.noCloneChecked = !!div.cloneNode( true ).lastChild.defaultValue;
-} )();
-
-
-var
-	rkeyEvent = /^key/,
-	rmouseEvent = /^(?:mouse|pointer|contextmenu|drag|drop)|click/,
-	rtypenamespace = /^([^.]*)(?:\.(.+)|)/;
+var rtypenamespace = /^([^.]*)(?:\.(.+)|)/;
 
 function returnTrue() {
 	return true;
@@ -5295,8 +5485,8 @@ jQuery.event = {
 			special, handlers, type, namespaces, origType,
 			elemData = dataPriv.get( elem );
 
-		// Don't attach events to noData or text/comment nodes (but allow plain objects)
-		if ( !elemData ) {
+		// Only attach events to objects that accept data
+		if ( !acceptData( elem ) ) {
 			return;
 		}
 
@@ -5320,7 +5510,7 @@ jQuery.event = {
 
 		// Init the element's event structure and main handler, if this is the first
 		if ( !( events = elemData.events ) ) {
-			events = elemData.events = {};
+			events = elemData.events = Object.create( null );
 		}
 		if ( !( eventHandle = elemData.handle ) ) {
 			eventHandle = elemData.handle = function( e ) {
@@ -5478,12 +5668,15 @@ jQuery.event = {
 
 	dispatch: function( nativeEvent ) {
 
-		// Make a writable jQuery.Event from the native event object
-		var event = jQuery.event.fix( nativeEvent );
-
 		var i, j, ret, matched, handleObj, handlerQueue,
 			args = new Array( arguments.length ),
-			handlers = ( dataPriv.get( this, "events" ) || {} )[ event.type ] || [],
+
+			// Make a writable jQuery.Event from the native event object
+			event = jQuery.event.fix( nativeEvent ),
+
+			handlers = (
+				dataPriv.get( this, "events" ) || Object.create( null )
+			)[ event.type ] || [],
 			special = jQuery.event.special[ event.type ] || {};
 
 		// Use the fix-ed jQuery.Event rather than the (read-only) native event
@@ -5607,12 +5800,12 @@ jQuery.event = {
 			get: isFunction( hook ) ?
 				function() {
 					if ( this.originalEvent ) {
-							return hook( this.originalEvent );
+						return hook( this.originalEvent );
 					}
 				} :
 				function() {
 					if ( this.originalEvent ) {
-							return this.originalEvent[ name ];
+						return this.originalEvent[ name ];
 					}
 				},
 
@@ -5751,7 +5944,13 @@ function leverageNative( el, type, expectSync ) {
 						// Cancel the outer synthetic event
 						event.stopImmediatePropagation();
 						event.preventDefault();
-						return result.value;
+
+						// Support: Chrome 86+
+						// In Chrome, if an element having a focusout handler is blurred by
+						// clicking outside of it, it invokes the handler synchronously. If
+						// that handler calls `.remove()` on the element, the data is cleared,
+						// leaving `result` undefined. We need to guard against this.
+						return result && result.value;
 					}
 
 				// If this is an inner synthetic event for an event with a bubbling surrogate
@@ -5916,34 +6115,7 @@ jQuery.each( {
 	targetTouches: true,
 	toElement: true,
 	touches: true,
-
-	which: function( event ) {
-		var button = event.button;
-
-		// Add which for key events
-		if ( event.which == null && rkeyEvent.test( event.type ) ) {
-			return event.charCode != null ? event.charCode : event.keyCode;
-		}
-
-		// Add which for click: 1 === left; 2 === middle; 3 === right
-		if ( !event.which && button !== undefined && rmouseEvent.test( event.type ) ) {
-			if ( button & 1 ) {
-				return 1;
-			}
-
-			if ( button & 2 ) {
-				return 3;
-			}
-
-			if ( button & 4 ) {
-				return 2;
-			}
-
-			return 0;
-		}
-
-		return event.which;
-	}
+	which: true
 }, jQuery.event.addProp );
 
 jQuery.each( { focus: "focusin", blur: "focusout" }, function( type, delegateType ) {
@@ -5966,6 +6138,12 @@ jQuery.each( { focus: "focusin", blur: "focusout" }, function( type, delegateTyp
 			leverageNative( this, type );
 
 			// Return non-false to allow normal event-path propagation
+			return true;
+		},
+
+		// Suppress native focus or blur as it's already being fired
+		// in leverageNative.
+		_default: function() {
 			return true;
 		},
 
@@ -6058,13 +6236,6 @@ jQuery.fn.extend( {
 
 var
 
-	/* eslint-disable max-len */
-
-	// See https://github.com/eslint/eslint/issues/3229
-	rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([a-z][^\/\0>\x20\t\r\n\f]*)[^>]*)\/>/gi,
-
-	/* eslint-enable */
-
 	// Support: IE <=10 - 11, Edge 12 - 13 only
 	// In IE/Edge using regex groups here causes severe slowdowns.
 	// See https://connect.microsoft.com/IE/feedback/details/1736512/
@@ -6101,7 +6272,7 @@ function restoreScript( elem ) {
 }
 
 function cloneCopyEvent( src, dest ) {
-	var i, l, type, pdataOld, pdataCur, udataOld, udataCur, events;
+	var i, l, type, pdataOld, udataOld, udataCur, events;
 
 	if ( dest.nodeType !== 1 ) {
 		return;
@@ -6109,13 +6280,11 @@ function cloneCopyEvent( src, dest ) {
 
 	// 1. Copy private data: events, handlers, etc.
 	if ( dataPriv.hasData( src ) ) {
-		pdataOld = dataPriv.access( src );
-		pdataCur = dataPriv.set( dest, pdataOld );
+		pdataOld = dataPriv.get( src );
 		events = pdataOld.events;
 
 		if ( events ) {
-			delete pdataCur.handle;
-			pdataCur.events = {};
+			dataPriv.remove( dest, "handle events" );
 
 			for ( type in events ) {
 				for ( i = 0, l = events[ type ].length; i < l; i++ ) {
@@ -6151,7 +6320,7 @@ function fixInput( src, dest ) {
 function domManip( collection, args, callback, ignored ) {
 
 	// Flatten any nested arrays
-	args = concat.apply( [], args );
+	args = flat( args );
 
 	var fragment, first, scripts, hasScripts, node, doc,
 		i = 0,
@@ -6226,7 +6395,7 @@ function domManip( collection, args, callback, ignored ) {
 							if ( jQuery._evalUrl && !node.noModule ) {
 								jQuery._evalUrl( node.src, {
 									nonce: node.nonce || node.getAttribute( "nonce" )
-								} );
+								}, doc );
 							}
 						} else {
 							DOMEval( node.textContent.replace( rcleanScript, "" ), node, doc );
@@ -6263,7 +6432,7 @@ function remove( elem, selector, keepData ) {
 
 jQuery.extend( {
 	htmlPrefilter: function( html ) {
-		return html.replace( rxhtmlTag, "<$1></$2>" );
+		return html;
 	},
 
 	clone: function( elem, dataAndEvents, deepDataAndEvents ) {
@@ -6525,6 +6694,27 @@ var getStyles = function( elem ) {
 		return view.getComputedStyle( elem );
 	};
 
+var swap = function( elem, options, callback ) {
+	var ret, name,
+		old = {};
+
+	// Remember the old values, and insert the new ones
+	for ( name in options ) {
+		old[ name ] = elem.style[ name ];
+		elem.style[ name ] = options[ name ];
+	}
+
+	ret = callback.call( elem );
+
+	// Revert the old values
+	for ( name in options ) {
+		elem.style[ name ] = old[ name ];
+	}
+
+	return ret;
+};
+
+
 var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
 
 
@@ -6582,7 +6772,7 @@ var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
 	}
 
 	var pixelPositionVal, boxSizingReliableVal, scrollboxSizeVal, pixelBoxStylesVal,
-		reliableMarginLeftVal,
+		reliableTrDimensionsVal, reliableMarginLeftVal,
 		container = document.createElement( "div" ),
 		div = document.createElement( "div" );
 
@@ -6617,6 +6807,54 @@ var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
 		scrollboxSize: function() {
 			computeStyleTests();
 			return scrollboxSizeVal;
+		},
+
+		// Support: IE 9 - 11+, Edge 15 - 18+
+		// IE/Edge misreport `getComputedStyle` of table rows with width/height
+		// set in CSS while `offset*` properties report correct values.
+		// Behavior in IE 9 is more subtle than in newer versions & it passes
+		// some versions of this test; make sure not to make it pass there!
+		//
+		// Support: Firefox 70+
+		// Only Firefox includes border widths
+		// in computed dimensions. (gh-4529)
+		reliableTrDimensions: function() {
+			var table, tr, trChild, trStyle;
+			if ( reliableTrDimensionsVal == null ) {
+				table = document.createElement( "table" );
+				tr = document.createElement( "tr" );
+				trChild = document.createElement( "div" );
+
+				table.style.cssText = "position:absolute;left:-11111px;border-collapse:separate";
+				tr.style.cssText = "border:1px solid";
+
+				// Support: Chrome 86+
+				// Height set through cssText does not get applied.
+				// Computed height then comes back as 0.
+				tr.style.height = "1px";
+				trChild.style.height = "9px";
+
+				// Support: Android 8 Chrome 86+
+				// In our bodyBackground.html iframe,
+				// display for all div elements is set to "inline",
+				// which causes a problem only in Android 8 Chrome 86.
+				// Ensuring the div is display: block
+				// gets around this issue.
+				trChild.style.display = "block";
+
+				documentElement
+					.appendChild( table )
+					.appendChild( tr )
+					.appendChild( trChild );
+
+				trStyle = window.getComputedStyle( tr );
+				reliableTrDimensionsVal = ( parseInt( trStyle.height, 10 ) +
+					parseInt( trStyle.borderTopWidth, 10 ) +
+					parseInt( trStyle.borderBottomWidth, 10 ) ) === tr.offsetHeight;
+
+				documentElement.removeChild( table );
+			}
+			return reliableTrDimensionsVal;
 		}
 	} );
 } )();
@@ -6741,7 +6979,7 @@ var
 		fontWeight: "400"
 	};
 
-function setPositiveNumber( elem, value, subtract ) {
+function setPositiveNumber( _elem, value, subtract ) {
 
 	// Any relative (+/-) values have already been
 	// normalized at this point
@@ -6846,17 +7084,26 @@ function getWidthOrHeight( elem, dimension, extra ) {
 	}
 
 
-	// Fall back to offsetWidth/offsetHeight when value is "auto"
-	// This happens for inline elements with no explicit setting (gh-3571)
-	// Support: Android <=4.1 - 4.3 only
-	// Also use offsetWidth/offsetHeight for misreported inline dimensions (gh-3602)
-	// Support: IE 9-11 only
-	// Also use offsetWidth/offsetHeight for when box sizing is unreliable
-	// We use getClientRects() to check for hidden/disconnected.
-	// In those cases, the computed value can be trusted to be border-box
+	// Support: IE 9 - 11 only
+	// Use offsetWidth/offsetHeight for when box sizing is unreliable.
+	// In those cases, the computed value can be trusted to be border-box.
 	if ( ( !support.boxSizingReliable() && isBorderBox ||
+
+		// Support: IE 10 - 11+, Edge 15 - 18+
+		// IE/Edge misreport `getComputedStyle` of table rows with width/height
+		// set in CSS while `offset*` properties report correct values.
+		// Interestingly, in some cases IE 9 doesn't suffer from this issue.
+		!support.reliableTrDimensions() && nodeName( elem, "tr" ) ||
+
+		// Fall back to offsetWidth/offsetHeight when value is "auto"
+		// This happens for inline elements with no explicit setting (gh-3571)
 		val === "auto" ||
+
+		// Support: Android <=4.1 - 4.3 only
+		// Also use offsetWidth/offsetHeight for misreported inline dimensions (gh-3602)
 		!parseFloat( val ) && jQuery.css( elem, "display", false, styles ) === "inline" ) &&
+
+		// Make sure the element is visible & connected
 		elem.getClientRects().length ) {
 
 		isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
@@ -7051,7 +7298,7 @@ jQuery.extend( {
 	}
 } );
 
-jQuery.each( [ "height", "width" ], function( i, dimension ) {
+jQuery.each( [ "height", "width" ], function( _i, dimension ) {
 	jQuery.cssHooks[ dimension ] = {
 		get: function( elem, computed, extra ) {
 			if ( computed ) {
@@ -7067,10 +7314,10 @@ jQuery.each( [ "height", "width" ], function( i, dimension ) {
 					// Running getBoundingClientRect on a disconnected node
 					// in IE throws an error.
 					( !elem.getClientRects().length || !elem.getBoundingClientRect().width ) ?
-						swap( elem, cssShow, function() {
-							return getWidthOrHeight( elem, dimension, extra );
-						} ) :
-						getWidthOrHeight( elem, dimension, extra );
+					swap( elem, cssShow, function() {
+						return getWidthOrHeight( elem, dimension, extra );
+					} ) :
+					getWidthOrHeight( elem, dimension, extra );
 			}
 		},
 
@@ -7129,7 +7376,7 @@ jQuery.cssHooks.marginLeft = addGetHookIf( support.reliableMarginLeft,
 					swap( elem, { marginLeft: 0 }, function() {
 						return elem.getBoundingClientRect().left;
 					} )
-				) + "px";
+			) + "px";
 		}
 	}
 );
@@ -7268,7 +7515,7 @@ Tween.propHooks = {
 			if ( jQuery.fx.step[ tween.prop ] ) {
 				jQuery.fx.step[ tween.prop ]( tween );
 			} else if ( tween.elem.nodeType === 1 && (
-					jQuery.cssHooks[ tween.prop ] ||
+				jQuery.cssHooks[ tween.prop ] ||
 					tween.elem.style[ finalPropName( tween.prop ) ] != null ) ) {
 				jQuery.style( tween.elem, tween.prop, tween.now + tween.unit );
 			} else {
@@ -7513,7 +7760,7 @@ function defaultPrefilter( elem, props, opts ) {
 
 			anim.done( function() {
 
-			/* eslint-enable no-loop-func */
+				/* eslint-enable no-loop-func */
 
 				// The final step of a "hide" animation is actually hiding the element
 				if ( !hidden ) {
@@ -7633,7 +7880,7 @@ function Animation( elem, properties, options ) {
 			tweens: [],
 			createTween: function( prop, end ) {
 				var tween = jQuery.Tween( elem, animation.opts, prop, end,
-						animation.opts.specialEasing[ prop ] || animation.opts.easing );
+					animation.opts.specialEasing[ prop ] || animation.opts.easing );
 				animation.tweens.push( tween );
 				return tween;
 			},
@@ -7806,7 +8053,8 @@ jQuery.fn.extend( {
 					anim.stop( true );
 				}
 			};
-			doAnimation.finish = doAnimation;
+
+		doAnimation.finish = doAnimation;
 
 		return empty || optall.queue === false ?
 			this.each( doAnimation ) :
@@ -7824,7 +8072,7 @@ jQuery.fn.extend( {
 			clearQueue = type;
 			type = undefined;
 		}
-		if ( clearQueue && type !== false ) {
+		if ( clearQueue ) {
 			this.queue( type || "fx", [] );
 		}
 
@@ -7907,7 +8155,7 @@ jQuery.fn.extend( {
 	}
 } );
 
-jQuery.each( [ "toggle", "show", "hide" ], function( i, name ) {
+jQuery.each( [ "toggle", "show", "hide" ], function( _i, name ) {
 	var cssFn = jQuery.fn[ name ];
 	jQuery.fn[ name ] = function( speed, easing, callback ) {
 		return speed == null || typeof speed === "boolean" ?
@@ -8128,7 +8376,7 @@ boolHook = {
 	}
 };
 
-jQuery.each( jQuery.expr.match.bool.source.match( /\w+/g ), function( i, name ) {
+jQuery.each( jQuery.expr.match.bool.source.match( /\w+/g ), function( _i, name ) {
 	var getter = attrHandle[ name ] || jQuery.find.attr;
 
 	attrHandle[ name ] = function( elem, name, isXML ) {
@@ -8446,8 +8694,8 @@ jQuery.fn.extend( {
 				if ( this.setAttribute ) {
 					this.setAttribute( "class",
 						className || value === false ?
-						"" :
-						dataPriv.get( this, "__className__" ) || ""
+							"" :
+							dataPriv.get( this, "__className__" ) || ""
 					);
 				}
 			}
@@ -8462,7 +8710,7 @@ jQuery.fn.extend( {
 		while ( ( elem = this[ i++ ] ) ) {
 			if ( elem.nodeType === 1 &&
 				( " " + stripAndCollapse( getClass( elem ) ) + " " ).indexOf( className ) > -1 ) {
-					return true;
+				return true;
 			}
 		}
 
@@ -8752,7 +9000,7 @@ jQuery.extend( jQuery.event, {
 				special.bindType || type;
 
 			// jQuery handler
-			handle = ( dataPriv.get( cur, "events" ) || {} )[ event.type ] &&
+			handle = ( dataPriv.get( cur, "events" ) || Object.create( null ) )[ event.type ] &&
 				dataPriv.get( cur, "handle" );
 			if ( handle ) {
 				handle.apply( cur, data );
@@ -8863,7 +9111,10 @@ if ( !support.focusin ) {
 
 		jQuery.event.special[ fix ] = {
 			setup: function() {
-				var doc = this.ownerDocument || this,
+
+				// Handle: regular nodes (via `this.ownerDocument`), window
+				// (via `this.document`) & document (via `this`).
+				var doc = this.ownerDocument || this.document || this,
 					attaches = dataPriv.access( doc, fix );
 
 				if ( !attaches ) {
@@ -8872,7 +9123,7 @@ if ( !support.focusin ) {
 				dataPriv.access( doc, fix, ( attaches || 0 ) + 1 );
 			},
 			teardown: function() {
-				var doc = this.ownerDocument || this,
+				var doc = this.ownerDocument || this.document || this,
 					attaches = dataPriv.access( doc, fix ) - 1;
 
 				if ( !attaches ) {
@@ -8888,7 +9139,7 @@ if ( !support.focusin ) {
 }
 var location = window.location;
 
-var nonce = Date.now();
+var nonce = { guid: Date.now() };
 
 var rquery = ( /\?/ );
 
@@ -8896,7 +9147,7 @@ var rquery = ( /\?/ );
 
 // Cross-browser xml parsing
 jQuery.parseXML = function( data ) {
-	var xml;
+	var xml, parserErrorElem;
 	if ( !data || typeof data !== "string" ) {
 		return null;
 	}
@@ -8905,12 +9156,17 @@ jQuery.parseXML = function( data ) {
 	// IE throws on parseFromString with invalid input.
 	try {
 		xml = ( new window.DOMParser() ).parseFromString( data, "text/xml" );
-	} catch ( e ) {
-		xml = undefined;
-	}
+	} catch ( e ) {}
 
-	if ( !xml || xml.getElementsByTagName( "parsererror" ).length ) {
-		jQuery.error( "Invalid XML: " + data );
+	parserErrorElem = xml && xml.getElementsByTagName( "parsererror" )[ 0 ];
+	if ( !xml || parserErrorElem ) {
+		jQuery.error( "Invalid XML: " + (
+			parserErrorElem ?
+				jQuery.map( parserErrorElem.childNodes, function( el ) {
+					return el.textContent;
+				} ).join( "\n" ) :
+				data
+		) );
 	}
 	return xml;
 };
@@ -9011,16 +9267,14 @@ jQuery.fn.extend( {
 			// Can add propHook for "elements" to filter or add form elements
 			var elements = jQuery.prop( this, "elements" );
 			return elements ? jQuery.makeArray( elements ) : this;
-		} )
-		.filter( function() {
+		} ).filter( function() {
 			var type = this.type;
 
 			// Use .is( ":disabled" ) so that fieldset[disabled] works
 			return this.name && !jQuery( this ).is( ":disabled" ) &&
 				rsubmittable.test( this.nodeName ) && !rsubmitterTypes.test( type ) &&
 				( this.checked || !rcheckableType.test( type ) );
-		} )
-		.map( function( i, elem ) {
+		} ).map( function( _i, elem ) {
 			var val = jQuery( this ).val();
 
 			if ( val == null ) {
@@ -9073,7 +9327,8 @@ var
 
 	// Anchor tag for parsing the document origin
 	originAnchor = document.createElement( "a" );
-	originAnchor.href = location.href;
+
+originAnchor.href = location.href;
 
 // Base "constructor" for jQuery.ajaxPrefilter and jQuery.ajaxTransport
 function addToPrefiltersOrTransports( structure ) {
@@ -9454,8 +9709,8 @@ jQuery.extend( {
 			// Context for global events is callbackContext if it is a DOM node or jQuery collection
 			globalEventContext = s.context &&
 				( callbackContext.nodeType || callbackContext.jquery ) ?
-					jQuery( callbackContext ) :
-					jQuery.event,
+				jQuery( callbackContext ) :
+				jQuery.event,
 
 			// Deferreds
 			deferred = jQuery.Deferred(),
@@ -9633,7 +9888,8 @@ jQuery.extend( {
 			// Add or update anti-cache param if needed
 			if ( s.cache === false ) {
 				cacheURL = cacheURL.replace( rantiCache, "$1" );
-				uncached = ( rquery.test( cacheURL ) ? "&" : "?" ) + "_=" + ( nonce++ ) + uncached;
+				uncached = ( rquery.test( cacheURL ) ? "&" : "?" ) + "_=" + ( nonce.guid++ ) +
+					uncached;
 			}
 
 			// Put hash and anti-cache on the URL that will be requested (gh-1732)
@@ -9766,6 +10022,13 @@ jQuery.extend( {
 				response = ajaxHandleResponses( s, jqXHR, responses );
 			}
 
+			// Use a noop converter for missing script but not if jsonp
+			if ( !isSuccess &&
+				jQuery.inArray( "script", s.dataTypes ) > -1 &&
+				jQuery.inArray( "json", s.dataTypes ) < 0 ) {
+				s.converters[ "text script" ] = function() {};
+			}
+
 			// Convert no matter what (that way responseXXX fields are always set)
 			response = ajaxConvert( s, response, jqXHR, isSuccess );
 
@@ -9856,7 +10119,7 @@ jQuery.extend( {
 	}
 } );
 
-jQuery.each( [ "get", "post" ], function( i, method ) {
+jQuery.each( [ "get", "post" ], function( _i, method ) {
 	jQuery[ method ] = function( url, data, callback, type ) {
 
 		// Shift arguments if data argument was omitted
@@ -9877,8 +10140,17 @@ jQuery.each( [ "get", "post" ], function( i, method ) {
 	};
 } );
 
+jQuery.ajaxPrefilter( function( s ) {
+	var i;
+	for ( i in s.headers ) {
+		if ( i.toLowerCase() === "content-type" ) {
+			s.contentType = s.headers[ i ] || "";
+		}
+	}
+} );
 
-jQuery._evalUrl = function( url, options ) {
+
+jQuery._evalUrl = function( url, options, doc ) {
 	return jQuery.ajax( {
 		url: url,
 
@@ -9896,7 +10168,7 @@ jQuery._evalUrl = function( url, options ) {
 			"text script": function() {}
 		},
 		dataFilter: function( response ) {
-			jQuery.globalEval( response, options );
+			jQuery.globalEval( response, options, doc );
 		}
 	} );
 };
@@ -10218,7 +10490,7 @@ var oldCallbacks = [],
 jQuery.ajaxSetup( {
 	jsonp: "callback",
 	jsonpCallback: function() {
-		var callback = oldCallbacks.pop() || ( jQuery.expando + "_" + ( nonce++ ) );
+		var callback = oldCallbacks.pop() || ( jQuery.expando + "_" + ( nonce.guid++ ) );
 		this[ callback ] = true;
 		return callback;
 	}
@@ -10435,23 +10707,6 @@ jQuery.fn.load = function( url, params, callback ) {
 
 
 
-// Attach a bunch of functions for handling common AJAX events
-jQuery.each( [
-	"ajaxStart",
-	"ajaxStop",
-	"ajaxComplete",
-	"ajaxError",
-	"ajaxSuccess",
-	"ajaxSend"
-], function( i, type ) {
-	jQuery.fn[ type ] = function( fn ) {
-		return this.on( type, fn );
-	};
-} );
-
-
-
-
 jQuery.expr.pseudos.animated = function( elem ) {
 	return jQuery.grep( jQuery.timers, function( fn ) {
 		return elem === fn.elem;
@@ -10658,7 +10913,7 @@ jQuery.each( { scrollLeft: "pageXOffset", scrollTop: "pageYOffset" }, function( 
 // Blink bug: https://bugs.chromium.org/p/chromium/issues/detail?id=589347
 // getComputedStyle returns percent when specified for top/left/bottom/right;
 // rather than make the css module depend on the offset module, just check for it here
-jQuery.each( [ "top", "left" ], function( i, prop ) {
+jQuery.each( [ "top", "left" ], function( _i, prop ) {
 	jQuery.cssHooks[ prop ] = addGetHookIf( support.pixelPosition,
 		function( elem, computed ) {
 			if ( computed ) {
@@ -10676,8 +10931,11 @@ jQuery.each( [ "top", "left" ], function( i, prop ) {
 
 // Create innerHeight, innerWidth, height, width, outerHeight and outerWidth methods
 jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
-	jQuery.each( { padding: "inner" + name, content: type, "": "outer" + name },
-		function( defaultExtra, funcName ) {
+	jQuery.each( {
+		padding: "inner" + name,
+		content: type,
+		"": "outer" + name
+	}, function( defaultExtra, funcName ) {
 
 		// Margin is only for outerHeight, outerWidth
 		jQuery.fn[ funcName ] = function( margin, value ) {
@@ -10721,23 +10979,17 @@ jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
 } );
 
 
-jQuery.each( ( "blur focus focusin focusout resize scroll click dblclick " +
-	"mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave " +
-	"change select submit keydown keypress keyup contextmenu" ).split( " " ),
-	function( i, name ) {
-
-	// Handle event binding
-	jQuery.fn[ name ] = function( data, fn ) {
-		return arguments.length > 0 ?
-			this.on( name, null, data, fn ) :
-			this.trigger( name );
+jQuery.each( [
+	"ajaxStart",
+	"ajaxStop",
+	"ajaxComplete",
+	"ajaxError",
+	"ajaxSuccess",
+	"ajaxSend"
+], function( _i, type ) {
+	jQuery.fn[ type ] = function( fn ) {
+		return this.on( type, fn );
 	};
-} );
-
-jQuery.fn.extend( {
-	hover: function( fnOver, fnOut ) {
-		return this.mouseenter( fnOver ).mouseleave( fnOut || fnOver );
-	}
 } );
 
 
@@ -10761,8 +11013,34 @@ jQuery.fn.extend( {
 		return arguments.length === 1 ?
 			this.off( selector, "**" ) :
 			this.off( types, selector || "**", fn );
+	},
+
+	hover: function( fnOver, fnOut ) {
+		return this.mouseenter( fnOver ).mouseleave( fnOut || fnOver );
 	}
 } );
+
+jQuery.each(
+	( "blur focus focusin focusout resize scroll click dblclick " +
+	"mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave " +
+	"change select submit keydown keypress keyup contextmenu" ).split( " " ),
+	function( _i, name ) {
+
+		// Handle event binding
+		jQuery.fn[ name ] = function( data, fn ) {
+			return arguments.length > 0 ?
+				this.on( name, null, data, fn ) :
+				this.trigger( name );
+		};
+	}
+);
+
+
+
+
+// Support: Android <=4.0 only
+// Make sure we trim BOM and NBSP
+var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
 
 // Bind a function to a context, optionally partially applying any
 // arguments.
@@ -10826,6 +11104,11 @@ jQuery.isNumeric = function( obj ) {
 		!isNaN( obj - parseFloat( obj ) );
 };
 
+jQuery.trim = function( text ) {
+	return text == null ?
+		"" :
+		( text + "" ).replace( rtrim, "" );
+};
 
 
 
@@ -10875,7 +11158,7 @@ jQuery.noConflict = function( deep ) {
 // Expose jQuery and $ identifiers, even in AMD
 // (#7102#comment:10, https://github.com/jquery/jquery/pull/557)
 // and CommonJS for browser emulators (#13566)
-if ( !noGlobal ) {
+if ( typeof noGlobal === "undefined" ) {
 	window.jQuery = window.$ = jQuery;
 }
 
@@ -10892,7 +11175,7 @@ return jQuery;
 
 /* WEBPACK VAR INJECTION */(function(global) {/**!
  * @fileOverview Kickass library to create and place poppers near their reference elements.
- * @version 1.15.0
+ * @version 1.16.1
  * @license
  * Copyright (c) 2016 Federico Zivolo and contributors
  *
@@ -10919,16 +11202,17 @@ return jQuery;
 	undefined;
 }(this, (function () { 'use strict';
 
-var isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
+var isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined' && typeof navigator !== 'undefined';
 
-var longerTimeoutBrowsers = ['Edge', 'Trident', 'Firefox'];
-var timeoutDuration = 0;
-for (var i = 0; i < longerTimeoutBrowsers.length; i += 1) {
-  if (isBrowser && navigator.userAgent.indexOf(longerTimeoutBrowsers[i]) >= 0) {
-    timeoutDuration = 1;
-    break;
+var timeoutDuration = function () {
+  var longerTimeoutBrowsers = ['Edge', 'Trident', 'Firefox'];
+  for (var i = 0; i < longerTimeoutBrowsers.length; i += 1) {
+    if (isBrowser && navigator.userAgent.indexOf(longerTimeoutBrowsers[i]) >= 0) {
+      return 1;
+    }
   }
-}
+  return 0;
+}();
 
 function microtaskDebounce(fn) {
   var called = false;
@@ -11046,6 +11330,17 @@ function getScrollParent(element) {
   }
 
   return getScrollParent(getParentNode(element));
+}
+
+/**
+ * Returns the reference node of the reference object, or the reference object itself.
+ * @method
+ * @memberof Popper.Utils
+ * @param {Element|Object} reference - the reference element (the popper will be relative to this)
+ * @returns {Element} parent
+ */
+function getReferenceNode(reference) {
+  return reference && reference.referenceNode ? reference.referenceNode : reference;
 }
 
 var isIE11 = isBrowser && !!(window.MSInputMethodContext && document.documentMode);
@@ -11231,7 +11526,7 @@ function getBordersSize(styles, axis) {
   var sideA = axis === 'x' ? 'Left' : 'Top';
   var sideB = sideA === 'Left' ? 'Right' : 'Bottom';
 
-  return parseFloat(styles['border' + sideA + 'Width'], 10) + parseFloat(styles['border' + sideB + 'Width'], 10);
+  return parseFloat(styles['border' + sideA + 'Width']) + parseFloat(styles['border' + sideB + 'Width']);
 }
 
 function getSize(axis, body, html, computedStyle) {
@@ -11356,8 +11651,8 @@ function getBoundingClientRect(element) {
 
   // subtract scrollbar size from sizes
   var sizes = element.nodeName === 'HTML' ? getWindowSizes(element.ownerDocument) : {};
-  var width = sizes.width || element.clientWidth || result.right - result.left;
-  var height = sizes.height || element.clientHeight || result.bottom - result.top;
+  var width = sizes.width || element.clientWidth || result.width;
+  var height = sizes.height || element.clientHeight || result.height;
 
   var horizScrollbar = element.offsetWidth - width;
   var vertScrollbar = element.offsetHeight - height;
@@ -11386,8 +11681,8 @@ function getOffsetRectRelativeToArbitraryNode(children, parent) {
   var scrollParent = getScrollParent(children);
 
   var styles = getStyleComputedProperty(parent);
-  var borderTopWidth = parseFloat(styles.borderTopWidth, 10);
-  var borderLeftWidth = parseFloat(styles.borderLeftWidth, 10);
+  var borderTopWidth = parseFloat(styles.borderTopWidth);
+  var borderLeftWidth = parseFloat(styles.borderLeftWidth);
 
   // In cases where the parent is fixed, we must ignore negative scroll in offset calc
   if (fixedPosition && isHTML) {
@@ -11408,8 +11703,8 @@ function getOffsetRectRelativeToArbitraryNode(children, parent) {
   // differently when margins are applied to it. The margins are included in
   // the box of the documentElement, in the other cases not.
   if (!isIE10 && isHTML) {
-    var marginTop = parseFloat(styles.marginTop, 10);
-    var marginLeft = parseFloat(styles.marginLeft, 10);
+    var marginTop = parseFloat(styles.marginTop);
+    var marginLeft = parseFloat(styles.marginLeft);
 
     offsets.top -= borderTopWidth - marginTop;
     offsets.bottom -= borderTopWidth - marginTop;
@@ -11509,7 +11804,7 @@ function getBoundaries(popper, reference, padding, boundariesElement) {
   // NOTE: 1 DOM access here
 
   var boundaries = { top: 0, left: 0 };
-  var offsetParent = fixedPosition ? getFixedPositionOffsetParent(popper) : findCommonOffsetParent(popper, reference);
+  var offsetParent = fixedPosition ? getFixedPositionOffsetParent(popper) : findCommonOffsetParent(popper, getReferenceNode(reference));
 
   // Handle viewport case
   if (boundariesElement === 'viewport') {
@@ -11637,7 +11932,7 @@ function computeAutoPlacement(placement, refRect, popper, reference, boundariesE
 function getReferenceOffsets(state, popper, reference) {
   var fixedPosition = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
 
-  var commonOffsetParent = fixedPosition ? getFixedPositionOffsetParent(popper) : findCommonOffsetParent(popper, reference);
+  var commonOffsetParent = fixedPosition ? getFixedPositionOffsetParent(popper) : findCommonOffsetParent(popper, getReferenceNode(reference));
   return getOffsetRectRelativeToArbitraryNode(reference, commonOffsetParent, fixedPosition);
 }
 
@@ -11899,7 +12194,7 @@ function destroy() {
 
   this.disableEventListeners();
 
-  // remove the popper if user explicity asked for the deletion on destroy
+  // remove the popper if user explicitly asked for the deletion on destroy
   // do not use `remove` because IE11 doesn't support it
   if (this.options.removeOnDestroy) {
     this.popper.parentNode.removeChild(this.popper);
@@ -12348,8 +12643,8 @@ function arrow(data, options) {
   // Compute the sideValue using the updated popper offsets
   // take popper margin in account because we don't have this info available
   var css = getStyleComputedProperty(data.instance.popper);
-  var popperMarginSide = parseFloat(css['margin' + sideCapitalized], 10);
-  var popperBorderSide = parseFloat(css['border' + sideCapitalized + 'Width'], 10);
+  var popperMarginSide = parseFloat(css['margin' + sideCapitalized]);
+  var popperBorderSide = parseFloat(css['border' + sideCapitalized + 'Width']);
   var sideValue = center - data.offsets.popper[side] - popperMarginSide - popperBorderSide;
 
   // prevent arrowElement from being placed not contiguously to its popper
@@ -13535,17 +13830,19 @@ module.exports = g;
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
-  * Bootstrap v4.3.1 (https://getbootstrap.com/)
-  * Copyright 2011-2019 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
-  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+  * Bootstrap v4.6.1 (https://getbootstrap.com/)
+  * Copyright 2011-2021 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
+  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
   */
 (function (global, factory) {
    true ? factory(exports, __webpack_require__(3), __webpack_require__(7)) :
   undefined;
-}(this, function (exports, $, Popper) { 'use strict';
+})(this, (function (exports, $, Popper) { 'use strict';
 
-  $ = $ && $.hasOwnProperty('default') ? $['default'] : $;
-  Popper = Popper && Popper.hasOwnProperty('default') ? Popper['default'] : Popper;
+  function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+  var $__default = /*#__PURE__*/_interopDefaultLegacy($);
+  var Popper__default = /*#__PURE__*/_interopDefaultLegacy(Popper);
 
   function _defineProperties(target, props) {
     for (var i = 0; i < props.length; i++) {
@@ -13563,56 +13860,48 @@ module.exports = g;
     return Constructor;
   }
 
-  function _defineProperty(obj, key, value) {
-    if (key in obj) {
-      Object.defineProperty(obj, key, {
-        value: value,
-        enumerable: true,
-        configurable: true,
-        writable: true
-      });
-    } else {
-      obj[key] = value;
-    }
+  function _extends() {
+    _extends = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
 
-    return obj;
-  }
-
-  function _objectSpread(target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i] != null ? arguments[i] : {};
-      var ownKeys = Object.keys(source);
-
-      if (typeof Object.getOwnPropertySymbols === 'function') {
-        ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
-          return Object.getOwnPropertyDescriptor(source, sym).enumerable;
-        }));
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
       }
 
-      ownKeys.forEach(function (key) {
-        _defineProperty(target, key, source[key]);
-      });
-    }
+      return target;
+    };
 
-    return target;
+    return _extends.apply(this, arguments);
   }
 
   function _inheritsLoose(subClass, superClass) {
     subClass.prototype = Object.create(superClass.prototype);
     subClass.prototype.constructor = subClass;
-    subClass.__proto__ = superClass;
+
+    _setPrototypeOf(subClass, superClass);
+  }
+
+  function _setPrototypeOf(o, p) {
+    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+      o.__proto__ = p;
+      return o;
+    };
+
+    return _setPrototypeOf(o, p);
   }
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v4.3.1): util.js
-   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+   * Bootstrap (v4.6.1): util.js
+   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
   /**
-   * ------------------------------------------------------------------------
    * Private TransitionEnd Helpers
-   * ------------------------------------------------------------------------
    */
 
   var TRANSITION_END = 'transitionend';
@@ -13620,6 +13909,10 @@ module.exports = g;
   var MILLISECONDS_MULTIPLIER = 1000; // Shoutout AngusCroll (https://goo.gl/pxwQGp)
 
   function toType(obj) {
+    if (obj === null || typeof obj === 'undefined') {
+      return "" + obj;
+    }
+
     return {}.toString.call(obj).match(/\s([a-z]+)/i)[1].toLowerCase();
   }
 
@@ -13628,11 +13921,11 @@ module.exports = g;
       bindType: TRANSITION_END,
       delegateType: TRANSITION_END,
       handle: function handle(event) {
-        if ($(event.target).is(this)) {
+        if ($__default["default"](event.target).is(this)) {
           return event.handleObj.handler.apply(this, arguments); // eslint-disable-line prefer-rest-params
         }
 
-        return undefined; // eslint-disable-line no-undefined
+        return undefined;
       }
     };
   }
@@ -13641,7 +13934,7 @@ module.exports = g;
     var _this = this;
 
     var called = false;
-    $(this).one(Util.TRANSITION_END, function () {
+    $__default["default"](this).one(Util.TRANSITION_END, function () {
       called = true;
     });
     setTimeout(function () {
@@ -13653,13 +13946,11 @@ module.exports = g;
   }
 
   function setTransitionEndSupport() {
-    $.fn.emulateTransitionEnd = transitionEndEmulator;
-    $.event.special[Util.TRANSITION_END] = getSpecialTransitionEndEvent();
+    $__default["default"].fn.emulateTransitionEnd = transitionEndEmulator;
+    $__default["default"].event.special[Util.TRANSITION_END] = getSpecialTransitionEndEvent();
   }
   /**
-   * --------------------------------------------------------------------------
-   * Public Util Api
-   * --------------------------------------------------------------------------
+   * Public Util API
    */
 
 
@@ -13683,7 +13974,7 @@ module.exports = g;
 
       try {
         return document.querySelector(selector) ? selector : null;
-      } catch (err) {
+      } catch (_) {
         return null;
       }
     },
@@ -13693,8 +13984,8 @@ module.exports = g;
       } // Get transition-duration of the element
 
 
-      var transitionDuration = $(element).css('transition-duration');
-      var transitionDelay = $(element).css('transition-delay');
+      var transitionDuration = $__default["default"](element).css('transition-duration');
+      var transitionDelay = $__default["default"](element).css('transition-delay');
       var floatTransitionDuration = parseFloat(transitionDuration);
       var floatTransitionDelay = parseFloat(transitionDelay); // Return 0 if element or transition duration is not found
 
@@ -13711,9 +14002,8 @@ module.exports = g;
       return element.offsetHeight;
     },
     triggerTransitionEnd: function triggerTransitionEnd(element) {
-      $(element).trigger(TRANSITION_END);
+      $__default["default"](element).trigger(TRANSITION_END);
     },
-    // TODO: Remove in v5
     supportsTransitionEnd: function supportsTransitionEnd() {
       return Boolean(TRANSITION_END);
     },
@@ -13754,45 +14044,49 @@ module.exports = g;
       }
 
       return Util.findShadowRoot(element.parentNode);
+    },
+    jQueryDetection: function jQueryDetection() {
+      if (typeof $__default["default"] === 'undefined') {
+        throw new TypeError('Bootstrap\'s JavaScript requires jQuery. jQuery must be included before Bootstrap\'s JavaScript.');
+      }
+
+      var version = $__default["default"].fn.jquery.split(' ')[0].split('.');
+      var minMajor = 1;
+      var ltMajor = 2;
+      var minMinor = 9;
+      var minPatch = 1;
+      var maxMajor = 4;
+
+      if (version[0] < ltMajor && version[1] < minMinor || version[0] === minMajor && version[1] === minMinor && version[2] < minPatch || version[0] >= maxMajor) {
+        throw new Error('Bootstrap\'s JavaScript requires at least jQuery v1.9.1 but less than v4.0.0');
+      }
     }
   };
+  Util.jQueryDetection();
   setTransitionEndSupport();
 
   /**
-   * ------------------------------------------------------------------------
    * Constants
-   * ------------------------------------------------------------------------
    */
 
-  var NAME = 'alert';
-  var VERSION = '4.3.1';
-  var DATA_KEY = 'bs.alert';
-  var EVENT_KEY = "." + DATA_KEY;
-  var DATA_API_KEY = '.data-api';
-  var JQUERY_NO_CONFLICT = $.fn[NAME];
-  var Selector = {
-    DISMISS: '[data-dismiss="alert"]'
-  };
-  var Event = {
-    CLOSE: "close" + EVENT_KEY,
-    CLOSED: "closed" + EVENT_KEY,
-    CLICK_DATA_API: "click" + EVENT_KEY + DATA_API_KEY
-  };
-  var ClassName = {
-    ALERT: 'alert',
-    FADE: 'fade',
-    SHOW: 'show'
-    /**
-     * ------------------------------------------------------------------------
-     * Class Definition
-     * ------------------------------------------------------------------------
-     */
+  var NAME$a = 'alert';
+  var VERSION$a = '4.6.1';
+  var DATA_KEY$a = 'bs.alert';
+  var EVENT_KEY$a = "." + DATA_KEY$a;
+  var DATA_API_KEY$7 = '.data-api';
+  var JQUERY_NO_CONFLICT$a = $__default["default"].fn[NAME$a];
+  var CLASS_NAME_ALERT = 'alert';
+  var CLASS_NAME_FADE$5 = 'fade';
+  var CLASS_NAME_SHOW$7 = 'show';
+  var EVENT_CLOSE = "close" + EVENT_KEY$a;
+  var EVENT_CLOSED = "closed" + EVENT_KEY$a;
+  var EVENT_CLICK_DATA_API$6 = "click" + EVENT_KEY$a + DATA_API_KEY$7;
+  var SELECTOR_DISMISS = '[data-dismiss="alert"]';
+  /**
+   * Class definition
+   */
 
-  };
-
-  var Alert =
-  /*#__PURE__*/
-  function () {
+  var Alert = /*#__PURE__*/function () {
     function Alert(element) {
       this._element = element;
     } // Getters
@@ -13818,7 +14112,7 @@ module.exports = g;
     };
 
     _proto.dispose = function dispose() {
-      $.removeData(this._element, DATA_KEY);
+      $__default["default"].removeData(this._element, DATA_KEY$a);
       this._element = null;
     } // Private
     ;
@@ -13832,48 +14126,48 @@ module.exports = g;
       }
 
       if (!parent) {
-        parent = $(element).closest("." + ClassName.ALERT)[0];
+        parent = $__default["default"](element).closest("." + CLASS_NAME_ALERT)[0];
       }
 
       return parent;
     };
 
     _proto._triggerCloseEvent = function _triggerCloseEvent(element) {
-      var closeEvent = $.Event(Event.CLOSE);
-      $(element).trigger(closeEvent);
+      var closeEvent = $__default["default"].Event(EVENT_CLOSE);
+      $__default["default"](element).trigger(closeEvent);
       return closeEvent;
     };
 
     _proto._removeElement = function _removeElement(element) {
       var _this = this;
 
-      $(element).removeClass(ClassName.SHOW);
+      $__default["default"](element).removeClass(CLASS_NAME_SHOW$7);
 
-      if (!$(element).hasClass(ClassName.FADE)) {
+      if (!$__default["default"](element).hasClass(CLASS_NAME_FADE$5)) {
         this._destroyElement(element);
 
         return;
       }
 
       var transitionDuration = Util.getTransitionDurationFromElement(element);
-      $(element).one(Util.TRANSITION_END, function (event) {
+      $__default["default"](element).one(Util.TRANSITION_END, function (event) {
         return _this._destroyElement(element, event);
       }).emulateTransitionEnd(transitionDuration);
     };
 
     _proto._destroyElement = function _destroyElement(element) {
-      $(element).detach().trigger(Event.CLOSED).remove();
+      $__default["default"](element).detach().trigger(EVENT_CLOSED).remove();
     } // Static
     ;
 
     Alert._jQueryInterface = function _jQueryInterface(config) {
       return this.each(function () {
-        var $element = $(this);
-        var data = $element.data(DATA_KEY);
+        var $element = $__default["default"](this);
+        var data = $element.data(DATA_KEY$a);
 
         if (!data) {
           data = new Alert(this);
-          $element.data(DATA_KEY, data);
+          $element.data(DATA_KEY$a, data);
         }
 
         if (config === 'close') {
@@ -13895,74 +14189,61 @@ module.exports = g;
     _createClass(Alert, null, [{
       key: "VERSION",
       get: function get() {
-        return VERSION;
+        return VERSION$a;
       }
     }]);
 
     return Alert;
   }();
   /**
-   * ------------------------------------------------------------------------
-   * Data Api implementation
-   * ------------------------------------------------------------------------
+   * Data API implementation
    */
 
 
-  $(document).on(Event.CLICK_DATA_API, Selector.DISMISS, Alert._handleDismiss(new Alert()));
+  $__default["default"](document).on(EVENT_CLICK_DATA_API$6, SELECTOR_DISMISS, Alert._handleDismiss(new Alert()));
   /**
-   * ------------------------------------------------------------------------
    * jQuery
-   * ------------------------------------------------------------------------
    */
 
-  $.fn[NAME] = Alert._jQueryInterface;
-  $.fn[NAME].Constructor = Alert;
+  $__default["default"].fn[NAME$a] = Alert._jQueryInterface;
+  $__default["default"].fn[NAME$a].Constructor = Alert;
 
-  $.fn[NAME].noConflict = function () {
-    $.fn[NAME] = JQUERY_NO_CONFLICT;
+  $__default["default"].fn[NAME$a].noConflict = function () {
+    $__default["default"].fn[NAME$a] = JQUERY_NO_CONFLICT$a;
     return Alert._jQueryInterface;
   };
 
   /**
-   * ------------------------------------------------------------------------
    * Constants
-   * ------------------------------------------------------------------------
    */
 
-  var NAME$1 = 'button';
-  var VERSION$1 = '4.3.1';
-  var DATA_KEY$1 = 'bs.button';
-  var EVENT_KEY$1 = "." + DATA_KEY$1;
-  var DATA_API_KEY$1 = '.data-api';
-  var JQUERY_NO_CONFLICT$1 = $.fn[NAME$1];
-  var ClassName$1 = {
-    ACTIVE: 'active',
-    BUTTON: 'btn',
-    FOCUS: 'focus'
-  };
-  var Selector$1 = {
-    DATA_TOGGLE_CARROT: '[data-toggle^="button"]',
-    DATA_TOGGLE: '[data-toggle="buttons"]',
-    INPUT: 'input:not([type="hidden"])',
-    ACTIVE: '.active',
-    BUTTON: '.btn'
-  };
-  var Event$1 = {
-    CLICK_DATA_API: "click" + EVENT_KEY$1 + DATA_API_KEY$1,
-    FOCUS_BLUR_DATA_API: "focus" + EVENT_KEY$1 + DATA_API_KEY$1 + " " + ("blur" + EVENT_KEY$1 + DATA_API_KEY$1)
-    /**
-     * ------------------------------------------------------------------------
-     * Class Definition
-     * ------------------------------------------------------------------------
-     */
+  var NAME$9 = 'button';
+  var VERSION$9 = '4.6.1';
+  var DATA_KEY$9 = 'bs.button';
+  var EVENT_KEY$9 = "." + DATA_KEY$9;
+  var DATA_API_KEY$6 = '.data-api';
+  var JQUERY_NO_CONFLICT$9 = $__default["default"].fn[NAME$9];
+  var CLASS_NAME_ACTIVE$3 = 'active';
+  var CLASS_NAME_BUTTON = 'btn';
+  var CLASS_NAME_FOCUS = 'focus';
+  var EVENT_CLICK_DATA_API$5 = "click" + EVENT_KEY$9 + DATA_API_KEY$6;
+  var EVENT_FOCUS_BLUR_DATA_API = "focus" + EVENT_KEY$9 + DATA_API_KEY$6 + " " + ("blur" + EVENT_KEY$9 + DATA_API_KEY$6);
+  var EVENT_LOAD_DATA_API$2 = "load" + EVENT_KEY$9 + DATA_API_KEY$6;
+  var SELECTOR_DATA_TOGGLE_CARROT = '[data-toggle^="button"]';
+  var SELECTOR_DATA_TOGGLES = '[data-toggle="buttons"]';
+  var SELECTOR_DATA_TOGGLE$4 = '[data-toggle="button"]';
+  var SELECTOR_DATA_TOGGLES_BUTTONS = '[data-toggle="buttons"] .btn';
+  var SELECTOR_INPUT = 'input:not([type="hidden"])';
+  var SELECTOR_ACTIVE$2 = '.active';
+  var SELECTOR_BUTTON = '.btn';
+  /**
+   * Class definition
+   */
 
-  };
-
-  var Button =
-  /*#__PURE__*/
-  function () {
+  var Button = /*#__PURE__*/function () {
     function Button(element) {
       this._element = element;
+      this.shouldAvoidTriggerChange = false;
     } // Getters
 
 
@@ -13972,31 +14253,33 @@ module.exports = g;
     _proto.toggle = function toggle() {
       var triggerChangeEvent = true;
       var addAriaPressed = true;
-      var rootElement = $(this._element).closest(Selector$1.DATA_TOGGLE)[0];
+      var rootElement = $__default["default"](this._element).closest(SELECTOR_DATA_TOGGLES)[0];
 
       if (rootElement) {
-        var input = this._element.querySelector(Selector$1.INPUT);
+        var input = this._element.querySelector(SELECTOR_INPUT);
 
         if (input) {
           if (input.type === 'radio') {
-            if (input.checked && this._element.classList.contains(ClassName$1.ACTIVE)) {
+            if (input.checked && this._element.classList.contains(CLASS_NAME_ACTIVE$3)) {
               triggerChangeEvent = false;
             } else {
-              var activeElement = rootElement.querySelector(Selector$1.ACTIVE);
+              var activeElement = rootElement.querySelector(SELECTOR_ACTIVE$2);
 
               if (activeElement) {
-                $(activeElement).removeClass(ClassName$1.ACTIVE);
+                $__default["default"](activeElement).removeClass(CLASS_NAME_ACTIVE$3);
               }
             }
           }
 
           if (triggerChangeEvent) {
-            if (input.hasAttribute('disabled') || rootElement.hasAttribute('disabled') || input.classList.contains('disabled') || rootElement.classList.contains('disabled')) {
-              return;
+            // if it's not a radio button or checkbox don't add a pointless/invalid checked property to the input
+            if (input.type === 'checkbox' || input.type === 'radio') {
+              input.checked = !this._element.classList.contains(CLASS_NAME_ACTIVE$3);
             }
 
-            input.checked = !this._element.classList.contains(ClassName$1.ACTIVE);
-            $(input).trigger('change');
+            if (!this.shouldAvoidTriggerChange) {
+              $__default["default"](input).trigger('change');
+            }
           }
 
           input.focus();
@@ -14004,29 +14287,34 @@ module.exports = g;
         }
       }
 
-      if (addAriaPressed) {
-        this._element.setAttribute('aria-pressed', !this._element.classList.contains(ClassName$1.ACTIVE));
-      }
+      if (!(this._element.hasAttribute('disabled') || this._element.classList.contains('disabled'))) {
+        if (addAriaPressed) {
+          this._element.setAttribute('aria-pressed', !this._element.classList.contains(CLASS_NAME_ACTIVE$3));
+        }
 
-      if (triggerChangeEvent) {
-        $(this._element).toggleClass(ClassName$1.ACTIVE);
+        if (triggerChangeEvent) {
+          $__default["default"](this._element).toggleClass(CLASS_NAME_ACTIVE$3);
+        }
       }
     };
 
     _proto.dispose = function dispose() {
-      $.removeData(this._element, DATA_KEY$1);
+      $__default["default"].removeData(this._element, DATA_KEY$9);
       this._element = null;
     } // Static
     ;
 
-    Button._jQueryInterface = function _jQueryInterface(config) {
+    Button._jQueryInterface = function _jQueryInterface(config, avoidTriggerChange) {
       return this.each(function () {
-        var data = $(this).data(DATA_KEY$1);
+        var $element = $__default["default"](this);
+        var data = $element.data(DATA_KEY$9);
 
         if (!data) {
           data = new Button(this);
-          $(this).data(DATA_KEY$1, data);
+          $element.data(DATA_KEY$9, data);
         }
+
+        data.shouldAvoidTriggerChange = avoidTriggerChange;
 
         if (config === 'toggle') {
           data[config]();
@@ -14037,58 +14325,95 @@ module.exports = g;
     _createClass(Button, null, [{
       key: "VERSION",
       get: function get() {
-        return VERSION$1;
+        return VERSION$9;
       }
     }]);
 
     return Button;
   }();
   /**
-   * ------------------------------------------------------------------------
-   * Data Api implementation
-   * ------------------------------------------------------------------------
+   * Data API implementation
    */
 
 
-  $(document).on(Event$1.CLICK_DATA_API, Selector$1.DATA_TOGGLE_CARROT, function (event) {
-    event.preventDefault();
+  $__default["default"](document).on(EVENT_CLICK_DATA_API$5, SELECTOR_DATA_TOGGLE_CARROT, function (event) {
     var button = event.target;
+    var initialButton = button;
 
-    if (!$(button).hasClass(ClassName$1.BUTTON)) {
-      button = $(button).closest(Selector$1.BUTTON);
+    if (!$__default["default"](button).hasClass(CLASS_NAME_BUTTON)) {
+      button = $__default["default"](button).closest(SELECTOR_BUTTON)[0];
     }
 
-    Button._jQueryInterface.call($(button), 'toggle');
-  }).on(Event$1.FOCUS_BLUR_DATA_API, Selector$1.DATA_TOGGLE_CARROT, function (event) {
-    var button = $(event.target).closest(Selector$1.BUTTON)[0];
-    $(button).toggleClass(ClassName$1.FOCUS, /^focus(in)?$/.test(event.type));
+    if (!button || button.hasAttribute('disabled') || button.classList.contains('disabled')) {
+      event.preventDefault(); // work around Firefox bug #1540995
+    } else {
+      var inputBtn = button.querySelector(SELECTOR_INPUT);
+
+      if (inputBtn && (inputBtn.hasAttribute('disabled') || inputBtn.classList.contains('disabled'))) {
+        event.preventDefault(); // work around Firefox bug #1540995
+
+        return;
+      }
+
+      if (initialButton.tagName === 'INPUT' || button.tagName !== 'LABEL') {
+        Button._jQueryInterface.call($__default["default"](button), 'toggle', initialButton.tagName === 'INPUT');
+      }
+    }
+  }).on(EVENT_FOCUS_BLUR_DATA_API, SELECTOR_DATA_TOGGLE_CARROT, function (event) {
+    var button = $__default["default"](event.target).closest(SELECTOR_BUTTON)[0];
+    $__default["default"](button).toggleClass(CLASS_NAME_FOCUS, /^focus(in)?$/.test(event.type));
+  });
+  $__default["default"](window).on(EVENT_LOAD_DATA_API$2, function () {
+    // ensure correct active class is set to match the controls' actual values/states
+    // find all checkboxes/readio buttons inside data-toggle groups
+    var buttons = [].slice.call(document.querySelectorAll(SELECTOR_DATA_TOGGLES_BUTTONS));
+
+    for (var i = 0, len = buttons.length; i < len; i++) {
+      var button = buttons[i];
+      var input = button.querySelector(SELECTOR_INPUT);
+
+      if (input.checked || input.hasAttribute('checked')) {
+        button.classList.add(CLASS_NAME_ACTIVE$3);
+      } else {
+        button.classList.remove(CLASS_NAME_ACTIVE$3);
+      }
+    } // find all button toggles
+
+
+    buttons = [].slice.call(document.querySelectorAll(SELECTOR_DATA_TOGGLE$4));
+
+    for (var _i = 0, _len = buttons.length; _i < _len; _i++) {
+      var _button = buttons[_i];
+
+      if (_button.getAttribute('aria-pressed') === 'true') {
+        _button.classList.add(CLASS_NAME_ACTIVE$3);
+      } else {
+        _button.classList.remove(CLASS_NAME_ACTIVE$3);
+      }
+    }
   });
   /**
-   * ------------------------------------------------------------------------
    * jQuery
-   * ------------------------------------------------------------------------
    */
 
-  $.fn[NAME$1] = Button._jQueryInterface;
-  $.fn[NAME$1].Constructor = Button;
+  $__default["default"].fn[NAME$9] = Button._jQueryInterface;
+  $__default["default"].fn[NAME$9].Constructor = Button;
 
-  $.fn[NAME$1].noConflict = function () {
-    $.fn[NAME$1] = JQUERY_NO_CONFLICT$1;
+  $__default["default"].fn[NAME$9].noConflict = function () {
+    $__default["default"].fn[NAME$9] = JQUERY_NO_CONFLICT$9;
     return Button._jQueryInterface;
   };
 
   /**
-   * ------------------------------------------------------------------------
    * Constants
-   * ------------------------------------------------------------------------
    */
 
-  var NAME$2 = 'carousel';
-  var VERSION$2 = '4.3.1';
-  var DATA_KEY$2 = 'bs.carousel';
-  var EVENT_KEY$2 = "." + DATA_KEY$2;
-  var DATA_API_KEY$2 = '.data-api';
-  var JQUERY_NO_CONFLICT$2 = $.fn[NAME$2];
+  var NAME$8 = 'carousel';
+  var VERSION$8 = '4.6.1';
+  var DATA_KEY$8 = 'bs.carousel';
+  var EVENT_KEY$8 = "." + DATA_KEY$8;
+  var DATA_API_KEY$5 = '.data-api';
+  var JQUERY_NO_CONFLICT$8 = $__default["default"].fn[NAME$8];
   var ARROW_LEFT_KEYCODE = 37; // KeyboardEvent.which value for left arrow key
 
   var ARROW_RIGHT_KEYCODE = 39; // KeyboardEvent.which value for right arrow key
@@ -14096,7 +14421,40 @@ module.exports = g;
   var TOUCHEVENT_COMPAT_WAIT = 500; // Time for mouse compat events to fire after touch
 
   var SWIPE_THRESHOLD = 40;
-  var Default = {
+  var CLASS_NAME_CAROUSEL = 'carousel';
+  var CLASS_NAME_ACTIVE$2 = 'active';
+  var CLASS_NAME_SLIDE = 'slide';
+  var CLASS_NAME_RIGHT = 'carousel-item-right';
+  var CLASS_NAME_LEFT = 'carousel-item-left';
+  var CLASS_NAME_NEXT = 'carousel-item-next';
+  var CLASS_NAME_PREV = 'carousel-item-prev';
+  var CLASS_NAME_POINTER_EVENT = 'pointer-event';
+  var DIRECTION_NEXT = 'next';
+  var DIRECTION_PREV = 'prev';
+  var DIRECTION_LEFT = 'left';
+  var DIRECTION_RIGHT = 'right';
+  var EVENT_SLIDE = "slide" + EVENT_KEY$8;
+  var EVENT_SLID = "slid" + EVENT_KEY$8;
+  var EVENT_KEYDOWN = "keydown" + EVENT_KEY$8;
+  var EVENT_MOUSEENTER = "mouseenter" + EVENT_KEY$8;
+  var EVENT_MOUSELEAVE = "mouseleave" + EVENT_KEY$8;
+  var EVENT_TOUCHSTART = "touchstart" + EVENT_KEY$8;
+  var EVENT_TOUCHMOVE = "touchmove" + EVENT_KEY$8;
+  var EVENT_TOUCHEND = "touchend" + EVENT_KEY$8;
+  var EVENT_POINTERDOWN = "pointerdown" + EVENT_KEY$8;
+  var EVENT_POINTERUP = "pointerup" + EVENT_KEY$8;
+  var EVENT_DRAG_START = "dragstart" + EVENT_KEY$8;
+  var EVENT_LOAD_DATA_API$1 = "load" + EVENT_KEY$8 + DATA_API_KEY$5;
+  var EVENT_CLICK_DATA_API$4 = "click" + EVENT_KEY$8 + DATA_API_KEY$5;
+  var SELECTOR_ACTIVE$1 = '.active';
+  var SELECTOR_ACTIVE_ITEM = '.active.carousel-item';
+  var SELECTOR_ITEM = '.carousel-item';
+  var SELECTOR_ITEM_IMG = '.carousel-item img';
+  var SELECTOR_NEXT_PREV = '.carousel-item-next, .carousel-item-prev';
+  var SELECTOR_INDICATORS = '.carousel-indicators';
+  var SELECTOR_DATA_SLIDE = '[data-slide], [data-slide-to]';
+  var SELECTOR_DATA_RIDE = '[data-ride="carousel"]';
+  var Default$7 = {
     interval: 5000,
     keyboard: true,
     slide: false,
@@ -14104,7 +14462,7 @@ module.exports = g;
     wrap: true,
     touch: true
   };
-  var DefaultType = {
+  var DefaultType$7 = {
     interval: '(number|boolean)',
     keyboard: 'boolean',
     slide: '(boolean|string)',
@@ -14112,62 +14470,15 @@ module.exports = g;
     wrap: 'boolean',
     touch: 'boolean'
   };
-  var Direction = {
-    NEXT: 'next',
-    PREV: 'prev',
-    LEFT: 'left',
-    RIGHT: 'right'
-  };
-  var Event$2 = {
-    SLIDE: "slide" + EVENT_KEY$2,
-    SLID: "slid" + EVENT_KEY$2,
-    KEYDOWN: "keydown" + EVENT_KEY$2,
-    MOUSEENTER: "mouseenter" + EVENT_KEY$2,
-    MOUSELEAVE: "mouseleave" + EVENT_KEY$2,
-    TOUCHSTART: "touchstart" + EVENT_KEY$2,
-    TOUCHMOVE: "touchmove" + EVENT_KEY$2,
-    TOUCHEND: "touchend" + EVENT_KEY$2,
-    POINTERDOWN: "pointerdown" + EVENT_KEY$2,
-    POINTERUP: "pointerup" + EVENT_KEY$2,
-    DRAG_START: "dragstart" + EVENT_KEY$2,
-    LOAD_DATA_API: "load" + EVENT_KEY$2 + DATA_API_KEY$2,
-    CLICK_DATA_API: "click" + EVENT_KEY$2 + DATA_API_KEY$2
-  };
-  var ClassName$2 = {
-    CAROUSEL: 'carousel',
-    ACTIVE: 'active',
-    SLIDE: 'slide',
-    RIGHT: 'carousel-item-right',
-    LEFT: 'carousel-item-left',
-    NEXT: 'carousel-item-next',
-    PREV: 'carousel-item-prev',
-    ITEM: 'carousel-item',
-    POINTER_EVENT: 'pointer-event'
-  };
-  var Selector$2 = {
-    ACTIVE: '.active',
-    ACTIVE_ITEM: '.active.carousel-item',
-    ITEM: '.carousel-item',
-    ITEM_IMG: '.carousel-item img',
-    NEXT_PREV: '.carousel-item-next, .carousel-item-prev',
-    INDICATORS: '.carousel-indicators',
-    DATA_SLIDE: '[data-slide], [data-slide-to]',
-    DATA_RIDE: '[data-ride="carousel"]'
-  };
   var PointerType = {
     TOUCH: 'touch',
     PEN: 'pen'
-    /**
-     * ------------------------------------------------------------------------
-     * Class Definition
-     * ------------------------------------------------------------------------
-     */
-
   };
+  /**
+   * Class definition
+   */
 
-  var Carousel =
-  /*#__PURE__*/
-  function () {
+  var Carousel = /*#__PURE__*/function () {
     function Carousel(element, config) {
       this._items = null;
       this._interval = null;
@@ -14179,7 +14490,7 @@ module.exports = g;
       this.touchDeltaX = 0;
       this._config = this._getConfig(config);
       this._element = element;
-      this._indicatorsElement = this._element.querySelector(Selector$2.INDICATORS);
+      this._indicatorsElement = this._element.querySelector(SELECTOR_INDICATORS);
       this._touchSupported = 'ontouchstart' in document.documentElement || navigator.maxTouchPoints > 0;
       this._pointerEvent = Boolean(window.PointerEvent || window.MSPointerEvent);
 
@@ -14192,21 +14503,22 @@ module.exports = g;
     // Public
     _proto.next = function next() {
       if (!this._isSliding) {
-        this._slide(Direction.NEXT);
+        this._slide(DIRECTION_NEXT);
       }
     };
 
     _proto.nextWhenVisible = function nextWhenVisible() {
-      // Don't call next when the page isn't visible
+      var $element = $__default["default"](this._element); // Don't call next when the page isn't visible
       // or the carousel or its parent isn't visible
-      if (!document.hidden && $(this._element).is(':visible') && $(this._element).css('visibility') !== 'hidden') {
+
+      if (!document.hidden && $element.is(':visible') && $element.css('visibility') !== 'hidden') {
         this.next();
       }
     };
 
     _proto.prev = function prev() {
       if (!this._isSliding) {
-        this._slide(Direction.PREV);
+        this._slide(DIRECTION_PREV);
       }
     };
 
@@ -14215,7 +14527,7 @@ module.exports = g;
         this._isPaused = true;
       }
 
-      if (this._element.querySelector(Selector$2.NEXT_PREV)) {
+      if (this._element.querySelector(SELECTOR_NEXT_PREV)) {
         Util.triggerTransitionEnd(this._element);
         this.cycle(true);
       }
@@ -14235,6 +14547,8 @@ module.exports = g;
       }
 
       if (this._config.interval && !this._isPaused) {
+        this._updateInterval();
+
         this._interval = setInterval((document.visibilityState ? this.nextWhenVisible : this.next).bind(this), this._config.interval);
       }
     };
@@ -14242,7 +14556,7 @@ module.exports = g;
     _proto.to = function to(index) {
       var _this = this;
 
-      this._activeElement = this._element.querySelector(Selector$2.ACTIVE_ITEM);
+      this._activeElement = this._element.querySelector(SELECTOR_ACTIVE_ITEM);
 
       var activeIndex = this._getItemIndex(this._activeElement);
 
@@ -14251,7 +14565,7 @@ module.exports = g;
       }
 
       if (this._isSliding) {
-        $(this._element).one(Event$2.SLID, function () {
+        $__default["default"](this._element).one(EVENT_SLID, function () {
           return _this.to(index);
         });
         return;
@@ -14263,14 +14577,14 @@ module.exports = g;
         return;
       }
 
-      var direction = index > activeIndex ? Direction.NEXT : Direction.PREV;
+      var direction = index > activeIndex ? DIRECTION_NEXT : DIRECTION_PREV;
 
       this._slide(direction, this._items[index]);
     };
 
     _proto.dispose = function dispose() {
-      $(this._element).off(EVENT_KEY$2);
-      $.removeData(this._element, DATA_KEY$2);
+      $__default["default"](this._element).off(EVENT_KEY$8);
+      $__default["default"].removeData(this._element, DATA_KEY$8);
       this._items = null;
       this._config = null;
       this._element = null;
@@ -14283,8 +14597,8 @@ module.exports = g;
     ;
 
     _proto._getConfig = function _getConfig(config) {
-      config = _objectSpread({}, Default, config);
-      Util.typeCheckConfig(NAME$2, config, DefaultType);
+      config = _extends({}, Default$7, config);
+      Util.typeCheckConfig(NAME$8, config, DefaultType$7);
       return config;
     };
 
@@ -14295,7 +14609,8 @@ module.exports = g;
         return;
       }
 
-      var direction = absDeltax / this.touchDeltaX; // swipe left
+      var direction = absDeltax / this.touchDeltaX;
+      this.touchDeltaX = 0; // swipe left
 
       if (direction > 0) {
         this.prev();
@@ -14311,15 +14626,15 @@ module.exports = g;
       var _this2 = this;
 
       if (this._config.keyboard) {
-        $(this._element).on(Event$2.KEYDOWN, function (event) {
+        $__default["default"](this._element).on(EVENT_KEYDOWN, function (event) {
           return _this2._keydown(event);
         });
       }
 
       if (this._config.pause === 'hover') {
-        $(this._element).on(Event$2.MOUSEENTER, function (event) {
+        $__default["default"](this._element).on(EVENT_MOUSEENTER, function (event) {
           return _this2.pause(event);
-        }).on(Event$2.MOUSELEAVE, function (event) {
+        }).on(EVENT_MOUSELEAVE, function (event) {
           return _this2.cycle(event);
         });
       }
@@ -14346,11 +14661,7 @@ module.exports = g;
 
       var move = function move(event) {
         // ensure swiping with one touch and not pinching
-        if (event.originalEvent.touches && event.originalEvent.touches.length > 1) {
-          _this3.touchDeltaX = 0;
-        } else {
-          _this3.touchDeltaX = event.originalEvent.touches[0].clientX - _this3.touchStartX;
-        }
+        _this3.touchDeltaX = event.originalEvent.touches && event.originalEvent.touches.length > 1 ? 0 : event.originalEvent.touches[0].clientX - _this3.touchStartX;
       };
 
       var end = function end(event) {
@@ -14380,27 +14691,27 @@ module.exports = g;
         }
       };
 
-      $(this._element.querySelectorAll(Selector$2.ITEM_IMG)).on(Event$2.DRAG_START, function (e) {
+      $__default["default"](this._element.querySelectorAll(SELECTOR_ITEM_IMG)).on(EVENT_DRAG_START, function (e) {
         return e.preventDefault();
       });
 
       if (this._pointerEvent) {
-        $(this._element).on(Event$2.POINTERDOWN, function (event) {
+        $__default["default"](this._element).on(EVENT_POINTERDOWN, function (event) {
           return start(event);
         });
-        $(this._element).on(Event$2.POINTERUP, function (event) {
+        $__default["default"](this._element).on(EVENT_POINTERUP, function (event) {
           return end(event);
         });
 
-        this._element.classList.add(ClassName$2.POINTER_EVENT);
+        this._element.classList.add(CLASS_NAME_POINTER_EVENT);
       } else {
-        $(this._element).on(Event$2.TOUCHSTART, function (event) {
+        $__default["default"](this._element).on(EVENT_TOUCHSTART, function (event) {
           return start(event);
         });
-        $(this._element).on(Event$2.TOUCHMOVE, function (event) {
+        $__default["default"](this._element).on(EVENT_TOUCHMOVE, function (event) {
           return move(event);
         });
-        $(this._element).on(Event$2.TOUCHEND, function (event) {
+        $__default["default"](this._element).on(EVENT_TOUCHEND, function (event) {
           return end(event);
         });
       }
@@ -14421,19 +14732,17 @@ module.exports = g;
           event.preventDefault();
           this.next();
           break;
-
-        default:
       }
     };
 
     _proto._getItemIndex = function _getItemIndex(element) {
-      this._items = element && element.parentNode ? [].slice.call(element.parentNode.querySelectorAll(Selector$2.ITEM)) : [];
+      this._items = element && element.parentNode ? [].slice.call(element.parentNode.querySelectorAll(SELECTOR_ITEM)) : [];
       return this._items.indexOf(element);
     };
 
     _proto._getItemByDirection = function _getItemByDirection(direction, activeElement) {
-      var isNextDirection = direction === Direction.NEXT;
-      var isPrevDirection = direction === Direction.PREV;
+      var isNextDirection = direction === DIRECTION_NEXT;
+      var isPrevDirection = direction === DIRECTION_PREV;
 
       var activeIndex = this._getItemIndex(activeElement);
 
@@ -14444,7 +14753,7 @@ module.exports = g;
         return activeElement;
       }
 
-      var delta = direction === Direction.PREV ? -1 : 1;
+      var delta = direction === DIRECTION_PREV ? -1 : 1;
       var itemIndex = (activeIndex + delta) % this._items.length;
       return itemIndex === -1 ? this._items[this._items.length - 1] : this._items[itemIndex];
     };
@@ -14452,35 +14761,52 @@ module.exports = g;
     _proto._triggerSlideEvent = function _triggerSlideEvent(relatedTarget, eventDirectionName) {
       var targetIndex = this._getItemIndex(relatedTarget);
 
-      var fromIndex = this._getItemIndex(this._element.querySelector(Selector$2.ACTIVE_ITEM));
+      var fromIndex = this._getItemIndex(this._element.querySelector(SELECTOR_ACTIVE_ITEM));
 
-      var slideEvent = $.Event(Event$2.SLIDE, {
+      var slideEvent = $__default["default"].Event(EVENT_SLIDE, {
         relatedTarget: relatedTarget,
         direction: eventDirectionName,
         from: fromIndex,
         to: targetIndex
       });
-      $(this._element).trigger(slideEvent);
+      $__default["default"](this._element).trigger(slideEvent);
       return slideEvent;
     };
 
     _proto._setActiveIndicatorElement = function _setActiveIndicatorElement(element) {
       if (this._indicatorsElement) {
-        var indicators = [].slice.call(this._indicatorsElement.querySelectorAll(Selector$2.ACTIVE));
-        $(indicators).removeClass(ClassName$2.ACTIVE);
+        var indicators = [].slice.call(this._indicatorsElement.querySelectorAll(SELECTOR_ACTIVE$1));
+        $__default["default"](indicators).removeClass(CLASS_NAME_ACTIVE$2);
 
         var nextIndicator = this._indicatorsElement.children[this._getItemIndex(element)];
 
         if (nextIndicator) {
-          $(nextIndicator).addClass(ClassName$2.ACTIVE);
+          $__default["default"](nextIndicator).addClass(CLASS_NAME_ACTIVE$2);
         }
+      }
+    };
+
+    _proto._updateInterval = function _updateInterval() {
+      var element = this._activeElement || this._element.querySelector(SELECTOR_ACTIVE_ITEM);
+
+      if (!element) {
+        return;
+      }
+
+      var elementInterval = parseInt(element.getAttribute('data-interval'), 10);
+
+      if (elementInterval) {
+        this._config.defaultInterval = this._config.defaultInterval || this._config.interval;
+        this._config.interval = elementInterval;
+      } else {
+        this._config.interval = this._config.defaultInterval || this._config.interval;
       }
     };
 
     _proto._slide = function _slide(direction, element) {
       var _this4 = this;
 
-      var activeElement = this._element.querySelector(Selector$2.ACTIVE_ITEM);
+      var activeElement = this._element.querySelector(SELECTOR_ACTIVE_ITEM);
 
       var activeElementIndex = this._getItemIndex(activeElement);
 
@@ -14493,17 +14819,17 @@ module.exports = g;
       var orderClassName;
       var eventDirectionName;
 
-      if (direction === Direction.NEXT) {
-        directionalClassName = ClassName$2.LEFT;
-        orderClassName = ClassName$2.NEXT;
-        eventDirectionName = Direction.LEFT;
+      if (direction === DIRECTION_NEXT) {
+        directionalClassName = CLASS_NAME_LEFT;
+        orderClassName = CLASS_NAME_NEXT;
+        eventDirectionName = DIRECTION_LEFT;
       } else {
-        directionalClassName = ClassName$2.RIGHT;
-        orderClassName = ClassName$2.PREV;
-        eventDirectionName = Direction.RIGHT;
+        directionalClassName = CLASS_NAME_RIGHT;
+        orderClassName = CLASS_NAME_PREV;
+        eventDirectionName = DIRECTION_RIGHT;
       }
 
-      if (nextElement && $(nextElement).hasClass(ClassName$2.ACTIVE)) {
+      if (nextElement && $__default["default"](nextElement).hasClass(CLASS_NAME_ACTIVE$2)) {
         this._isSliding = false;
         return;
       }
@@ -14527,41 +14853,33 @@ module.exports = g;
 
       this._setActiveIndicatorElement(nextElement);
 
-      var slidEvent = $.Event(Event$2.SLID, {
+      this._activeElement = nextElement;
+      var slidEvent = $__default["default"].Event(EVENT_SLID, {
         relatedTarget: nextElement,
         direction: eventDirectionName,
         from: activeElementIndex,
         to: nextElementIndex
       });
 
-      if ($(this._element).hasClass(ClassName$2.SLIDE)) {
-        $(nextElement).addClass(orderClassName);
+      if ($__default["default"](this._element).hasClass(CLASS_NAME_SLIDE)) {
+        $__default["default"](nextElement).addClass(orderClassName);
         Util.reflow(nextElement);
-        $(activeElement).addClass(directionalClassName);
-        $(nextElement).addClass(directionalClassName);
-        var nextElementInterval = parseInt(nextElement.getAttribute('data-interval'), 10);
-
-        if (nextElementInterval) {
-          this._config.defaultInterval = this._config.defaultInterval || this._config.interval;
-          this._config.interval = nextElementInterval;
-        } else {
-          this._config.interval = this._config.defaultInterval || this._config.interval;
-        }
-
+        $__default["default"](activeElement).addClass(directionalClassName);
+        $__default["default"](nextElement).addClass(directionalClassName);
         var transitionDuration = Util.getTransitionDurationFromElement(activeElement);
-        $(activeElement).one(Util.TRANSITION_END, function () {
-          $(nextElement).removeClass(directionalClassName + " " + orderClassName).addClass(ClassName$2.ACTIVE);
-          $(activeElement).removeClass(ClassName$2.ACTIVE + " " + orderClassName + " " + directionalClassName);
+        $__default["default"](activeElement).one(Util.TRANSITION_END, function () {
+          $__default["default"](nextElement).removeClass(directionalClassName + " " + orderClassName).addClass(CLASS_NAME_ACTIVE$2);
+          $__default["default"](activeElement).removeClass(CLASS_NAME_ACTIVE$2 + " " + orderClassName + " " + directionalClassName);
           _this4._isSliding = false;
           setTimeout(function () {
-            return $(_this4._element).trigger(slidEvent);
+            return $__default["default"](_this4._element).trigger(slidEvent);
           }, 0);
         }).emulateTransitionEnd(transitionDuration);
       } else {
-        $(activeElement).removeClass(ClassName$2.ACTIVE);
-        $(nextElement).addClass(ClassName$2.ACTIVE);
+        $__default["default"](activeElement).removeClass(CLASS_NAME_ACTIVE$2);
+        $__default["default"](nextElement).addClass(CLASS_NAME_ACTIVE$2);
         this._isSliding = false;
-        $(this._element).trigger(slidEvent);
+        $__default["default"](this._element).trigger(slidEvent);
       }
 
       if (isCycling) {
@@ -14572,19 +14890,19 @@ module.exports = g;
 
     Carousel._jQueryInterface = function _jQueryInterface(config) {
       return this.each(function () {
-        var data = $(this).data(DATA_KEY$2);
+        var data = $__default["default"](this).data(DATA_KEY$8);
 
-        var _config = _objectSpread({}, Default, $(this).data());
+        var _config = _extends({}, Default$7, $__default["default"](this).data());
 
         if (typeof config === 'object') {
-          _config = _objectSpread({}, _config, config);
+          _config = _extends({}, _config, config);
         }
 
         var action = typeof config === 'string' ? config : _config.slide;
 
         if (!data) {
           data = new Carousel(this, _config);
-          $(this).data(DATA_KEY$2, data);
+          $__default["default"](this).data(DATA_KEY$8, data);
         }
 
         if (typeof config === 'number') {
@@ -14609,13 +14927,13 @@ module.exports = g;
         return;
       }
 
-      var target = $(selector)[0];
+      var target = $__default["default"](selector)[0];
 
-      if (!target || !$(target).hasClass(ClassName$2.CAROUSEL)) {
+      if (!target || !$__default["default"](target).hasClass(CLASS_NAME_CAROUSEL)) {
         return;
       }
 
-      var config = _objectSpread({}, $(target).data(), $(this).data());
+      var config = _extends({}, $__default["default"](target).data(), $__default["default"](this).data());
 
       var slideIndex = this.getAttribute('data-slide-to');
 
@@ -14623,10 +14941,10 @@ module.exports = g;
         config.interval = false;
       }
 
-      Carousel._jQueryInterface.call($(target), config);
+      Carousel._jQueryInterface.call($__default["default"](target), config);
 
       if (slideIndex) {
-        $(target).data(DATA_KEY$2).to(slideIndex);
+        $__default["default"](target).data(DATA_KEY$8).to(slideIndex);
       }
 
       event.preventDefault();
@@ -14635,105 +14953,86 @@ module.exports = g;
     _createClass(Carousel, null, [{
       key: "VERSION",
       get: function get() {
-        return VERSION$2;
+        return VERSION$8;
       }
     }, {
       key: "Default",
       get: function get() {
-        return Default;
+        return Default$7;
       }
     }]);
 
     return Carousel;
   }();
   /**
-   * ------------------------------------------------------------------------
-   * Data Api implementation
-   * ------------------------------------------------------------------------
+   * Data API implementation
    */
 
 
-  $(document).on(Event$2.CLICK_DATA_API, Selector$2.DATA_SLIDE, Carousel._dataApiClickHandler);
-  $(window).on(Event$2.LOAD_DATA_API, function () {
-    var carousels = [].slice.call(document.querySelectorAll(Selector$2.DATA_RIDE));
+  $__default["default"](document).on(EVENT_CLICK_DATA_API$4, SELECTOR_DATA_SLIDE, Carousel._dataApiClickHandler);
+  $__default["default"](window).on(EVENT_LOAD_DATA_API$1, function () {
+    var carousels = [].slice.call(document.querySelectorAll(SELECTOR_DATA_RIDE));
 
     for (var i = 0, len = carousels.length; i < len; i++) {
-      var $carousel = $(carousels[i]);
+      var $carousel = $__default["default"](carousels[i]);
 
       Carousel._jQueryInterface.call($carousel, $carousel.data());
     }
   });
   /**
-   * ------------------------------------------------------------------------
    * jQuery
-   * ------------------------------------------------------------------------
    */
 
-  $.fn[NAME$2] = Carousel._jQueryInterface;
-  $.fn[NAME$2].Constructor = Carousel;
+  $__default["default"].fn[NAME$8] = Carousel._jQueryInterface;
+  $__default["default"].fn[NAME$8].Constructor = Carousel;
 
-  $.fn[NAME$2].noConflict = function () {
-    $.fn[NAME$2] = JQUERY_NO_CONFLICT$2;
+  $__default["default"].fn[NAME$8].noConflict = function () {
+    $__default["default"].fn[NAME$8] = JQUERY_NO_CONFLICT$8;
     return Carousel._jQueryInterface;
   };
 
   /**
-   * ------------------------------------------------------------------------
    * Constants
-   * ------------------------------------------------------------------------
    */
 
-  var NAME$3 = 'collapse';
-  var VERSION$3 = '4.3.1';
-  var DATA_KEY$3 = 'bs.collapse';
-  var EVENT_KEY$3 = "." + DATA_KEY$3;
-  var DATA_API_KEY$3 = '.data-api';
-  var JQUERY_NO_CONFLICT$3 = $.fn[NAME$3];
-  var Default$1 = {
+  var NAME$7 = 'collapse';
+  var VERSION$7 = '4.6.1';
+  var DATA_KEY$7 = 'bs.collapse';
+  var EVENT_KEY$7 = "." + DATA_KEY$7;
+  var DATA_API_KEY$4 = '.data-api';
+  var JQUERY_NO_CONFLICT$7 = $__default["default"].fn[NAME$7];
+  var CLASS_NAME_SHOW$6 = 'show';
+  var CLASS_NAME_COLLAPSE = 'collapse';
+  var CLASS_NAME_COLLAPSING = 'collapsing';
+  var CLASS_NAME_COLLAPSED = 'collapsed';
+  var DIMENSION_WIDTH = 'width';
+  var DIMENSION_HEIGHT = 'height';
+  var EVENT_SHOW$4 = "show" + EVENT_KEY$7;
+  var EVENT_SHOWN$4 = "shown" + EVENT_KEY$7;
+  var EVENT_HIDE$4 = "hide" + EVENT_KEY$7;
+  var EVENT_HIDDEN$4 = "hidden" + EVENT_KEY$7;
+  var EVENT_CLICK_DATA_API$3 = "click" + EVENT_KEY$7 + DATA_API_KEY$4;
+  var SELECTOR_ACTIVES = '.show, .collapsing';
+  var SELECTOR_DATA_TOGGLE$3 = '[data-toggle="collapse"]';
+  var Default$6 = {
     toggle: true,
     parent: ''
   };
-  var DefaultType$1 = {
+  var DefaultType$6 = {
     toggle: 'boolean',
     parent: '(string|element)'
   };
-  var Event$3 = {
-    SHOW: "show" + EVENT_KEY$3,
-    SHOWN: "shown" + EVENT_KEY$3,
-    HIDE: "hide" + EVENT_KEY$3,
-    HIDDEN: "hidden" + EVENT_KEY$3,
-    CLICK_DATA_API: "click" + EVENT_KEY$3 + DATA_API_KEY$3
-  };
-  var ClassName$3 = {
-    SHOW: 'show',
-    COLLAPSE: 'collapse',
-    COLLAPSING: 'collapsing',
-    COLLAPSED: 'collapsed'
-  };
-  var Dimension = {
-    WIDTH: 'width',
-    HEIGHT: 'height'
-  };
-  var Selector$3 = {
-    ACTIVES: '.show, .collapsing',
-    DATA_TOGGLE: '[data-toggle="collapse"]'
-    /**
-     * ------------------------------------------------------------------------
-     * Class Definition
-     * ------------------------------------------------------------------------
-     */
+  /**
+   * Class definition
+   */
 
-  };
-
-  var Collapse =
-  /*#__PURE__*/
-  function () {
+  var Collapse = /*#__PURE__*/function () {
     function Collapse(element, config) {
       this._isTransitioning = false;
       this._element = element;
       this._config = this._getConfig(config);
       this._triggerArray = [].slice.call(document.querySelectorAll("[data-toggle=\"collapse\"][href=\"#" + element.id + "\"]," + ("[data-toggle=\"collapse\"][data-target=\"#" + element.id + "\"]")));
-      var toggleList = [].slice.call(document.querySelectorAll(Selector$3.DATA_TOGGLE));
+      var toggleList = [].slice.call(document.querySelectorAll(SELECTOR_DATA_TOGGLE$3));
 
       for (var i = 0, len = toggleList.length; i < len; i++) {
         var elem = toggleList[i];
@@ -14765,7 +15064,7 @@ module.exports = g;
 
     // Public
     _proto.toggle = function toggle() {
-      if ($(this._element).hasClass(ClassName$3.SHOW)) {
+      if ($__default["default"](this._element).hasClass(CLASS_NAME_SHOW$6)) {
         this.hide();
       } else {
         this.show();
@@ -14775,7 +15074,7 @@ module.exports = g;
     _proto.show = function show() {
       var _this = this;
 
-      if (this._isTransitioning || $(this._element).hasClass(ClassName$3.SHOW)) {
+      if (this._isTransitioning || $__default["default"](this._element).hasClass(CLASS_NAME_SHOW$6)) {
         return;
       }
 
@@ -14783,12 +15082,12 @@ module.exports = g;
       var activesData;
 
       if (this._parent) {
-        actives = [].slice.call(this._parent.querySelectorAll(Selector$3.ACTIVES)).filter(function (elem) {
+        actives = [].slice.call(this._parent.querySelectorAll(SELECTOR_ACTIVES)).filter(function (elem) {
           if (typeof _this._config.parent === 'string') {
             return elem.getAttribute('data-parent') === _this._config.parent;
           }
 
-          return elem.classList.contains(ClassName$3.COLLAPSE);
+          return elem.classList.contains(CLASS_NAME_COLLAPSE);
         });
 
         if (actives.length === 0) {
@@ -14797,64 +15096,64 @@ module.exports = g;
       }
 
       if (actives) {
-        activesData = $(actives).not(this._selector).data(DATA_KEY$3);
+        activesData = $__default["default"](actives).not(this._selector).data(DATA_KEY$7);
 
         if (activesData && activesData._isTransitioning) {
           return;
         }
       }
 
-      var startEvent = $.Event(Event$3.SHOW);
-      $(this._element).trigger(startEvent);
+      var startEvent = $__default["default"].Event(EVENT_SHOW$4);
+      $__default["default"](this._element).trigger(startEvent);
 
       if (startEvent.isDefaultPrevented()) {
         return;
       }
 
       if (actives) {
-        Collapse._jQueryInterface.call($(actives).not(this._selector), 'hide');
+        Collapse._jQueryInterface.call($__default["default"](actives).not(this._selector), 'hide');
 
         if (!activesData) {
-          $(actives).data(DATA_KEY$3, null);
+          $__default["default"](actives).data(DATA_KEY$7, null);
         }
       }
 
       var dimension = this._getDimension();
 
-      $(this._element).removeClass(ClassName$3.COLLAPSE).addClass(ClassName$3.COLLAPSING);
+      $__default["default"](this._element).removeClass(CLASS_NAME_COLLAPSE).addClass(CLASS_NAME_COLLAPSING);
       this._element.style[dimension] = 0;
 
       if (this._triggerArray.length) {
-        $(this._triggerArray).removeClass(ClassName$3.COLLAPSED).attr('aria-expanded', true);
+        $__default["default"](this._triggerArray).removeClass(CLASS_NAME_COLLAPSED).attr('aria-expanded', true);
       }
 
       this.setTransitioning(true);
 
       var complete = function complete() {
-        $(_this._element).removeClass(ClassName$3.COLLAPSING).addClass(ClassName$3.COLLAPSE).addClass(ClassName$3.SHOW);
+        $__default["default"](_this._element).removeClass(CLASS_NAME_COLLAPSING).addClass(CLASS_NAME_COLLAPSE + " " + CLASS_NAME_SHOW$6);
         _this._element.style[dimension] = '';
 
         _this.setTransitioning(false);
 
-        $(_this._element).trigger(Event$3.SHOWN);
+        $__default["default"](_this._element).trigger(EVENT_SHOWN$4);
       };
 
       var capitalizedDimension = dimension[0].toUpperCase() + dimension.slice(1);
       var scrollSize = "scroll" + capitalizedDimension;
       var transitionDuration = Util.getTransitionDurationFromElement(this._element);
-      $(this._element).one(Util.TRANSITION_END, complete).emulateTransitionEnd(transitionDuration);
+      $__default["default"](this._element).one(Util.TRANSITION_END, complete).emulateTransitionEnd(transitionDuration);
       this._element.style[dimension] = this._element[scrollSize] + "px";
     };
 
     _proto.hide = function hide() {
       var _this2 = this;
 
-      if (this._isTransitioning || !$(this._element).hasClass(ClassName$3.SHOW)) {
+      if (this._isTransitioning || !$__default["default"](this._element).hasClass(CLASS_NAME_SHOW$6)) {
         return;
       }
 
-      var startEvent = $.Event(Event$3.HIDE);
-      $(this._element).trigger(startEvent);
+      var startEvent = $__default["default"].Event(EVENT_HIDE$4);
+      $__default["default"](this._element).trigger(startEvent);
 
       if (startEvent.isDefaultPrevented()) {
         return;
@@ -14864,7 +15163,7 @@ module.exports = g;
 
       this._element.style[dimension] = this._element.getBoundingClientRect()[dimension] + "px";
       Util.reflow(this._element);
-      $(this._element).addClass(ClassName$3.COLLAPSING).removeClass(ClassName$3.COLLAPSE).removeClass(ClassName$3.SHOW);
+      $__default["default"](this._element).addClass(CLASS_NAME_COLLAPSING).removeClass(CLASS_NAME_COLLAPSE + " " + CLASS_NAME_SHOW$6);
       var triggerArrayLength = this._triggerArray.length;
 
       if (triggerArrayLength > 0) {
@@ -14873,10 +15172,10 @@ module.exports = g;
           var selector = Util.getSelectorFromElement(trigger);
 
           if (selector !== null) {
-            var $elem = $([].slice.call(document.querySelectorAll(selector)));
+            var $elem = $__default["default"]([].slice.call(document.querySelectorAll(selector)));
 
-            if (!$elem.hasClass(ClassName$3.SHOW)) {
-              $(trigger).addClass(ClassName$3.COLLAPSED).attr('aria-expanded', false);
+            if (!$elem.hasClass(CLASS_NAME_SHOW$6)) {
+              $__default["default"](trigger).addClass(CLASS_NAME_COLLAPSED).attr('aria-expanded', false);
             }
           }
         }
@@ -14887,12 +15186,12 @@ module.exports = g;
       var complete = function complete() {
         _this2.setTransitioning(false);
 
-        $(_this2._element).removeClass(ClassName$3.COLLAPSING).addClass(ClassName$3.COLLAPSE).trigger(Event$3.HIDDEN);
+        $__default["default"](_this2._element).removeClass(CLASS_NAME_COLLAPSING).addClass(CLASS_NAME_COLLAPSE).trigger(EVENT_HIDDEN$4);
       };
 
       this._element.style[dimension] = '';
       var transitionDuration = Util.getTransitionDurationFromElement(this._element);
-      $(this._element).one(Util.TRANSITION_END, complete).emulateTransitionEnd(transitionDuration);
+      $__default["default"](this._element).one(Util.TRANSITION_END, complete).emulateTransitionEnd(transitionDuration);
     };
 
     _proto.setTransitioning = function setTransitioning(isTransitioning) {
@@ -14900,7 +15199,7 @@ module.exports = g;
     };
 
     _proto.dispose = function dispose() {
-      $.removeData(this._element, DATA_KEY$3);
+      $__default["default"].removeData(this._element, DATA_KEY$7);
       this._config = null;
       this._parent = null;
       this._element = null;
@@ -14910,16 +15209,16 @@ module.exports = g;
     ;
 
     _proto._getConfig = function _getConfig(config) {
-      config = _objectSpread({}, Default$1, config);
+      config = _extends({}, Default$6, config);
       config.toggle = Boolean(config.toggle); // Coerce string values
 
-      Util.typeCheckConfig(NAME$3, config, DefaultType$1);
+      Util.typeCheckConfig(NAME$7, config, DefaultType$6);
       return config;
     };
 
     _proto._getDimension = function _getDimension() {
-      var hasWidth = $(this._element).hasClass(Dimension.WIDTH);
-      return hasWidth ? Dimension.WIDTH : Dimension.HEIGHT;
+      var hasWidth = $__default["default"](this._element).hasClass(DIMENSION_WIDTH);
+      return hasWidth ? DIMENSION_WIDTH : DIMENSION_HEIGHT;
     };
 
     _proto._getParent = function _getParent() {
@@ -14939,17 +15238,17 @@ module.exports = g;
 
       var selector = "[data-toggle=\"collapse\"][data-parent=\"" + this._config.parent + "\"]";
       var children = [].slice.call(parent.querySelectorAll(selector));
-      $(children).each(function (i, element) {
+      $__default["default"](children).each(function (i, element) {
         _this3._addAriaAndCollapsedClass(Collapse._getTargetFromElement(element), [element]);
       });
       return parent;
     };
 
     _proto._addAriaAndCollapsedClass = function _addAriaAndCollapsedClass(element, triggerArray) {
-      var isOpen = $(element).hasClass(ClassName$3.SHOW);
+      var isOpen = $__default["default"](element).hasClass(CLASS_NAME_SHOW$6);
 
       if (triggerArray.length) {
-        $(triggerArray).toggleClass(ClassName$3.COLLAPSED, !isOpen).attr('aria-expanded', isOpen);
+        $__default["default"](triggerArray).toggleClass(CLASS_NAME_COLLAPSED, !isOpen).attr('aria-expanded', isOpen);
       }
     } // Static
     ;
@@ -14961,18 +15260,18 @@ module.exports = g;
 
     Collapse._jQueryInterface = function _jQueryInterface(config) {
       return this.each(function () {
-        var $this = $(this);
-        var data = $this.data(DATA_KEY$3);
+        var $element = $__default["default"](this);
+        var data = $element.data(DATA_KEY$7);
 
-        var _config = _objectSpread({}, Default$1, $this.data(), typeof config === 'object' && config ? config : {});
+        var _config = _extends({}, Default$6, $element.data(), typeof config === 'object' && config ? config : {});
 
-        if (!data && _config.toggle && /show|hide/.test(config)) {
+        if (!data && _config.toggle && typeof config === 'string' && /show|hide/.test(config)) {
           _config.toggle = false;
         }
 
         if (!data) {
           data = new Collapse(this, _config);
-          $this.data(DATA_KEY$3, data);
+          $element.data(DATA_KEY$7, data);
         }
 
         if (typeof config === 'string') {
@@ -14988,68 +15287,62 @@ module.exports = g;
     _createClass(Collapse, null, [{
       key: "VERSION",
       get: function get() {
-        return VERSION$3;
+        return VERSION$7;
       }
     }, {
       key: "Default",
       get: function get() {
-        return Default$1;
+        return Default$6;
       }
     }]);
 
     return Collapse;
   }();
   /**
-   * ------------------------------------------------------------------------
-   * Data Api implementation
-   * ------------------------------------------------------------------------
+   * Data API implementation
    */
 
 
-  $(document).on(Event$3.CLICK_DATA_API, Selector$3.DATA_TOGGLE, function (event) {
+  $__default["default"](document).on(EVENT_CLICK_DATA_API$3, SELECTOR_DATA_TOGGLE$3, function (event) {
     // preventDefault only for <a> elements (which change the URL) not inside the collapsible element
     if (event.currentTarget.tagName === 'A') {
       event.preventDefault();
     }
 
-    var $trigger = $(this);
+    var $trigger = $__default["default"](this);
     var selector = Util.getSelectorFromElement(this);
     var selectors = [].slice.call(document.querySelectorAll(selector));
-    $(selectors).each(function () {
-      var $target = $(this);
-      var data = $target.data(DATA_KEY$3);
+    $__default["default"](selectors).each(function () {
+      var $target = $__default["default"](this);
+      var data = $target.data(DATA_KEY$7);
       var config = data ? 'toggle' : $trigger.data();
 
       Collapse._jQueryInterface.call($target, config);
     });
   });
   /**
-   * ------------------------------------------------------------------------
    * jQuery
-   * ------------------------------------------------------------------------
    */
 
-  $.fn[NAME$3] = Collapse._jQueryInterface;
-  $.fn[NAME$3].Constructor = Collapse;
+  $__default["default"].fn[NAME$7] = Collapse._jQueryInterface;
+  $__default["default"].fn[NAME$7].Constructor = Collapse;
 
-  $.fn[NAME$3].noConflict = function () {
-    $.fn[NAME$3] = JQUERY_NO_CONFLICT$3;
+  $__default["default"].fn[NAME$7].noConflict = function () {
+    $__default["default"].fn[NAME$7] = JQUERY_NO_CONFLICT$7;
     return Collapse._jQueryInterface;
   };
 
   /**
-   * ------------------------------------------------------------------------
    * Constants
-   * ------------------------------------------------------------------------
    */
 
-  var NAME$4 = 'dropdown';
-  var VERSION$4 = '4.3.1';
-  var DATA_KEY$4 = 'bs.dropdown';
-  var EVENT_KEY$4 = "." + DATA_KEY$4;
-  var DATA_API_KEY$4 = '.data-api';
-  var JQUERY_NO_CONFLICT$4 = $.fn[NAME$4];
-  var ESCAPE_KEYCODE = 27; // KeyboardEvent.which value for Escape (Esc) key
+  var NAME$6 = 'dropdown';
+  var VERSION$6 = '4.6.1';
+  var DATA_KEY$6 = 'bs.dropdown';
+  var EVENT_KEY$6 = "." + DATA_KEY$6;
+  var DATA_API_KEY$3 = '.data-api';
+  var JQUERY_NO_CONFLICT$6 = $__default["default"].fn[NAME$6];
+  var ESCAPE_KEYCODE$1 = 27; // KeyboardEvent.which value for Escape (Esc) key
 
   var SPACE_KEYCODE = 32; // KeyboardEvent.which value for space key
 
@@ -15061,68 +15354,54 @@ module.exports = g;
 
   var RIGHT_MOUSE_BUTTON_WHICH = 3; // MouseEvent.which value for the right button (assuming a right-handed mouse)
 
-  var REGEXP_KEYDOWN = new RegExp(ARROW_UP_KEYCODE + "|" + ARROW_DOWN_KEYCODE + "|" + ESCAPE_KEYCODE);
-  var Event$4 = {
-    HIDE: "hide" + EVENT_KEY$4,
-    HIDDEN: "hidden" + EVENT_KEY$4,
-    SHOW: "show" + EVENT_KEY$4,
-    SHOWN: "shown" + EVENT_KEY$4,
-    CLICK: "click" + EVENT_KEY$4,
-    CLICK_DATA_API: "click" + EVENT_KEY$4 + DATA_API_KEY$4,
-    KEYDOWN_DATA_API: "keydown" + EVENT_KEY$4 + DATA_API_KEY$4,
-    KEYUP_DATA_API: "keyup" + EVENT_KEY$4 + DATA_API_KEY$4
-  };
-  var ClassName$4 = {
-    DISABLED: 'disabled',
-    SHOW: 'show',
-    DROPUP: 'dropup',
-    DROPRIGHT: 'dropright',
-    DROPLEFT: 'dropleft',
-    MENURIGHT: 'dropdown-menu-right',
-    MENULEFT: 'dropdown-menu-left',
-    POSITION_STATIC: 'position-static'
-  };
-  var Selector$4 = {
-    DATA_TOGGLE: '[data-toggle="dropdown"]',
-    FORM_CHILD: '.dropdown form',
-    MENU: '.dropdown-menu',
-    NAVBAR_NAV: '.navbar-nav',
-    VISIBLE_ITEMS: '.dropdown-menu .dropdown-item:not(.disabled):not(:disabled)'
-  };
-  var AttachmentMap = {
-    TOP: 'top-start',
-    TOPEND: 'top-end',
-    BOTTOM: 'bottom-start',
-    BOTTOMEND: 'bottom-end',
-    RIGHT: 'right-start',
-    RIGHTEND: 'right-end',
-    LEFT: 'left-start',
-    LEFTEND: 'left-end'
-  };
-  var Default$2 = {
+  var REGEXP_KEYDOWN = new RegExp(ARROW_UP_KEYCODE + "|" + ARROW_DOWN_KEYCODE + "|" + ESCAPE_KEYCODE$1);
+  var CLASS_NAME_DISABLED$1 = 'disabled';
+  var CLASS_NAME_SHOW$5 = 'show';
+  var CLASS_NAME_DROPUP = 'dropup';
+  var CLASS_NAME_DROPRIGHT = 'dropright';
+  var CLASS_NAME_DROPLEFT = 'dropleft';
+  var CLASS_NAME_MENURIGHT = 'dropdown-menu-right';
+  var CLASS_NAME_POSITION_STATIC = 'position-static';
+  var EVENT_HIDE$3 = "hide" + EVENT_KEY$6;
+  var EVENT_HIDDEN$3 = "hidden" + EVENT_KEY$6;
+  var EVENT_SHOW$3 = "show" + EVENT_KEY$6;
+  var EVENT_SHOWN$3 = "shown" + EVENT_KEY$6;
+  var EVENT_CLICK = "click" + EVENT_KEY$6;
+  var EVENT_CLICK_DATA_API$2 = "click" + EVENT_KEY$6 + DATA_API_KEY$3;
+  var EVENT_KEYDOWN_DATA_API = "keydown" + EVENT_KEY$6 + DATA_API_KEY$3;
+  var EVENT_KEYUP_DATA_API = "keyup" + EVENT_KEY$6 + DATA_API_KEY$3;
+  var SELECTOR_DATA_TOGGLE$2 = '[data-toggle="dropdown"]';
+  var SELECTOR_FORM_CHILD = '.dropdown form';
+  var SELECTOR_MENU = '.dropdown-menu';
+  var SELECTOR_NAVBAR_NAV = '.navbar-nav';
+  var SELECTOR_VISIBLE_ITEMS = '.dropdown-menu .dropdown-item:not(.disabled):not(:disabled)';
+  var PLACEMENT_TOP = 'top-start';
+  var PLACEMENT_TOPEND = 'top-end';
+  var PLACEMENT_BOTTOM = 'bottom-start';
+  var PLACEMENT_BOTTOMEND = 'bottom-end';
+  var PLACEMENT_RIGHT = 'right-start';
+  var PLACEMENT_LEFT = 'left-start';
+  var Default$5 = {
     offset: 0,
     flip: true,
     boundary: 'scrollParent',
     reference: 'toggle',
-    display: 'dynamic'
+    display: 'dynamic',
+    popperConfig: null
   };
-  var DefaultType$2 = {
+  var DefaultType$5 = {
     offset: '(number|string|function)',
     flip: 'boolean',
     boundary: '(string|element)',
     reference: '(string|element)',
-    display: 'string'
-    /**
-     * ------------------------------------------------------------------------
-     * Class Definition
-     * ------------------------------------------------------------------------
-     */
-
+    display: 'string',
+    popperConfig: '(null|object)'
   };
+  /**
+   * Class definition
+   */
 
-  var Dropdown =
-  /*#__PURE__*/
-  function () {
+  var Dropdown = /*#__PURE__*/function () {
     function Dropdown(element, config) {
       this._element = element;
       this._popper = null;
@@ -15138,13 +15417,11 @@ module.exports = g;
 
     // Public
     _proto.toggle = function toggle() {
-      if (this._element.disabled || $(this._element).hasClass(ClassName$4.DISABLED)) {
+      if (this._element.disabled || $__default["default"](this._element).hasClass(CLASS_NAME_DISABLED$1)) {
         return;
       }
 
-      var parent = Dropdown._getParentFromElement(this._element);
-
-      var isActive = $(this._menu).hasClass(ClassName$4.SHOW);
+      var isActive = $__default["default"](this._menu).hasClass(CLASS_NAME_SHOW$5);
 
       Dropdown._clearMenus();
 
@@ -15152,24 +15429,36 @@ module.exports = g;
         return;
       }
 
+      this.show(true);
+    };
+
+    _proto.show = function show(usePopper) {
+      if (usePopper === void 0) {
+        usePopper = false;
+      }
+
+      if (this._element.disabled || $__default["default"](this._element).hasClass(CLASS_NAME_DISABLED$1) || $__default["default"](this._menu).hasClass(CLASS_NAME_SHOW$5)) {
+        return;
+      }
+
       var relatedTarget = {
         relatedTarget: this._element
       };
-      var showEvent = $.Event(Event$4.SHOW, relatedTarget);
-      $(parent).trigger(showEvent);
+      var showEvent = $__default["default"].Event(EVENT_SHOW$3, relatedTarget);
+
+      var parent = Dropdown._getParentFromElement(this._element);
+
+      $__default["default"](parent).trigger(showEvent);
 
       if (showEvent.isDefaultPrevented()) {
         return;
-      } // Disable totally Popper.js for Dropdown in Navbar
+      } // Totally disable Popper for Dropdowns in Navbar
 
 
-      if (!this._inNavbar) {
-        /**
-         * Check for Popper dependency
-         * Popper - https://popper.js.org
-         */
-        if (typeof Popper === 'undefined') {
-          throw new TypeError('Bootstrap\'s dropdowns require Popper.js (https://popper.js.org/)');
+      if (!this._inNavbar && usePopper) {
+        // Check for Popper dependency
+        if (typeof Popper__default["default"] === 'undefined') {
+          throw new TypeError('Bootstrap\'s dropdowns require Popper (https://popper.js.org)');
         }
 
         var referenceElement = this._element;
@@ -15188,75 +15477,57 @@ module.exports = g;
 
 
         if (this._config.boundary !== 'scrollParent') {
-          $(parent).addClass(ClassName$4.POSITION_STATIC);
+          $__default["default"](parent).addClass(CLASS_NAME_POSITION_STATIC);
         }
 
-        this._popper = new Popper(referenceElement, this._menu, this._getPopperConfig());
+        this._popper = new Popper__default["default"](referenceElement, this._menu, this._getPopperConfig());
       } // If this is a touch-enabled device we add extra
       // empty mouseover listeners to the body's immediate children;
       // only needed because of broken event delegation on iOS
       // https://www.quirksmode.org/blog/archives/2014/02/mouse_event_bub.html
 
 
-      if ('ontouchstart' in document.documentElement && $(parent).closest(Selector$4.NAVBAR_NAV).length === 0) {
-        $(document.body).children().on('mouseover', null, $.noop);
+      if ('ontouchstart' in document.documentElement && $__default["default"](parent).closest(SELECTOR_NAVBAR_NAV).length === 0) {
+        $__default["default"](document.body).children().on('mouseover', null, $__default["default"].noop);
       }
 
       this._element.focus();
 
       this._element.setAttribute('aria-expanded', true);
 
-      $(this._menu).toggleClass(ClassName$4.SHOW);
-      $(parent).toggleClass(ClassName$4.SHOW).trigger($.Event(Event$4.SHOWN, relatedTarget));
-    };
-
-    _proto.show = function show() {
-      if (this._element.disabled || $(this._element).hasClass(ClassName$4.DISABLED) || $(this._menu).hasClass(ClassName$4.SHOW)) {
-        return;
-      }
-
-      var relatedTarget = {
-        relatedTarget: this._element
-      };
-      var showEvent = $.Event(Event$4.SHOW, relatedTarget);
-
-      var parent = Dropdown._getParentFromElement(this._element);
-
-      $(parent).trigger(showEvent);
-
-      if (showEvent.isDefaultPrevented()) {
-        return;
-      }
-
-      $(this._menu).toggleClass(ClassName$4.SHOW);
-      $(parent).toggleClass(ClassName$4.SHOW).trigger($.Event(Event$4.SHOWN, relatedTarget));
+      $__default["default"](this._menu).toggleClass(CLASS_NAME_SHOW$5);
+      $__default["default"](parent).toggleClass(CLASS_NAME_SHOW$5).trigger($__default["default"].Event(EVENT_SHOWN$3, relatedTarget));
     };
 
     _proto.hide = function hide() {
-      if (this._element.disabled || $(this._element).hasClass(ClassName$4.DISABLED) || !$(this._menu).hasClass(ClassName$4.SHOW)) {
+      if (this._element.disabled || $__default["default"](this._element).hasClass(CLASS_NAME_DISABLED$1) || !$__default["default"](this._menu).hasClass(CLASS_NAME_SHOW$5)) {
         return;
       }
 
       var relatedTarget = {
         relatedTarget: this._element
       };
-      var hideEvent = $.Event(Event$4.HIDE, relatedTarget);
+      var hideEvent = $__default["default"].Event(EVENT_HIDE$3, relatedTarget);
 
       var parent = Dropdown._getParentFromElement(this._element);
 
-      $(parent).trigger(hideEvent);
+      $__default["default"](parent).trigger(hideEvent);
 
       if (hideEvent.isDefaultPrevented()) {
         return;
       }
 
-      $(this._menu).toggleClass(ClassName$4.SHOW);
-      $(parent).toggleClass(ClassName$4.SHOW).trigger($.Event(Event$4.HIDDEN, relatedTarget));
+      if (this._popper) {
+        this._popper.destroy();
+      }
+
+      $__default["default"](this._menu).toggleClass(CLASS_NAME_SHOW$5);
+      $__default["default"](parent).toggleClass(CLASS_NAME_SHOW$5).trigger($__default["default"].Event(EVENT_HIDDEN$3, relatedTarget));
     };
 
     _proto.dispose = function dispose() {
-      $.removeData(this._element, DATA_KEY$4);
-      $(this._element).off(EVENT_KEY$4);
+      $__default["default"].removeData(this._element, DATA_KEY$6);
+      $__default["default"](this._element).off(EVENT_KEY$6);
       this._element = null;
       this._menu = null;
 
@@ -15279,7 +15550,7 @@ module.exports = g;
     _proto._addEventListeners = function _addEventListeners() {
       var _this = this;
 
-      $(this._element).on(Event$4.CLICK, function (event) {
+      $__default["default"](this._element).on(EVENT_CLICK, function (event) {
         event.preventDefault();
         event.stopPropagation();
 
@@ -15288,8 +15559,8 @@ module.exports = g;
     };
 
     _proto._getConfig = function _getConfig(config) {
-      config = _objectSpread({}, this.constructor.Default, $(this._element).data(), config);
-      Util.typeCheckConfig(NAME$4, config, this.constructor.DefaultType);
+      config = _extends({}, this.constructor.Default, $__default["default"](this._element).data(), config);
+      Util.typeCheckConfig(NAME$6, config, this.constructor.DefaultType);
       return config;
     };
 
@@ -15298,7 +15569,7 @@ module.exports = g;
         var parent = Dropdown._getParentFromElement(this._element);
 
         if (parent) {
-          this._menu = parent.querySelector(Selector$4.MENU);
+          this._menu = parent.querySelector(SELECTOR_MENU);
         }
       }
 
@@ -15306,28 +15577,24 @@ module.exports = g;
     };
 
     _proto._getPlacement = function _getPlacement() {
-      var $parentDropdown = $(this._element.parentNode);
-      var placement = AttachmentMap.BOTTOM; // Handle dropup
+      var $parentDropdown = $__default["default"](this._element.parentNode);
+      var placement = PLACEMENT_BOTTOM; // Handle dropup
 
-      if ($parentDropdown.hasClass(ClassName$4.DROPUP)) {
-        placement = AttachmentMap.TOP;
-
-        if ($(this._menu).hasClass(ClassName$4.MENURIGHT)) {
-          placement = AttachmentMap.TOPEND;
-        }
-      } else if ($parentDropdown.hasClass(ClassName$4.DROPRIGHT)) {
-        placement = AttachmentMap.RIGHT;
-      } else if ($parentDropdown.hasClass(ClassName$4.DROPLEFT)) {
-        placement = AttachmentMap.LEFT;
-      } else if ($(this._menu).hasClass(ClassName$4.MENURIGHT)) {
-        placement = AttachmentMap.BOTTOMEND;
+      if ($parentDropdown.hasClass(CLASS_NAME_DROPUP)) {
+        placement = $__default["default"](this._menu).hasClass(CLASS_NAME_MENURIGHT) ? PLACEMENT_TOPEND : PLACEMENT_TOP;
+      } else if ($parentDropdown.hasClass(CLASS_NAME_DROPRIGHT)) {
+        placement = PLACEMENT_RIGHT;
+      } else if ($parentDropdown.hasClass(CLASS_NAME_DROPLEFT)) {
+        placement = PLACEMENT_LEFT;
+      } else if ($__default["default"](this._menu).hasClass(CLASS_NAME_MENURIGHT)) {
+        placement = PLACEMENT_BOTTOMEND;
       }
 
       return placement;
     };
 
     _proto._detectNavbar = function _detectNavbar() {
-      return $(this._element).closest('.navbar').length > 0;
+      return $__default["default"](this._element).closest('.navbar').length > 0;
     };
 
     _proto._getOffset = function _getOffset() {
@@ -15337,7 +15604,7 @@ module.exports = g;
 
       if (typeof this._config.offset === 'function') {
         offset.fn = function (data) {
-          data.offsets = _objectSpread({}, data.offsets, _this2._config.offset(data.offsets, _this2._element) || {});
+          data.offsets = _extends({}, data.offsets, _this2._config.offset(data.offsets, _this2._element));
           return data;
         };
       } else {
@@ -15358,9 +15625,8 @@ module.exports = g;
           preventOverflow: {
             boundariesElement: this._config.boundary
           }
-        } // Disable Popper.js if we have a static display
-
-      };
+        }
+      }; // Disable Popper if we have a static display
 
       if (this._config.display === 'static') {
         popperConfig.modifiers.applyStyle = {
@@ -15368,19 +15634,19 @@ module.exports = g;
         };
       }
 
-      return popperConfig;
+      return _extends({}, popperConfig, this._config.popperConfig);
     } // Static
     ;
 
     Dropdown._jQueryInterface = function _jQueryInterface(config) {
       return this.each(function () {
-        var data = $(this).data(DATA_KEY$4);
+        var data = $__default["default"](this).data(DATA_KEY$6);
 
         var _config = typeof config === 'object' ? config : null;
 
         if (!data) {
           data = new Dropdown(this, _config);
-          $(this).data(DATA_KEY$4, data);
+          $__default["default"](this).data(DATA_KEY$6, data);
         }
 
         if (typeof config === 'string') {
@@ -15398,12 +15664,12 @@ module.exports = g;
         return;
       }
 
-      var toggles = [].slice.call(document.querySelectorAll(Selector$4.DATA_TOGGLE));
+      var toggles = [].slice.call(document.querySelectorAll(SELECTOR_DATA_TOGGLE$2));
 
       for (var i = 0, len = toggles.length; i < len; i++) {
         var parent = Dropdown._getParentFromElement(toggles[i]);
 
-        var context = $(toggles[i]).data(DATA_KEY$4);
+        var context = $__default["default"](toggles[i]).data(DATA_KEY$6);
         var relatedTarget = {
           relatedTarget: toggles[i]
         };
@@ -15418,16 +15684,16 @@ module.exports = g;
 
         var dropdownMenu = context._menu;
 
-        if (!$(parent).hasClass(ClassName$4.SHOW)) {
+        if (!$__default["default"](parent).hasClass(CLASS_NAME_SHOW$5)) {
           continue;
         }
 
-        if (event && (event.type === 'click' && /input|textarea/i.test(event.target.tagName) || event.type === 'keyup' && event.which === TAB_KEYCODE) && $.contains(parent, event.target)) {
+        if (event && (event.type === 'click' && /input|textarea/i.test(event.target.tagName) || event.type === 'keyup' && event.which === TAB_KEYCODE) && $__default["default"].contains(parent, event.target)) {
           continue;
         }
 
-        var hideEvent = $.Event(Event$4.HIDE, relatedTarget);
-        $(parent).trigger(hideEvent);
+        var hideEvent = $__default["default"].Event(EVENT_HIDE$3, relatedTarget);
+        $__default["default"](parent).trigger(hideEvent);
 
         if (hideEvent.isDefaultPrevented()) {
           continue;
@@ -15436,12 +15702,17 @@ module.exports = g;
 
 
         if ('ontouchstart' in document.documentElement) {
-          $(document.body).children().off('mouseover', null, $.noop);
+          $__default["default"](document.body).children().off('mouseover', null, $__default["default"].noop);
         }
 
         toggles[i].setAttribute('aria-expanded', 'false');
-        $(dropdownMenu).removeClass(ClassName$4.SHOW);
-        $(parent).removeClass(ClassName$4.SHOW).trigger($.Event(Event$4.HIDDEN, relatedTarget));
+
+        if (context._popper) {
+          context._popper.destroy();
+        }
+
+        $__default["default"](dropdownMenu).removeClass(CLASS_NAME_SHOW$5);
+        $__default["default"](parent).removeClass(CLASS_NAME_SHOW$5).trigger($__default["default"].Event(EVENT_HIDDEN$3, relatedTarget));
       }
     };
 
@@ -15465,32 +15736,37 @@ module.exports = g;
       //  - If key is other than escape
       //    - If key is not up or down => not a dropdown command
       //    - If trigger inside the menu => not a dropdown command
-      if (/input|textarea/i.test(event.target.tagName) ? event.which === SPACE_KEYCODE || event.which !== ESCAPE_KEYCODE && (event.which !== ARROW_DOWN_KEYCODE && event.which !== ARROW_UP_KEYCODE || $(event.target).closest(Selector$4.MENU).length) : !REGEXP_KEYDOWN.test(event.which)) {
+      if (/input|textarea/i.test(event.target.tagName) ? event.which === SPACE_KEYCODE || event.which !== ESCAPE_KEYCODE$1 && (event.which !== ARROW_DOWN_KEYCODE && event.which !== ARROW_UP_KEYCODE || $__default["default"](event.target).closest(SELECTOR_MENU).length) : !REGEXP_KEYDOWN.test(event.which)) {
+        return;
+      }
+
+      if (this.disabled || $__default["default"](this).hasClass(CLASS_NAME_DISABLED$1)) {
+        return;
+      }
+
+      var parent = Dropdown._getParentFromElement(this);
+
+      var isActive = $__default["default"](parent).hasClass(CLASS_NAME_SHOW$5);
+
+      if (!isActive && event.which === ESCAPE_KEYCODE$1) {
         return;
       }
 
       event.preventDefault();
       event.stopPropagation();
 
-      if (this.disabled || $(this).hasClass(ClassName$4.DISABLED)) {
-        return;
-      }
-
-      var parent = Dropdown._getParentFromElement(this);
-
-      var isActive = $(parent).hasClass(ClassName$4.SHOW);
-
-      if (!isActive || isActive && (event.which === ESCAPE_KEYCODE || event.which === SPACE_KEYCODE)) {
-        if (event.which === ESCAPE_KEYCODE) {
-          var toggle = parent.querySelector(Selector$4.DATA_TOGGLE);
-          $(toggle).trigger('focus');
+      if (!isActive || event.which === ESCAPE_KEYCODE$1 || event.which === SPACE_KEYCODE) {
+        if (event.which === ESCAPE_KEYCODE$1) {
+          $__default["default"](parent.querySelector(SELECTOR_DATA_TOGGLE$2)).trigger('focus');
         }
 
-        $(this).trigger('click');
+        $__default["default"](this).trigger('click');
         return;
       }
 
-      var items = [].slice.call(parent.querySelectorAll(Selector$4.VISIBLE_ITEMS));
+      var items = [].slice.call(parent.querySelectorAll(SELECTOR_VISIBLE_ITEMS)).filter(function (item) {
+        return $__default["default"](item).is(':visible');
+      });
 
       if (items.length === 0) {
         return;
@@ -15518,120 +15794,105 @@ module.exports = g;
     _createClass(Dropdown, null, [{
       key: "VERSION",
       get: function get() {
-        return VERSION$4;
+        return VERSION$6;
       }
     }, {
       key: "Default",
       get: function get() {
-        return Default$2;
+        return Default$5;
       }
     }, {
       key: "DefaultType",
       get: function get() {
-        return DefaultType$2;
+        return DefaultType$5;
       }
     }]);
 
     return Dropdown;
   }();
   /**
-   * ------------------------------------------------------------------------
-   * Data Api implementation
-   * ------------------------------------------------------------------------
+   * Data API implementation
    */
 
 
-  $(document).on(Event$4.KEYDOWN_DATA_API, Selector$4.DATA_TOGGLE, Dropdown._dataApiKeydownHandler).on(Event$4.KEYDOWN_DATA_API, Selector$4.MENU, Dropdown._dataApiKeydownHandler).on(Event$4.CLICK_DATA_API + " " + Event$4.KEYUP_DATA_API, Dropdown._clearMenus).on(Event$4.CLICK_DATA_API, Selector$4.DATA_TOGGLE, function (event) {
+  $__default["default"](document).on(EVENT_KEYDOWN_DATA_API, SELECTOR_DATA_TOGGLE$2, Dropdown._dataApiKeydownHandler).on(EVENT_KEYDOWN_DATA_API, SELECTOR_MENU, Dropdown._dataApiKeydownHandler).on(EVENT_CLICK_DATA_API$2 + " " + EVENT_KEYUP_DATA_API, Dropdown._clearMenus).on(EVENT_CLICK_DATA_API$2, SELECTOR_DATA_TOGGLE$2, function (event) {
     event.preventDefault();
     event.stopPropagation();
 
-    Dropdown._jQueryInterface.call($(this), 'toggle');
-  }).on(Event$4.CLICK_DATA_API, Selector$4.FORM_CHILD, function (e) {
+    Dropdown._jQueryInterface.call($__default["default"](this), 'toggle');
+  }).on(EVENT_CLICK_DATA_API$2, SELECTOR_FORM_CHILD, function (e) {
     e.stopPropagation();
   });
   /**
-   * ------------------------------------------------------------------------
    * jQuery
-   * ------------------------------------------------------------------------
    */
 
-  $.fn[NAME$4] = Dropdown._jQueryInterface;
-  $.fn[NAME$4].Constructor = Dropdown;
+  $__default["default"].fn[NAME$6] = Dropdown._jQueryInterface;
+  $__default["default"].fn[NAME$6].Constructor = Dropdown;
 
-  $.fn[NAME$4].noConflict = function () {
-    $.fn[NAME$4] = JQUERY_NO_CONFLICT$4;
+  $__default["default"].fn[NAME$6].noConflict = function () {
+    $__default["default"].fn[NAME$6] = JQUERY_NO_CONFLICT$6;
     return Dropdown._jQueryInterface;
   };
 
   /**
-   * ------------------------------------------------------------------------
    * Constants
-   * ------------------------------------------------------------------------
    */
 
   var NAME$5 = 'modal';
-  var VERSION$5 = '4.3.1';
+  var VERSION$5 = '4.6.1';
   var DATA_KEY$5 = 'bs.modal';
   var EVENT_KEY$5 = "." + DATA_KEY$5;
-  var DATA_API_KEY$5 = '.data-api';
-  var JQUERY_NO_CONFLICT$5 = $.fn[NAME$5];
-  var ESCAPE_KEYCODE$1 = 27; // KeyboardEvent.which value for Escape (Esc) key
+  var DATA_API_KEY$2 = '.data-api';
+  var JQUERY_NO_CONFLICT$5 = $__default["default"].fn[NAME$5];
+  var ESCAPE_KEYCODE = 27; // KeyboardEvent.which value for Escape (Esc) key
 
-  var Default$3 = {
+  var CLASS_NAME_SCROLLABLE = 'modal-dialog-scrollable';
+  var CLASS_NAME_SCROLLBAR_MEASURER = 'modal-scrollbar-measure';
+  var CLASS_NAME_BACKDROP = 'modal-backdrop';
+  var CLASS_NAME_OPEN = 'modal-open';
+  var CLASS_NAME_FADE$4 = 'fade';
+  var CLASS_NAME_SHOW$4 = 'show';
+  var CLASS_NAME_STATIC = 'modal-static';
+  var EVENT_HIDE$2 = "hide" + EVENT_KEY$5;
+  var EVENT_HIDE_PREVENTED = "hidePrevented" + EVENT_KEY$5;
+  var EVENT_HIDDEN$2 = "hidden" + EVENT_KEY$5;
+  var EVENT_SHOW$2 = "show" + EVENT_KEY$5;
+  var EVENT_SHOWN$2 = "shown" + EVENT_KEY$5;
+  var EVENT_FOCUSIN = "focusin" + EVENT_KEY$5;
+  var EVENT_RESIZE = "resize" + EVENT_KEY$5;
+  var EVENT_CLICK_DISMISS$1 = "click.dismiss" + EVENT_KEY$5;
+  var EVENT_KEYDOWN_DISMISS = "keydown.dismiss" + EVENT_KEY$5;
+  var EVENT_MOUSEUP_DISMISS = "mouseup.dismiss" + EVENT_KEY$5;
+  var EVENT_MOUSEDOWN_DISMISS = "mousedown.dismiss" + EVENT_KEY$5;
+  var EVENT_CLICK_DATA_API$1 = "click" + EVENT_KEY$5 + DATA_API_KEY$2;
+  var SELECTOR_DIALOG = '.modal-dialog';
+  var SELECTOR_MODAL_BODY = '.modal-body';
+  var SELECTOR_DATA_TOGGLE$1 = '[data-toggle="modal"]';
+  var SELECTOR_DATA_DISMISS$1 = '[data-dismiss="modal"]';
+  var SELECTOR_FIXED_CONTENT = '.fixed-top, .fixed-bottom, .is-fixed, .sticky-top';
+  var SELECTOR_STICKY_CONTENT = '.sticky-top';
+  var Default$4 = {
     backdrop: true,
     keyboard: true,
     focus: true,
     show: true
   };
-  var DefaultType$3 = {
+  var DefaultType$4 = {
     backdrop: '(boolean|string)',
     keyboard: 'boolean',
     focus: 'boolean',
     show: 'boolean'
   };
-  var Event$5 = {
-    HIDE: "hide" + EVENT_KEY$5,
-    HIDDEN: "hidden" + EVENT_KEY$5,
-    SHOW: "show" + EVENT_KEY$5,
-    SHOWN: "shown" + EVENT_KEY$5,
-    FOCUSIN: "focusin" + EVENT_KEY$5,
-    RESIZE: "resize" + EVENT_KEY$5,
-    CLICK_DISMISS: "click.dismiss" + EVENT_KEY$5,
-    KEYDOWN_DISMISS: "keydown.dismiss" + EVENT_KEY$5,
-    MOUSEUP_DISMISS: "mouseup.dismiss" + EVENT_KEY$5,
-    MOUSEDOWN_DISMISS: "mousedown.dismiss" + EVENT_KEY$5,
-    CLICK_DATA_API: "click" + EVENT_KEY$5 + DATA_API_KEY$5
-  };
-  var ClassName$5 = {
-    SCROLLABLE: 'modal-dialog-scrollable',
-    SCROLLBAR_MEASURER: 'modal-scrollbar-measure',
-    BACKDROP: 'modal-backdrop',
-    OPEN: 'modal-open',
-    FADE: 'fade',
-    SHOW: 'show'
-  };
-  var Selector$5 = {
-    DIALOG: '.modal-dialog',
-    MODAL_BODY: '.modal-body',
-    DATA_TOGGLE: '[data-toggle="modal"]',
-    DATA_DISMISS: '[data-dismiss="modal"]',
-    FIXED_CONTENT: '.fixed-top, .fixed-bottom, .is-fixed, .sticky-top',
-    STICKY_CONTENT: '.sticky-top'
-    /**
-     * ------------------------------------------------------------------------
-     * Class Definition
-     * ------------------------------------------------------------------------
-     */
+  /**
+   * Class definition
+   */
 
-  };
-
-  var Modal =
-  /*#__PURE__*/
-  function () {
+  var Modal = /*#__PURE__*/function () {
     function Modal(element, config) {
       this._config = this._getConfig(config);
       this._element = element;
-      this._dialog = element.querySelector(Selector$5.DIALOG);
+      this._dialog = element.querySelector(SELECTOR_DIALOG);
       this._backdrop = null;
       this._isShown = false;
       this._isBodyOverflowing = false;
@@ -15655,20 +15916,20 @@ module.exports = g;
         return;
       }
 
-      if ($(this._element).hasClass(ClassName$5.FADE)) {
-        this._isTransitioning = true;
-      }
-
-      var showEvent = $.Event(Event$5.SHOW, {
+      var showEvent = $__default["default"].Event(EVENT_SHOW$2, {
         relatedTarget: relatedTarget
       });
-      $(this._element).trigger(showEvent);
+      $__default["default"](this._element).trigger(showEvent);
 
-      if (this._isShown || showEvent.isDefaultPrevented()) {
+      if (showEvent.isDefaultPrevented()) {
         return;
       }
 
       this._isShown = true;
+
+      if ($__default["default"](this._element).hasClass(CLASS_NAME_FADE$4)) {
+        this._isTransitioning = true;
+      }
 
       this._checkScrollbar();
 
@@ -15680,12 +15941,12 @@ module.exports = g;
 
       this._setResizeEvent();
 
-      $(this._element).on(Event$5.CLICK_DISMISS, Selector$5.DATA_DISMISS, function (event) {
+      $__default["default"](this._element).on(EVENT_CLICK_DISMISS$1, SELECTOR_DATA_DISMISS$1, function (event) {
         return _this.hide(event);
       });
-      $(this._dialog).on(Event$5.MOUSEDOWN_DISMISS, function () {
-        $(_this._element).one(Event$5.MOUSEUP_DISMISS, function (event) {
-          if ($(event.target).is(_this._element)) {
+      $__default["default"](this._dialog).on(EVENT_MOUSEDOWN_DISMISS, function () {
+        $__default["default"](_this._element).one(EVENT_MOUSEUP_DISMISS, function (event) {
+          if ($__default["default"](event.target).is(_this._element)) {
             _this._ignoreBackdropClick = true;
           }
         });
@@ -15707,15 +15968,15 @@ module.exports = g;
         return;
       }
 
-      var hideEvent = $.Event(Event$5.HIDE);
-      $(this._element).trigger(hideEvent);
+      var hideEvent = $__default["default"].Event(EVENT_HIDE$2);
+      $__default["default"](this._element).trigger(hideEvent);
 
       if (!this._isShown || hideEvent.isDefaultPrevented()) {
         return;
       }
 
       this._isShown = false;
-      var transition = $(this._element).hasClass(ClassName$5.FADE);
+      var transition = $__default["default"](this._element).hasClass(CLASS_NAME_FADE$4);
 
       if (transition) {
         this._isTransitioning = true;
@@ -15725,14 +15986,14 @@ module.exports = g;
 
       this._setResizeEvent();
 
-      $(document).off(Event$5.FOCUSIN);
-      $(this._element).removeClass(ClassName$5.SHOW);
-      $(this._element).off(Event$5.CLICK_DISMISS);
-      $(this._dialog).off(Event$5.MOUSEDOWN_DISMISS);
+      $__default["default"](document).off(EVENT_FOCUSIN);
+      $__default["default"](this._element).removeClass(CLASS_NAME_SHOW$4);
+      $__default["default"](this._element).off(EVENT_CLICK_DISMISS$1);
+      $__default["default"](this._dialog).off(EVENT_MOUSEDOWN_DISMISS);
 
       if (transition) {
         var transitionDuration = Util.getTransitionDurationFromElement(this._element);
-        $(this._element).one(Util.TRANSITION_END, function (event) {
+        $__default["default"](this._element).one(Util.TRANSITION_END, function (event) {
           return _this2._hideModal(event);
         }).emulateTransitionEnd(transitionDuration);
       } else {
@@ -15742,16 +16003,16 @@ module.exports = g;
 
     _proto.dispose = function dispose() {
       [window, this._element, this._dialog].forEach(function (htmlElement) {
-        return $(htmlElement).off(EVENT_KEY$5);
+        return $__default["default"](htmlElement).off(EVENT_KEY$5);
       });
       /**
-       * `document` has 2 events `Event.FOCUSIN` and `Event.CLICK_DATA_API`
+       * `document` has 2 events `EVENT_FOCUSIN` and `EVENT_CLICK_DATA_API`
        * Do not move `document` in `htmlElements` array
-       * It will remove `Event.CLICK_DATA_API` event that should remain
+       * It will remove `EVENT_CLICK_DATA_API` event that should remain
        */
 
-      $(document).off(Event$5.FOCUSIN);
-      $.removeData(this._element, DATA_KEY$5);
+      $__default["default"](document).off(EVENT_FOCUSIN);
+      $__default["default"].removeData(this._element, DATA_KEY$5);
       this._config = null;
       this._element = null;
       this._dialog = null;
@@ -15769,15 +16030,49 @@ module.exports = g;
     ;
 
     _proto._getConfig = function _getConfig(config) {
-      config = _objectSpread({}, Default$3, config);
-      Util.typeCheckConfig(NAME$5, config, DefaultType$3);
+      config = _extends({}, Default$4, config);
+      Util.typeCheckConfig(NAME$5, config, DefaultType$4);
       return config;
     };
 
-    _proto._showElement = function _showElement(relatedTarget) {
+    _proto._triggerBackdropTransition = function _triggerBackdropTransition() {
       var _this3 = this;
 
-      var transition = $(this._element).hasClass(ClassName$5.FADE);
+      var hideEventPrevented = $__default["default"].Event(EVENT_HIDE_PREVENTED);
+      $__default["default"](this._element).trigger(hideEventPrevented);
+
+      if (hideEventPrevented.isDefaultPrevented()) {
+        return;
+      }
+
+      var isModalOverflowing = this._element.scrollHeight > document.documentElement.clientHeight;
+
+      if (!isModalOverflowing) {
+        this._element.style.overflowY = 'hidden';
+      }
+
+      this._element.classList.add(CLASS_NAME_STATIC);
+
+      var modalTransitionDuration = Util.getTransitionDurationFromElement(this._dialog);
+      $__default["default"](this._element).off(Util.TRANSITION_END);
+      $__default["default"](this._element).one(Util.TRANSITION_END, function () {
+        _this3._element.classList.remove(CLASS_NAME_STATIC);
+
+        if (!isModalOverflowing) {
+          $__default["default"](_this3._element).one(Util.TRANSITION_END, function () {
+            _this3._element.style.overflowY = '';
+          }).emulateTransitionEnd(_this3._element, modalTransitionDuration);
+        }
+      }).emulateTransitionEnd(modalTransitionDuration);
+
+      this._element.focus();
+    };
+
+    _proto._showElement = function _showElement(relatedTarget) {
+      var _this4 = this;
+
+      var transition = $__default["default"](this._element).hasClass(CLASS_NAME_FADE$4);
+      var modalBody = this._dialog ? this._dialog.querySelector(SELECTOR_MODAL_BODY) : null;
 
       if (!this._element.parentNode || this._element.parentNode.nodeType !== Node.ELEMENT_NODE) {
         // Don't move modal's DOM position
@@ -15790,8 +16085,10 @@ module.exports = g;
 
       this._element.setAttribute('aria-modal', true);
 
-      if ($(this._dialog).hasClass(ClassName$5.SCROLLABLE)) {
-        this._dialog.querySelector(Selector$5.MODAL_BODY).scrollTop = 0;
+      this._element.setAttribute('role', 'dialog');
+
+      if ($__default["default"](this._dialog).hasClass(CLASS_NAME_SCROLLABLE) && modalBody) {
+        modalBody.scrollTop = 0;
       } else {
         this._element.scrollTop = 0;
       }
@@ -15800,74 +16097,76 @@ module.exports = g;
         Util.reflow(this._element);
       }
 
-      $(this._element).addClass(ClassName$5.SHOW);
+      $__default["default"](this._element).addClass(CLASS_NAME_SHOW$4);
 
       if (this._config.focus) {
         this._enforceFocus();
       }
 
-      var shownEvent = $.Event(Event$5.SHOWN, {
+      var shownEvent = $__default["default"].Event(EVENT_SHOWN$2, {
         relatedTarget: relatedTarget
       });
 
       var transitionComplete = function transitionComplete() {
-        if (_this3._config.focus) {
-          _this3._element.focus();
+        if (_this4._config.focus) {
+          _this4._element.focus();
         }
 
-        _this3._isTransitioning = false;
-        $(_this3._element).trigger(shownEvent);
+        _this4._isTransitioning = false;
+        $__default["default"](_this4._element).trigger(shownEvent);
       };
 
       if (transition) {
         var transitionDuration = Util.getTransitionDurationFromElement(this._dialog);
-        $(this._dialog).one(Util.TRANSITION_END, transitionComplete).emulateTransitionEnd(transitionDuration);
+        $__default["default"](this._dialog).one(Util.TRANSITION_END, transitionComplete).emulateTransitionEnd(transitionDuration);
       } else {
         transitionComplete();
       }
     };
 
     _proto._enforceFocus = function _enforceFocus() {
-      var _this4 = this;
+      var _this5 = this;
 
-      $(document).off(Event$5.FOCUSIN) // Guard against infinite focus loop
-      .on(Event$5.FOCUSIN, function (event) {
-        if (document !== event.target && _this4._element !== event.target && $(_this4._element).has(event.target).length === 0) {
-          _this4._element.focus();
+      $__default["default"](document).off(EVENT_FOCUSIN) // Guard against infinite focus loop
+      .on(EVENT_FOCUSIN, function (event) {
+        if (document !== event.target && _this5._element !== event.target && $__default["default"](_this5._element).has(event.target).length === 0) {
+          _this5._element.focus();
         }
       });
     };
 
     _proto._setEscapeEvent = function _setEscapeEvent() {
-      var _this5 = this;
+      var _this6 = this;
 
-      if (this._isShown && this._config.keyboard) {
-        $(this._element).on(Event$5.KEYDOWN_DISMISS, function (event) {
-          if (event.which === ESCAPE_KEYCODE$1) {
+      if (this._isShown) {
+        $__default["default"](this._element).on(EVENT_KEYDOWN_DISMISS, function (event) {
+          if (_this6._config.keyboard && event.which === ESCAPE_KEYCODE) {
             event.preventDefault();
 
-            _this5.hide();
+            _this6.hide();
+          } else if (!_this6._config.keyboard && event.which === ESCAPE_KEYCODE) {
+            _this6._triggerBackdropTransition();
           }
         });
       } else if (!this._isShown) {
-        $(this._element).off(Event$5.KEYDOWN_DISMISS);
+        $__default["default"](this._element).off(EVENT_KEYDOWN_DISMISS);
       }
     };
 
     _proto._setResizeEvent = function _setResizeEvent() {
-      var _this6 = this;
+      var _this7 = this;
 
       if (this._isShown) {
-        $(window).on(Event$5.RESIZE, function (event) {
-          return _this6.handleUpdate(event);
+        $__default["default"](window).on(EVENT_RESIZE, function (event) {
+          return _this7.handleUpdate(event);
         });
       } else {
-        $(window).off(Event$5.RESIZE);
+        $__default["default"](window).off(EVENT_RESIZE);
       }
     };
 
     _proto._hideModal = function _hideModal() {
-      var _this7 = this;
+      var _this8 = this;
 
       this._element.style.display = 'none';
 
@@ -15875,43 +16174,45 @@ module.exports = g;
 
       this._element.removeAttribute('aria-modal');
 
+      this._element.removeAttribute('role');
+
       this._isTransitioning = false;
 
       this._showBackdrop(function () {
-        $(document.body).removeClass(ClassName$5.OPEN);
+        $__default["default"](document.body).removeClass(CLASS_NAME_OPEN);
 
-        _this7._resetAdjustments();
+        _this8._resetAdjustments();
 
-        _this7._resetScrollbar();
+        _this8._resetScrollbar();
 
-        $(_this7._element).trigger(Event$5.HIDDEN);
+        $__default["default"](_this8._element).trigger(EVENT_HIDDEN$2);
       });
     };
 
     _proto._removeBackdrop = function _removeBackdrop() {
       if (this._backdrop) {
-        $(this._backdrop).remove();
+        $__default["default"](this._backdrop).remove();
         this._backdrop = null;
       }
     };
 
     _proto._showBackdrop = function _showBackdrop(callback) {
-      var _this8 = this;
+      var _this9 = this;
 
-      var animate = $(this._element).hasClass(ClassName$5.FADE) ? ClassName$5.FADE : '';
+      var animate = $__default["default"](this._element).hasClass(CLASS_NAME_FADE$4) ? CLASS_NAME_FADE$4 : '';
 
       if (this._isShown && this._config.backdrop) {
         this._backdrop = document.createElement('div');
-        this._backdrop.className = ClassName$5.BACKDROP;
+        this._backdrop.className = CLASS_NAME_BACKDROP;
 
         if (animate) {
           this._backdrop.classList.add(animate);
         }
 
-        $(this._backdrop).appendTo(document.body);
-        $(this._element).on(Event$5.CLICK_DISMISS, function (event) {
-          if (_this8._ignoreBackdropClick) {
-            _this8._ignoreBackdropClick = false;
+        $__default["default"](this._backdrop).appendTo(document.body);
+        $__default["default"](this._element).on(EVENT_CLICK_DISMISS$1, function (event) {
+          if (_this9._ignoreBackdropClick) {
+            _this9._ignoreBackdropClick = false;
             return;
           }
 
@@ -15919,10 +16220,10 @@ module.exports = g;
             return;
           }
 
-          if (_this8._config.backdrop === 'static') {
-            _this8._element.focus();
+          if (_this9._config.backdrop === 'static') {
+            _this9._triggerBackdropTransition();
           } else {
-            _this8.hide();
+            _this9.hide();
           }
         });
 
@@ -15930,7 +16231,7 @@ module.exports = g;
           Util.reflow(this._backdrop);
         }
 
-        $(this._backdrop).addClass(ClassName$5.SHOW);
+        $__default["default"](this._backdrop).addClass(CLASS_NAME_SHOW$4);
 
         if (!callback) {
           return;
@@ -15942,22 +16243,22 @@ module.exports = g;
         }
 
         var backdropTransitionDuration = Util.getTransitionDurationFromElement(this._backdrop);
-        $(this._backdrop).one(Util.TRANSITION_END, callback).emulateTransitionEnd(backdropTransitionDuration);
+        $__default["default"](this._backdrop).one(Util.TRANSITION_END, callback).emulateTransitionEnd(backdropTransitionDuration);
       } else if (!this._isShown && this._backdrop) {
-        $(this._backdrop).removeClass(ClassName$5.SHOW);
+        $__default["default"](this._backdrop).removeClass(CLASS_NAME_SHOW$4);
 
         var callbackRemove = function callbackRemove() {
-          _this8._removeBackdrop();
+          _this9._removeBackdrop();
 
           if (callback) {
             callback();
           }
         };
 
-        if ($(this._element).hasClass(ClassName$5.FADE)) {
+        if ($__default["default"](this._element).hasClass(CLASS_NAME_FADE$4)) {
           var _backdropTransitionDuration = Util.getTransitionDurationFromElement(this._backdrop);
 
-          $(this._backdrop).one(Util.TRANSITION_END, callbackRemove).emulateTransitionEnd(_backdropTransitionDuration);
+          $__default["default"](this._backdrop).one(Util.TRANSITION_END, callbackRemove).emulateTransitionEnd(_backdropTransitionDuration);
         } else {
           callbackRemove();
         }
@@ -15989,66 +16290,66 @@ module.exports = g;
 
     _proto._checkScrollbar = function _checkScrollbar() {
       var rect = document.body.getBoundingClientRect();
-      this._isBodyOverflowing = rect.left + rect.right < window.innerWidth;
+      this._isBodyOverflowing = Math.round(rect.left + rect.right) < window.innerWidth;
       this._scrollbarWidth = this._getScrollbarWidth();
     };
 
     _proto._setScrollbar = function _setScrollbar() {
-      var _this9 = this;
+      var _this10 = this;
 
       if (this._isBodyOverflowing) {
         // Note: DOMNode.style.paddingRight returns the actual value or '' if not set
         //   while $(DOMNode).css('padding-right') returns the calculated value or 0 if not set
-        var fixedContent = [].slice.call(document.querySelectorAll(Selector$5.FIXED_CONTENT));
-        var stickyContent = [].slice.call(document.querySelectorAll(Selector$5.STICKY_CONTENT)); // Adjust fixed content padding
+        var fixedContent = [].slice.call(document.querySelectorAll(SELECTOR_FIXED_CONTENT));
+        var stickyContent = [].slice.call(document.querySelectorAll(SELECTOR_STICKY_CONTENT)); // Adjust fixed content padding
 
-        $(fixedContent).each(function (index, element) {
+        $__default["default"](fixedContent).each(function (index, element) {
           var actualPadding = element.style.paddingRight;
-          var calculatedPadding = $(element).css('padding-right');
-          $(element).data('padding-right', actualPadding).css('padding-right', parseFloat(calculatedPadding) + _this9._scrollbarWidth + "px");
+          var calculatedPadding = $__default["default"](element).css('padding-right');
+          $__default["default"](element).data('padding-right', actualPadding).css('padding-right', parseFloat(calculatedPadding) + _this10._scrollbarWidth + "px");
         }); // Adjust sticky content margin
 
-        $(stickyContent).each(function (index, element) {
+        $__default["default"](stickyContent).each(function (index, element) {
           var actualMargin = element.style.marginRight;
-          var calculatedMargin = $(element).css('margin-right');
-          $(element).data('margin-right', actualMargin).css('margin-right', parseFloat(calculatedMargin) - _this9._scrollbarWidth + "px");
+          var calculatedMargin = $__default["default"](element).css('margin-right');
+          $__default["default"](element).data('margin-right', actualMargin).css('margin-right', parseFloat(calculatedMargin) - _this10._scrollbarWidth + "px");
         }); // Adjust body padding
 
         var actualPadding = document.body.style.paddingRight;
-        var calculatedPadding = $(document.body).css('padding-right');
-        $(document.body).data('padding-right', actualPadding).css('padding-right', parseFloat(calculatedPadding) + this._scrollbarWidth + "px");
+        var calculatedPadding = $__default["default"](document.body).css('padding-right');
+        $__default["default"](document.body).data('padding-right', actualPadding).css('padding-right', parseFloat(calculatedPadding) + this._scrollbarWidth + "px");
       }
 
-      $(document.body).addClass(ClassName$5.OPEN);
+      $__default["default"](document.body).addClass(CLASS_NAME_OPEN);
     };
 
     _proto._resetScrollbar = function _resetScrollbar() {
       // Restore fixed content padding
-      var fixedContent = [].slice.call(document.querySelectorAll(Selector$5.FIXED_CONTENT));
-      $(fixedContent).each(function (index, element) {
-        var padding = $(element).data('padding-right');
-        $(element).removeData('padding-right');
+      var fixedContent = [].slice.call(document.querySelectorAll(SELECTOR_FIXED_CONTENT));
+      $__default["default"](fixedContent).each(function (index, element) {
+        var padding = $__default["default"](element).data('padding-right');
+        $__default["default"](element).removeData('padding-right');
         element.style.paddingRight = padding ? padding : '';
       }); // Restore sticky content
 
-      var elements = [].slice.call(document.querySelectorAll("" + Selector$5.STICKY_CONTENT));
-      $(elements).each(function (index, element) {
-        var margin = $(element).data('margin-right');
+      var elements = [].slice.call(document.querySelectorAll("" + SELECTOR_STICKY_CONTENT));
+      $__default["default"](elements).each(function (index, element) {
+        var margin = $__default["default"](element).data('margin-right');
 
         if (typeof margin !== 'undefined') {
-          $(element).css('margin-right', margin).removeData('margin-right');
+          $__default["default"](element).css('margin-right', margin).removeData('margin-right');
         }
       }); // Restore body padding
 
-      var padding = $(document.body).data('padding-right');
-      $(document.body).removeData('padding-right');
+      var padding = $__default["default"](document.body).data('padding-right');
+      $__default["default"](document.body).removeData('padding-right');
       document.body.style.paddingRight = padding ? padding : '';
     };
 
     _proto._getScrollbarWidth = function _getScrollbarWidth() {
       // thx d.walsh
       var scrollDiv = document.createElement('div');
-      scrollDiv.className = ClassName$5.SCROLLBAR_MEASURER;
+      scrollDiv.className = CLASS_NAME_SCROLLBAR_MEASURER;
       document.body.appendChild(scrollDiv);
       var scrollbarWidth = scrollDiv.getBoundingClientRect().width - scrollDiv.clientWidth;
       document.body.removeChild(scrollDiv);
@@ -16058,13 +16359,13 @@ module.exports = g;
 
     Modal._jQueryInterface = function _jQueryInterface(config, relatedTarget) {
       return this.each(function () {
-        var data = $(this).data(DATA_KEY$5);
+        var data = $__default["default"](this).data(DATA_KEY$5);
 
-        var _config = _objectSpread({}, Default$3, $(this).data(), typeof config === 'object' && config ? config : {});
+        var _config = _extends({}, Default$4, $__default["default"](this).data(), typeof config === 'object' && config ? config : {});
 
         if (!data) {
           data = new Modal(this, _config);
-          $(this).data(DATA_KEY$5, data);
+          $__default["default"](this).data(DATA_KEY$5, data);
         }
 
         if (typeof config === 'string') {
@@ -16087,21 +16388,19 @@ module.exports = g;
     }, {
       key: "Default",
       get: function get() {
-        return Default$3;
+        return Default$4;
       }
     }]);
 
     return Modal;
   }();
   /**
-   * ------------------------------------------------------------------------
-   * Data Api implementation
-   * ------------------------------------------------------------------------
+   * Data API implementation
    */
 
 
-  $(document).on(Event$5.CLICK_DATA_API, Selector$5.DATA_TOGGLE, function (event) {
-    var _this10 = this;
+  $__default["default"](document).on(EVENT_CLICK_DATA_API$1, SELECTOR_DATA_TOGGLE$1, function (event) {
+    var _this11 = this;
 
     var target;
     var selector = Util.getSelectorFromElement(this);
@@ -16110,45 +16409,43 @@ module.exports = g;
       target = document.querySelector(selector);
     }
 
-    var config = $(target).data(DATA_KEY$5) ? 'toggle' : _objectSpread({}, $(target).data(), $(this).data());
+    var config = $__default["default"](target).data(DATA_KEY$5) ? 'toggle' : _extends({}, $__default["default"](target).data(), $__default["default"](this).data());
 
     if (this.tagName === 'A' || this.tagName === 'AREA') {
       event.preventDefault();
     }
 
-    var $target = $(target).one(Event$5.SHOW, function (showEvent) {
+    var $target = $__default["default"](target).one(EVENT_SHOW$2, function (showEvent) {
       if (showEvent.isDefaultPrevented()) {
         // Only register focus restorer if modal will actually get shown
         return;
       }
 
-      $target.one(Event$5.HIDDEN, function () {
-        if ($(_this10).is(':visible')) {
-          _this10.focus();
+      $target.one(EVENT_HIDDEN$2, function () {
+        if ($__default["default"](_this11).is(':visible')) {
+          _this11.focus();
         }
       });
     });
 
-    Modal._jQueryInterface.call($(target), config, this);
+    Modal._jQueryInterface.call($__default["default"](target), config, this);
   });
   /**
-   * ------------------------------------------------------------------------
    * jQuery
-   * ------------------------------------------------------------------------
    */
 
-  $.fn[NAME$5] = Modal._jQueryInterface;
-  $.fn[NAME$5].Constructor = Modal;
+  $__default["default"].fn[NAME$5] = Modal._jQueryInterface;
+  $__default["default"].fn[NAME$5].Constructor = Modal;
 
-  $.fn[NAME$5].noConflict = function () {
-    $.fn[NAME$5] = JQUERY_NO_CONFLICT$5;
+  $__default["default"].fn[NAME$5].noConflict = function () {
+    $__default["default"].fn[NAME$5] = JQUERY_NO_CONFLICT$5;
     return Modal._jQueryInterface;
   };
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v4.3.1): tools/sanitizer.js
-   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+   * Bootstrap (v4.6.1): tools/sanitizer.js
+   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
   var uriAttrs = ['background', 'cite', 'href', 'itemtype', 'longdesc', 'poster', 'src', 'xlink:href'];
@@ -16172,7 +16469,7 @@ module.exports = g;
     h5: [],
     h6: [],
     i: [],
-    img: ['src', 'alt', 'title', 'width', 'height'],
+    img: ['src', 'srcset', 'alt', 'title', 'width', 'height'],
     li: [],
     ol: [],
     p: [],
@@ -16185,28 +16482,28 @@ module.exports = g;
     strong: [],
     u: [],
     ul: []
-    /**
-     * A pattern that recognizes a commonly useful subset of URLs that are safe.
-     *
-     * Shoutout to Angular 7 https://github.com/angular/angular/blob/7.2.4/packages/core/src/sanitization/url_sanitizer.ts
-     */
-
   };
-  var SAFE_URL_PATTERN = /^(?:(?:https?|mailto|ftp|tel|file):|[^&:/?#]*(?:[/?#]|$))/gi;
+  /**
+   * A pattern that recognizes a commonly useful subset of URLs that are safe.
+   *
+   * Shoutout to Angular https://github.com/angular/angular/blob/12.2.x/packages/core/src/sanitization/url_sanitizer.ts
+   */
+
+  var SAFE_URL_PATTERN = /^(?:(?:https?|mailto|ftp|tel|file|sms):|[^#&/:?]*(?:[#/?]|$))/i;
   /**
    * A pattern that matches safe data URLs. Only matches image, video and audio types.
    *
-   * Shoutout to Angular 7 https://github.com/angular/angular/blob/7.2.4/packages/core/src/sanitization/url_sanitizer.ts
+   * Shoutout to Angular https://github.com/angular/angular/blob/12.2.x/packages/core/src/sanitization/url_sanitizer.ts
    */
 
-  var DATA_URL_PATTERN = /^data:(?:image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp)|video\/(?:mpeg|mp4|ogg|webm)|audio\/(?:mp3|oga|ogg|opus));base64,[a-z0-9+/]+=*$/i;
+  var DATA_URL_PATTERN = /^data:(?:image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp)|video\/(?:mpeg|mp4|ogg|webm)|audio\/(?:mp3|oga|ogg|opus));base64,[\d+/a-z]+=*$/i;
 
   function allowedAttribute(attr, allowedAttributeList) {
     var attrName = attr.nodeName.toLowerCase();
 
     if (allowedAttributeList.indexOf(attrName) !== -1) {
       if (uriAttrs.indexOf(attrName) !== -1) {
-        return Boolean(attr.nodeValue.match(SAFE_URL_PATTERN) || attr.nodeValue.match(DATA_URL_PATTERN));
+        return Boolean(SAFE_URL_PATTERN.test(attr.nodeValue) || DATA_URL_PATTERN.test(attr.nodeValue));
       }
 
       return true;
@@ -16216,8 +16513,8 @@ module.exports = g;
       return attrRegex instanceof RegExp;
     }); // Check if a regular expression validates the attribute.
 
-    for (var i = 0, l = regExp.length; i < l; i++) {
-      if (attrName.match(regExp[i])) {
+    for (var i = 0, len = regExp.length; i < len; i++) {
+      if (regExp[i].test(attrName)) {
         return true;
       }
     }
@@ -16248,7 +16545,8 @@ module.exports = g;
         return "continue";
       }
 
-      var attributeList = [].slice.call(el.attributes);
+      var attributeList = [].slice.call(el.attributes); // eslint-disable-next-line unicorn/prefer-spread
+
       var whitelistedAttributes = [].concat(whiteList['*'] || [], whiteList[elName] || []);
       attributeList.forEach(function (attr) {
         if (!allowedAttribute(attr, whitelistedAttributes)) {
@@ -16258,7 +16556,7 @@ module.exports = g;
     };
 
     for (var i = 0, len = elements.length; i < len; i++) {
-      var _ret = _loop(i, len);
+      var _ret = _loop(i);
 
       if (_ret === "continue") continue;
     }
@@ -16267,44 +16565,35 @@ module.exports = g;
   }
 
   /**
-   * ------------------------------------------------------------------------
    * Constants
-   * ------------------------------------------------------------------------
    */
 
-  var NAME$6 = 'tooltip';
-  var VERSION$6 = '4.3.1';
-  var DATA_KEY$6 = 'bs.tooltip';
-  var EVENT_KEY$6 = "." + DATA_KEY$6;
-  var JQUERY_NO_CONFLICT$6 = $.fn[NAME$6];
-  var CLASS_PREFIX = 'bs-tooltip';
-  var BSCLS_PREFIX_REGEX = new RegExp("(^|\\s)" + CLASS_PREFIX + "\\S+", 'g');
+  var NAME$4 = 'tooltip';
+  var VERSION$4 = '4.6.1';
+  var DATA_KEY$4 = 'bs.tooltip';
+  var EVENT_KEY$4 = "." + DATA_KEY$4;
+  var JQUERY_NO_CONFLICT$4 = $__default["default"].fn[NAME$4];
+  var CLASS_PREFIX$1 = 'bs-tooltip';
+  var BSCLS_PREFIX_REGEX$1 = new RegExp("(^|\\s)" + CLASS_PREFIX$1 + "\\S+", 'g');
   var DISALLOWED_ATTRIBUTES = ['sanitize', 'whiteList', 'sanitizeFn'];
-  var DefaultType$4 = {
-    animation: 'boolean',
-    template: 'string',
-    title: '(string|element|function)',
-    trigger: 'string',
-    delay: '(number|object)',
-    html: 'boolean',
-    selector: '(string|boolean)',
-    placement: '(string|function)',
-    offset: '(number|string|function)',
-    container: '(string|element|boolean)',
-    fallbackPlacement: '(string|array)',
-    boundary: '(string|element)',
-    sanitize: 'boolean',
-    sanitizeFn: '(null|function)',
-    whiteList: 'object'
-  };
-  var AttachmentMap$1 = {
+  var CLASS_NAME_FADE$3 = 'fade';
+  var CLASS_NAME_SHOW$3 = 'show';
+  var HOVER_STATE_SHOW = 'show';
+  var HOVER_STATE_OUT = 'out';
+  var SELECTOR_TOOLTIP_INNER = '.tooltip-inner';
+  var SELECTOR_ARROW = '.arrow';
+  var TRIGGER_HOVER = 'hover';
+  var TRIGGER_FOCUS = 'focus';
+  var TRIGGER_CLICK = 'click';
+  var TRIGGER_MANUAL = 'manual';
+  var AttachmentMap = {
     AUTO: 'auto',
     TOP: 'top',
     RIGHT: 'right',
     BOTTOM: 'bottom',
     LEFT: 'left'
   };
-  var Default$4 = {
+  var Default$3 = {
     animation: true,
     template: '<div class="tooltip" role="tooltip">' + '<div class="arrow"></div>' + '<div class="tooltip-inner"></div></div>',
     trigger: 'hover focus',
@@ -16317,59 +16606,52 @@ module.exports = g;
     container: false,
     fallbackPlacement: 'flip',
     boundary: 'scrollParent',
+    customClass: '',
     sanitize: true,
     sanitizeFn: null,
-    whiteList: DefaultWhitelist
+    whiteList: DefaultWhitelist,
+    popperConfig: null
   };
-  var HoverState = {
-    SHOW: 'show',
-    OUT: 'out'
+  var DefaultType$3 = {
+    animation: 'boolean',
+    template: 'string',
+    title: '(string|element|function)',
+    trigger: 'string',
+    delay: '(number|object)',
+    html: 'boolean',
+    selector: '(string|boolean)',
+    placement: '(string|function)',
+    offset: '(number|string|function)',
+    container: '(string|element|boolean)',
+    fallbackPlacement: '(string|array)',
+    boundary: '(string|element)',
+    customClass: '(string|function)',
+    sanitize: 'boolean',
+    sanitizeFn: '(null|function)',
+    whiteList: 'object',
+    popperConfig: '(null|object)'
   };
-  var Event$6 = {
-    HIDE: "hide" + EVENT_KEY$6,
-    HIDDEN: "hidden" + EVENT_KEY$6,
-    SHOW: "show" + EVENT_KEY$6,
-    SHOWN: "shown" + EVENT_KEY$6,
-    INSERTED: "inserted" + EVENT_KEY$6,
-    CLICK: "click" + EVENT_KEY$6,
-    FOCUSIN: "focusin" + EVENT_KEY$6,
-    FOCUSOUT: "focusout" + EVENT_KEY$6,
-    MOUSEENTER: "mouseenter" + EVENT_KEY$6,
-    MOUSELEAVE: "mouseleave" + EVENT_KEY$6
+  var Event$1 = {
+    HIDE: "hide" + EVENT_KEY$4,
+    HIDDEN: "hidden" + EVENT_KEY$4,
+    SHOW: "show" + EVENT_KEY$4,
+    SHOWN: "shown" + EVENT_KEY$4,
+    INSERTED: "inserted" + EVENT_KEY$4,
+    CLICK: "click" + EVENT_KEY$4,
+    FOCUSIN: "focusin" + EVENT_KEY$4,
+    FOCUSOUT: "focusout" + EVENT_KEY$4,
+    MOUSEENTER: "mouseenter" + EVENT_KEY$4,
+    MOUSELEAVE: "mouseleave" + EVENT_KEY$4
   };
-  var ClassName$6 = {
-    FADE: 'fade',
-    SHOW: 'show'
-  };
-  var Selector$6 = {
-    TOOLTIP: '.tooltip',
-    TOOLTIP_INNER: '.tooltip-inner',
-    ARROW: '.arrow'
-  };
-  var Trigger = {
-    HOVER: 'hover',
-    FOCUS: 'focus',
-    CLICK: 'click',
-    MANUAL: 'manual'
-    /**
-     * ------------------------------------------------------------------------
-     * Class Definition
-     * ------------------------------------------------------------------------
-     */
+  /**
+   * Class definition
+   */
 
-  };
-
-  var Tooltip =
-  /*#__PURE__*/
-  function () {
+  var Tooltip = /*#__PURE__*/function () {
     function Tooltip(element, config) {
-      /**
-       * Check for Popper dependency
-       * Popper - https://popper.js.org
-       */
-      if (typeof Popper === 'undefined') {
-        throw new TypeError('Bootstrap\'s tooltips require Popper.js (https://popper.js.org/)');
-      } // private
+      if (typeof Popper__default["default"] === 'undefined') {
+        throw new TypeError('Bootstrap\'s tooltips require Popper (https://popper.js.org)');
+      } // Private
 
 
       this._isEnabled = true;
@@ -16408,11 +16690,11 @@ module.exports = g;
 
       if (event) {
         var dataKey = this.constructor.DATA_KEY;
-        var context = $(event.currentTarget).data(dataKey);
+        var context = $__default["default"](event.currentTarget).data(dataKey);
 
         if (!context) {
           context = new this.constructor(event.currentTarget, this._getDelegateConfig());
-          $(event.currentTarget).data(dataKey, context);
+          $__default["default"](event.currentTarget).data(dataKey, context);
         }
 
         context._activeTrigger.click = !context._activeTrigger.click;
@@ -16423,7 +16705,7 @@ module.exports = g;
           context._leave(null, context);
         }
       } else {
-        if ($(this.getTipElement()).hasClass(ClassName$6.SHOW)) {
+        if ($__default["default"](this.getTipElement()).hasClass(CLASS_NAME_SHOW$3)) {
           this._leave(null, this);
 
           return;
@@ -16435,12 +16717,12 @@ module.exports = g;
 
     _proto.dispose = function dispose() {
       clearTimeout(this._timeout);
-      $.removeData(this.element, this.constructor.DATA_KEY);
-      $(this.element).off(this.constructor.EVENT_KEY);
-      $(this.element).closest('.modal').off('hide.bs.modal');
+      $__default["default"].removeData(this.element, this.constructor.DATA_KEY);
+      $__default["default"](this.element).off(this.constructor.EVENT_KEY);
+      $__default["default"](this.element).closest('.modal').off('hide.bs.modal', this._hideModalHandler);
 
       if (this.tip) {
-        $(this.tip).remove();
+        $__default["default"](this.tip).remove();
       }
 
       this._isEnabled = null;
@@ -16448,7 +16730,7 @@ module.exports = g;
       this._hoverState = null;
       this._activeTrigger = null;
 
-      if (this._popper !== null) {
+      if (this._popper) {
         this._popper.destroy();
       }
 
@@ -16461,16 +16743,16 @@ module.exports = g;
     _proto.show = function show() {
       var _this = this;
 
-      if ($(this.element).css('display') === 'none') {
+      if ($__default["default"](this.element).css('display') === 'none') {
         throw new Error('Please use show on visible elements');
       }
 
-      var showEvent = $.Event(this.constructor.Event.SHOW);
+      var showEvent = $__default["default"].Event(this.constructor.Event.SHOW);
 
       if (this.isWithContent() && this._isEnabled) {
-        $(this.element).trigger(showEvent);
+        $__default["default"](this.element).trigger(showEvent);
         var shadowRoot = Util.findShadowRoot(this.element);
-        var isInTheDom = $.contains(shadowRoot !== null ? shadowRoot : this.element.ownerDocument.documentElement, this.element);
+        var isInTheDom = $__default["default"].contains(shadowRoot !== null ? shadowRoot : this.element.ownerDocument.documentElement, this.element);
 
         if (showEvent.isDefaultPrevented() || !isInTheDom) {
           return;
@@ -16483,7 +16765,7 @@ module.exports = g;
         this.setContent();
 
         if (this.config.animation) {
-          $(tip).addClass(ClassName$6.FADE);
+          $__default["default"](tip).addClass(CLASS_NAME_FADE$3);
         }
 
         var placement = typeof this.config.placement === 'function' ? this.config.placement.call(this, tip, this.element) : this.config.placement;
@@ -16494,43 +16776,22 @@ module.exports = g;
 
         var container = this._getContainer();
 
-        $(tip).data(this.constructor.DATA_KEY, this);
+        $__default["default"](tip).data(this.constructor.DATA_KEY, this);
 
-        if (!$.contains(this.element.ownerDocument.documentElement, this.tip)) {
-          $(tip).appendTo(container);
+        if (!$__default["default"].contains(this.element.ownerDocument.documentElement, this.tip)) {
+          $__default["default"](tip).appendTo(container);
         }
 
-        $(this.element).trigger(this.constructor.Event.INSERTED);
-        this._popper = new Popper(this.element, tip, {
-          placement: attachment,
-          modifiers: {
-            offset: this._getOffset(),
-            flip: {
-              behavior: this.config.fallbackPlacement
-            },
-            arrow: {
-              element: Selector$6.ARROW
-            },
-            preventOverflow: {
-              boundariesElement: this.config.boundary
-            }
-          },
-          onCreate: function onCreate(data) {
-            if (data.originalPlacement !== data.placement) {
-              _this._handlePopperPlacementChange(data);
-            }
-          },
-          onUpdate: function onUpdate(data) {
-            return _this._handlePopperPlacementChange(data);
-          }
-        });
-        $(tip).addClass(ClassName$6.SHOW); // If this is a touch-enabled device we add extra
+        $__default["default"](this.element).trigger(this.constructor.Event.INSERTED);
+        this._popper = new Popper__default["default"](this.element, tip, this._getPopperConfig(attachment));
+        $__default["default"](tip).addClass(CLASS_NAME_SHOW$3);
+        $__default["default"](tip).addClass(this.config.customClass); // If this is a touch-enabled device we add extra
         // empty mouseover listeners to the body's immediate children;
         // only needed because of broken event delegation on iOS
         // https://www.quirksmode.org/blog/archives/2014/02/mouse_event_bub.html
 
         if ('ontouchstart' in document.documentElement) {
-          $(document.body).children().on('mouseover', null, $.noop);
+          $__default["default"](document.body).children().on('mouseover', null, $__default["default"].noop);
         }
 
         var complete = function complete() {
@@ -16540,16 +16801,16 @@ module.exports = g;
 
           var prevHoverState = _this._hoverState;
           _this._hoverState = null;
-          $(_this.element).trigger(_this.constructor.Event.SHOWN);
+          $__default["default"](_this.element).trigger(_this.constructor.Event.SHOWN);
 
-          if (prevHoverState === HoverState.OUT) {
+          if (prevHoverState === HOVER_STATE_OUT) {
             _this._leave(null, _this);
           }
         };
 
-        if ($(this.tip).hasClass(ClassName$6.FADE)) {
+        if ($__default["default"](this.tip).hasClass(CLASS_NAME_FADE$3)) {
           var transitionDuration = Util.getTransitionDurationFromElement(this.tip);
-          $(this.tip).one(Util.TRANSITION_END, complete).emulateTransitionEnd(transitionDuration);
+          $__default["default"](this.tip).one(Util.TRANSITION_END, complete).emulateTransitionEnd(transitionDuration);
         } else {
           complete();
         }
@@ -16560,10 +16821,10 @@ module.exports = g;
       var _this2 = this;
 
       var tip = this.getTipElement();
-      var hideEvent = $.Event(this.constructor.Event.HIDE);
+      var hideEvent = $__default["default"].Event(this.constructor.Event.HIDE);
 
       var complete = function complete() {
-        if (_this2._hoverState !== HoverState.SHOW && tip.parentNode) {
+        if (_this2._hoverState !== HOVER_STATE_SHOW && tip.parentNode) {
           tip.parentNode.removeChild(tip);
         }
 
@@ -16571,7 +16832,7 @@ module.exports = g;
 
         _this2.element.removeAttribute('aria-describedby');
 
-        $(_this2.element).trigger(_this2.constructor.Event.HIDDEN);
+        $__default["default"](_this2.element).trigger(_this2.constructor.Event.HIDDEN);
 
         if (_this2._popper !== null) {
           _this2._popper.destroy();
@@ -16582,26 +16843,26 @@ module.exports = g;
         }
       };
 
-      $(this.element).trigger(hideEvent);
+      $__default["default"](this.element).trigger(hideEvent);
 
       if (hideEvent.isDefaultPrevented()) {
         return;
       }
 
-      $(tip).removeClass(ClassName$6.SHOW); // If this is a touch-enabled device we remove the extra
+      $__default["default"](tip).removeClass(CLASS_NAME_SHOW$3); // If this is a touch-enabled device we remove the extra
       // empty mouseover listeners we added for iOS support
 
       if ('ontouchstart' in document.documentElement) {
-        $(document.body).children().off('mouseover', null, $.noop);
+        $__default["default"](document.body).children().off('mouseover', null, $__default["default"].noop);
       }
 
-      this._activeTrigger[Trigger.CLICK] = false;
-      this._activeTrigger[Trigger.FOCUS] = false;
-      this._activeTrigger[Trigger.HOVER] = false;
+      this._activeTrigger[TRIGGER_CLICK] = false;
+      this._activeTrigger[TRIGGER_FOCUS] = false;
+      this._activeTrigger[TRIGGER_HOVER] = false;
 
-      if ($(this.tip).hasClass(ClassName$6.FADE)) {
+      if ($__default["default"](this.tip).hasClass(CLASS_NAME_FADE$3)) {
         var transitionDuration = Util.getTransitionDurationFromElement(tip);
-        $(tip).one(Util.TRANSITION_END, complete).emulateTransitionEnd(transitionDuration);
+        $__default["default"](tip).one(Util.TRANSITION_END, complete).emulateTransitionEnd(transitionDuration);
       } else {
         complete();
       }
@@ -16621,29 +16882,29 @@ module.exports = g;
     };
 
     _proto.addAttachmentClass = function addAttachmentClass(attachment) {
-      $(this.getTipElement()).addClass(CLASS_PREFIX + "-" + attachment);
+      $__default["default"](this.getTipElement()).addClass(CLASS_PREFIX$1 + "-" + attachment);
     };
 
     _proto.getTipElement = function getTipElement() {
-      this.tip = this.tip || $(this.config.template)[0];
+      this.tip = this.tip || $__default["default"](this.config.template)[0];
       return this.tip;
     };
 
     _proto.setContent = function setContent() {
       var tip = this.getTipElement();
-      this.setElementContent($(tip.querySelectorAll(Selector$6.TOOLTIP_INNER)), this.getTitle());
-      $(tip).removeClass(ClassName$6.FADE + " " + ClassName$6.SHOW);
+      this.setElementContent($__default["default"](tip.querySelectorAll(SELECTOR_TOOLTIP_INNER)), this.getTitle());
+      $__default["default"](tip).removeClass(CLASS_NAME_FADE$3 + " " + CLASS_NAME_SHOW$3);
     };
 
     _proto.setElementContent = function setElementContent($element, content) {
       if (typeof content === 'object' && (content.nodeType || content.jquery)) {
         // Content is a DOM node or a jQuery
         if (this.config.html) {
-          if (!$(content).parent().is($element)) {
+          if (!$__default["default"](content).parent().is($element)) {
             $element.empty().append(content);
           }
         } else {
-          $element.text($(content).text());
+          $element.text($__default["default"](content).text());
         }
 
         return;
@@ -16671,14 +16932,43 @@ module.exports = g;
     } // Private
     ;
 
-    _proto._getOffset = function _getOffset() {
+    _proto._getPopperConfig = function _getPopperConfig(attachment) {
       var _this3 = this;
+
+      var defaultBsConfig = {
+        placement: attachment,
+        modifiers: {
+          offset: this._getOffset(),
+          flip: {
+            behavior: this.config.fallbackPlacement
+          },
+          arrow: {
+            element: SELECTOR_ARROW
+          },
+          preventOverflow: {
+            boundariesElement: this.config.boundary
+          }
+        },
+        onCreate: function onCreate(data) {
+          if (data.originalPlacement !== data.placement) {
+            _this3._handlePopperPlacementChange(data);
+          }
+        },
+        onUpdate: function onUpdate(data) {
+          return _this3._handlePopperPlacementChange(data);
+        }
+      };
+      return _extends({}, defaultBsConfig, this.config.popperConfig);
+    };
+
+    _proto._getOffset = function _getOffset() {
+      var _this4 = this;
 
       var offset = {};
 
       if (typeof this.config.offset === 'function') {
         offset.fn = function (data) {
-          data.offsets = _objectSpread({}, data.offsets, _this3.config.offset(data.offsets, _this3.element) || {});
+          data.offsets = _extends({}, data.offsets, _this4.config.offset(data.offsets, _this4.element));
           return data;
         };
       } else {
@@ -16694,43 +16984,46 @@ module.exports = g;
       }
 
       if (Util.isElement(this.config.container)) {
-        return $(this.config.container);
+        return $__default["default"](this.config.container);
       }
 
-      return $(document).find(this.config.container);
+      return $__default["default"](document).find(this.config.container);
     };
 
     _proto._getAttachment = function _getAttachment(placement) {
-      return AttachmentMap$1[placement.toUpperCase()];
+      return AttachmentMap[placement.toUpperCase()];
     };
 
     _proto._setListeners = function _setListeners() {
-      var _this4 = this;
+      var _this5 = this;
 
       var triggers = this.config.trigger.split(' ');
       triggers.forEach(function (trigger) {
         if (trigger === 'click') {
-          $(_this4.element).on(_this4.constructor.Event.CLICK, _this4.config.selector, function (event) {
-            return _this4.toggle(event);
+          $__default["default"](_this5.element).on(_this5.constructor.Event.CLICK, _this5.config.selector, function (event) {
+            return _this5.toggle(event);
           });
-        } else if (trigger !== Trigger.MANUAL) {
-          var eventIn = trigger === Trigger.HOVER ? _this4.constructor.Event.MOUSEENTER : _this4.constructor.Event.FOCUSIN;
-          var eventOut = trigger === Trigger.HOVER ? _this4.constructor.Event.MOUSELEAVE : _this4.constructor.Event.FOCUSOUT;
-          $(_this4.element).on(eventIn, _this4.config.selector, function (event) {
-            return _this4._enter(event);
-          }).on(eventOut, _this4.config.selector, function (event) {
-            return _this4._leave(event);
+        } else if (trigger !== TRIGGER_MANUAL) {
+          var eventIn = trigger === TRIGGER_HOVER ? _this5.constructor.Event.MOUSEENTER : _this5.constructor.Event.FOCUSIN;
+          var eventOut = trigger === TRIGGER_HOVER ? _this5.constructor.Event.MOUSELEAVE : _this5.constructor.Event.FOCUSOUT;
+          $__default["default"](_this5.element).on(eventIn, _this5.config.selector, function (event) {
+            return _this5._enter(event);
+          }).on(eventOut, _this5.config.selector, function (event) {
+            return _this5._leave(event);
           });
-        }
-      });
-      $(this.element).closest('.modal').on('hide.bs.modal', function () {
-        if (_this4.element) {
-          _this4.hide();
         }
       });
 
+      this._hideModalHandler = function () {
+        if (_this5.element) {
+          _this5.hide();
+        }
+      };
+
+      $__default["default"](this.element).closest('.modal').on('hide.bs.modal', this._hideModalHandler);
+
       if (this.config.selector) {
-        this.config = _objectSpread({}, this.config, {
+        this.config = _extends({}, this.config, {
           trigger: 'manual',
           selector: ''
         });
@@ -16750,24 +17043,24 @@ module.exports = g;
 
     _proto._enter = function _enter(event, context) {
       var dataKey = this.constructor.DATA_KEY;
-      context = context || $(event.currentTarget).data(dataKey);
+      context = context || $__default["default"](event.currentTarget).data(dataKey);
 
       if (!context) {
         context = new this.constructor(event.currentTarget, this._getDelegateConfig());
-        $(event.currentTarget).data(dataKey, context);
+        $__default["default"](event.currentTarget).data(dataKey, context);
       }
 
       if (event) {
-        context._activeTrigger[event.type === 'focusin' ? Trigger.FOCUS : Trigger.HOVER] = true;
+        context._activeTrigger[event.type === 'focusin' ? TRIGGER_FOCUS : TRIGGER_HOVER] = true;
       }
 
-      if ($(context.getTipElement()).hasClass(ClassName$6.SHOW) || context._hoverState === HoverState.SHOW) {
-        context._hoverState = HoverState.SHOW;
+      if ($__default["default"](context.getTipElement()).hasClass(CLASS_NAME_SHOW$3) || context._hoverState === HOVER_STATE_SHOW) {
+        context._hoverState = HOVER_STATE_SHOW;
         return;
       }
 
       clearTimeout(context._timeout);
-      context._hoverState = HoverState.SHOW;
+      context._hoverState = HOVER_STATE_SHOW;
 
       if (!context.config.delay || !context.config.delay.show) {
         context.show();
@@ -16775,7 +17068,7 @@ module.exports = g;
       }
 
       context._timeout = setTimeout(function () {
-        if (context._hoverState === HoverState.SHOW) {
+        if (context._hoverState === HOVER_STATE_SHOW) {
           context.show();
         }
       }, context.config.delay.show);
@@ -16783,15 +17076,15 @@ module.exports = g;
 
     _proto._leave = function _leave(event, context) {
       var dataKey = this.constructor.DATA_KEY;
-      context = context || $(event.currentTarget).data(dataKey);
+      context = context || $__default["default"](event.currentTarget).data(dataKey);
 
       if (!context) {
         context = new this.constructor(event.currentTarget, this._getDelegateConfig());
-        $(event.currentTarget).data(dataKey, context);
+        $__default["default"](event.currentTarget).data(dataKey, context);
       }
 
       if (event) {
-        context._activeTrigger[event.type === 'focusout' ? Trigger.FOCUS : Trigger.HOVER] = false;
+        context._activeTrigger[event.type === 'focusout' ? TRIGGER_FOCUS : TRIGGER_HOVER] = false;
       }
 
       if (context._isWithActiveTrigger()) {
@@ -16799,7 +17092,7 @@ module.exports = g;
       }
 
       clearTimeout(context._timeout);
-      context._hoverState = HoverState.OUT;
+      context._hoverState = HOVER_STATE_OUT;
 
       if (!context.config.delay || !context.config.delay.hide) {
         context.hide();
@@ -16807,7 +17100,7 @@ module.exports = g;
       }
 
       context._timeout = setTimeout(function () {
-        if (context._hoverState === HoverState.OUT) {
+        if (context._hoverState === HOVER_STATE_OUT) {
           context.hide();
         }
       }, context.config.delay.hide);
@@ -16824,13 +17117,13 @@ module.exports = g;
     };
 
     _proto._getConfig = function _getConfig(config) {
-      var dataAttributes = $(this.element).data();
+      var dataAttributes = $__default["default"](this.element).data();
       Object.keys(dataAttributes).forEach(function (dataAttr) {
         if (DISALLOWED_ATTRIBUTES.indexOf(dataAttr) !== -1) {
           delete dataAttributes[dataAttr];
         }
       });
-      config = _objectSpread({}, this.constructor.Default, dataAttributes, typeof config === 'object' && config ? config : {});
+      config = _extends({}, this.constructor.Default, dataAttributes, typeof config === 'object' && config ? config : {});
 
       if (typeof config.delay === 'number') {
         config.delay = {
@@ -16847,7 +17140,7 @@ module.exports = g;
         config.content = config.content.toString();
       }
 
-      Util.typeCheckConfig(NAME$6, config, this.constructor.DefaultType);
+      Util.typeCheckConfig(NAME$4, config, this.constructor.DefaultType);
 
       if (config.sanitize) {
         config.template = sanitizeHtml(config.template, config.whiteList, config.sanitizeFn);
@@ -16871,8 +17164,8 @@ module.exports = g;
     };
 
     _proto._cleanTipClass = function _cleanTipClass() {
-      var $tip = $(this.getTipElement());
-      var tabClass = $tip.attr('class').match(BSCLS_PREFIX_REGEX);
+      var $tip = $__default["default"](this.getTipElement());
+      var tabClass = $tip.attr('class').match(BSCLS_PREFIX_REGEX$1);
 
       if (tabClass !== null && tabClass.length) {
         $tip.removeClass(tabClass.join(''));
@@ -16880,8 +17173,7 @@ module.exports = g;
     };
 
     _proto._handlePopperPlacementChange = function _handlePopperPlacementChange(popperData) {
-      var popperInstance = popperData.instance;
-      this.tip = popperInstance.popper;
+      this.tip = popperData.instance.popper;
 
       this._cleanTipClass();
 
@@ -16896,7 +17188,7 @@ module.exports = g;
         return;
       }
 
-      $(tip).removeClass(ClassName$6.FADE);
+      $__default["default"](tip).removeClass(CLASS_NAME_FADE$3);
       this.config.animation = false;
       this.hide();
       this.show();
@@ -16906,7 +17198,8 @@ module.exports = g;
 
     Tooltip._jQueryInterface = function _jQueryInterface(config) {
       return this.each(function () {
-        var data = $(this).data(DATA_KEY$6);
+        var $element = $__default["default"](this);
+        var data = $element.data(DATA_KEY$4);
 
         var _config = typeof config === 'object' && config;
 
@@ -16916,7 +17209,7 @@ module.exports = g;
 
         if (!data) {
           data = new Tooltip(this, _config);
-          $(this).data(DATA_KEY$6, data);
+          $element.data(DATA_KEY$4, data);
         }
 
         if (typeof config === 'string') {
@@ -16932,112 +17225,99 @@ module.exports = g;
     _createClass(Tooltip, null, [{
       key: "VERSION",
       get: function get() {
-        return VERSION$6;
+        return VERSION$4;
       }
     }, {
       key: "Default",
       get: function get() {
-        return Default$4;
+        return Default$3;
       }
     }, {
       key: "NAME",
       get: function get() {
-        return NAME$6;
+        return NAME$4;
       }
     }, {
       key: "DATA_KEY",
       get: function get() {
-        return DATA_KEY$6;
+        return DATA_KEY$4;
       }
     }, {
       key: "Event",
       get: function get() {
-        return Event$6;
+        return Event$1;
       }
     }, {
       key: "EVENT_KEY",
       get: function get() {
-        return EVENT_KEY$6;
+        return EVENT_KEY$4;
       }
     }, {
       key: "DefaultType",
       get: function get() {
-        return DefaultType$4;
+        return DefaultType$3;
       }
     }]);
 
     return Tooltip;
   }();
   /**
-   * ------------------------------------------------------------------------
    * jQuery
-   * ------------------------------------------------------------------------
    */
 
 
-  $.fn[NAME$6] = Tooltip._jQueryInterface;
-  $.fn[NAME$6].Constructor = Tooltip;
+  $__default["default"].fn[NAME$4] = Tooltip._jQueryInterface;
+  $__default["default"].fn[NAME$4].Constructor = Tooltip;
 
-  $.fn[NAME$6].noConflict = function () {
-    $.fn[NAME$6] = JQUERY_NO_CONFLICT$6;
+  $__default["default"].fn[NAME$4].noConflict = function () {
+    $__default["default"].fn[NAME$4] = JQUERY_NO_CONFLICT$4;
     return Tooltip._jQueryInterface;
   };
 
   /**
-   * ------------------------------------------------------------------------
    * Constants
-   * ------------------------------------------------------------------------
    */
 
-  var NAME$7 = 'popover';
-  var VERSION$7 = '4.3.1';
-  var DATA_KEY$7 = 'bs.popover';
-  var EVENT_KEY$7 = "." + DATA_KEY$7;
-  var JQUERY_NO_CONFLICT$7 = $.fn[NAME$7];
-  var CLASS_PREFIX$1 = 'bs-popover';
-  var BSCLS_PREFIX_REGEX$1 = new RegExp("(^|\\s)" + CLASS_PREFIX$1 + "\\S+", 'g');
+  var NAME$3 = 'popover';
+  var VERSION$3 = '4.6.1';
+  var DATA_KEY$3 = 'bs.popover';
+  var EVENT_KEY$3 = "." + DATA_KEY$3;
+  var JQUERY_NO_CONFLICT$3 = $__default["default"].fn[NAME$3];
+  var CLASS_PREFIX = 'bs-popover';
+  var BSCLS_PREFIX_REGEX = new RegExp("(^|\\s)" + CLASS_PREFIX + "\\S+", 'g');
+  var CLASS_NAME_FADE$2 = 'fade';
+  var CLASS_NAME_SHOW$2 = 'show';
+  var SELECTOR_TITLE = '.popover-header';
+  var SELECTOR_CONTENT = '.popover-body';
 
-  var Default$5 = _objectSpread({}, Tooltip.Default, {
+  var Default$2 = _extends({}, Tooltip.Default, {
     placement: 'right',
     trigger: 'click',
     content: '',
     template: '<div class="popover" role="tooltip">' + '<div class="arrow"></div>' + '<h3 class="popover-header"></h3>' + '<div class="popover-body"></div></div>'
   });
 
-  var DefaultType$5 = _objectSpread({}, Tooltip.DefaultType, {
+  var DefaultType$2 = _extends({}, Tooltip.DefaultType, {
     content: '(string|element|function)'
   });
 
-  var ClassName$7 = {
-    FADE: 'fade',
-    SHOW: 'show'
+  var Event = {
+    HIDE: "hide" + EVENT_KEY$3,
+    HIDDEN: "hidden" + EVENT_KEY$3,
+    SHOW: "show" + EVENT_KEY$3,
+    SHOWN: "shown" + EVENT_KEY$3,
+    INSERTED: "inserted" + EVENT_KEY$3,
+    CLICK: "click" + EVENT_KEY$3,
+    FOCUSIN: "focusin" + EVENT_KEY$3,
+    FOCUSOUT: "focusout" + EVENT_KEY$3,
+    MOUSEENTER: "mouseenter" + EVENT_KEY$3,
+    MOUSELEAVE: "mouseleave" + EVENT_KEY$3
   };
-  var Selector$7 = {
-    TITLE: '.popover-header',
-    CONTENT: '.popover-body'
-  };
-  var Event$7 = {
-    HIDE: "hide" + EVENT_KEY$7,
-    HIDDEN: "hidden" + EVENT_KEY$7,
-    SHOW: "show" + EVENT_KEY$7,
-    SHOWN: "shown" + EVENT_KEY$7,
-    INSERTED: "inserted" + EVENT_KEY$7,
-    CLICK: "click" + EVENT_KEY$7,
-    FOCUSIN: "focusin" + EVENT_KEY$7,
-    FOCUSOUT: "focusout" + EVENT_KEY$7,
-    MOUSEENTER: "mouseenter" + EVENT_KEY$7,
-    MOUSELEAVE: "mouseleave" + EVENT_KEY$7
-    /**
-     * ------------------------------------------------------------------------
-     * Class Definition
-     * ------------------------------------------------------------------------
-     */
+  /**
+   * Class definition
+   */
 
-  };
-
-  var Popover =
-  /*#__PURE__*/
-  function (_Tooltip) {
+  var Popover = /*#__PURE__*/function (_Tooltip) {
     _inheritsLoose(Popover, _Tooltip);
 
     function Popover() {
@@ -17052,18 +17332,18 @@ module.exports = g;
     };
 
     _proto.addAttachmentClass = function addAttachmentClass(attachment) {
-      $(this.getTipElement()).addClass(CLASS_PREFIX$1 + "-" + attachment);
+      $__default["default"](this.getTipElement()).addClass(CLASS_PREFIX + "-" + attachment);
     };
 
     _proto.getTipElement = function getTipElement() {
-      this.tip = this.tip || $(this.config.template)[0];
+      this.tip = this.tip || $__default["default"](this.config.template)[0];
       return this.tip;
     };
 
     _proto.setContent = function setContent() {
-      var $tip = $(this.getTipElement()); // We use append for html objects to maintain js events
+      var $tip = $__default["default"](this.getTipElement()); // We use append for html objects to maintain js events
 
-      this.setElementContent($tip.find(Selector$7.TITLE), this.getTitle());
+      this.setElementContent($tip.find(SELECTOR_TITLE), this.getTitle());
 
       var content = this._getContent();
 
@@ -17071,8 +17351,8 @@ module.exports = g;
         content = content.call(this.element);
       }
 
-      this.setElementContent($tip.find(Selector$7.CONTENT), content);
-      $tip.removeClass(ClassName$7.FADE + " " + ClassName$7.SHOW);
+      this.setElementContent($tip.find(SELECTOR_CONTENT), content);
+      $tip.removeClass(CLASS_NAME_FADE$2 + " " + CLASS_NAME_SHOW$2);
     } // Private
     ;
 
@@ -17081,8 +17361,8 @@ module.exports = g;
     };
 
     _proto._cleanTipClass = function _cleanTipClass() {
-      var $tip = $(this.getTipElement());
-      var tabClass = $tip.attr('class').match(BSCLS_PREFIX_REGEX$1);
+      var $tip = $__default["default"](this.getTipElement());
+      var tabClass = $tip.attr('class').match(BSCLS_PREFIX_REGEX);
 
       if (tabClass !== null && tabClass.length > 0) {
         $tip.removeClass(tabClass.join(''));
@@ -17092,7 +17372,7 @@ module.exports = g;
 
     Popover._jQueryInterface = function _jQueryInterface(config) {
       return this.each(function () {
-        var data = $(this).data(DATA_KEY$7);
+        var data = $__default["default"](this).data(DATA_KEY$3);
 
         var _config = typeof config === 'object' ? config : null;
 
@@ -17102,7 +17382,7 @@ module.exports = g;
 
         if (!data) {
           data = new Popover(this, _config);
-          $(this).data(DATA_KEY$7, data);
+          $__default["default"](this).data(DATA_KEY$3, data);
         }
 
         if (typeof config === 'string') {
@@ -17117,128 +17397,109 @@ module.exports = g;
 
     _createClass(Popover, null, [{
       key: "VERSION",
-      // Getters
-      get: function get() {
-        return VERSION$7;
+      get: // Getters
+      function get() {
+        return VERSION$3;
       }
     }, {
       key: "Default",
       get: function get() {
-        return Default$5;
+        return Default$2;
       }
     }, {
       key: "NAME",
       get: function get() {
-        return NAME$7;
+        return NAME$3;
       }
     }, {
       key: "DATA_KEY",
       get: function get() {
-        return DATA_KEY$7;
+        return DATA_KEY$3;
       }
     }, {
       key: "Event",
       get: function get() {
-        return Event$7;
+        return Event;
       }
     }, {
       key: "EVENT_KEY",
       get: function get() {
-        return EVENT_KEY$7;
+        return EVENT_KEY$3;
       }
     }, {
       key: "DefaultType",
       get: function get() {
-        return DefaultType$5;
+        return DefaultType$2;
       }
     }]);
 
     return Popover;
   }(Tooltip);
   /**
-   * ------------------------------------------------------------------------
    * jQuery
-   * ------------------------------------------------------------------------
    */
 
 
-  $.fn[NAME$7] = Popover._jQueryInterface;
-  $.fn[NAME$7].Constructor = Popover;
+  $__default["default"].fn[NAME$3] = Popover._jQueryInterface;
+  $__default["default"].fn[NAME$3].Constructor = Popover;
 
-  $.fn[NAME$7].noConflict = function () {
-    $.fn[NAME$7] = JQUERY_NO_CONFLICT$7;
+  $__default["default"].fn[NAME$3].noConflict = function () {
+    $__default["default"].fn[NAME$3] = JQUERY_NO_CONFLICT$3;
     return Popover._jQueryInterface;
   };
 
   /**
-   * ------------------------------------------------------------------------
    * Constants
-   * ------------------------------------------------------------------------
    */
 
-  var NAME$8 = 'scrollspy';
-  var VERSION$8 = '4.3.1';
-  var DATA_KEY$8 = 'bs.scrollspy';
-  var EVENT_KEY$8 = "." + DATA_KEY$8;
-  var DATA_API_KEY$6 = '.data-api';
-  var JQUERY_NO_CONFLICT$8 = $.fn[NAME$8];
-  var Default$6 = {
+  var NAME$2 = 'scrollspy';
+  var VERSION$2 = '4.6.1';
+  var DATA_KEY$2 = 'bs.scrollspy';
+  var EVENT_KEY$2 = "." + DATA_KEY$2;
+  var DATA_API_KEY$1 = '.data-api';
+  var JQUERY_NO_CONFLICT$2 = $__default["default"].fn[NAME$2];
+  var CLASS_NAME_DROPDOWN_ITEM = 'dropdown-item';
+  var CLASS_NAME_ACTIVE$1 = 'active';
+  var EVENT_ACTIVATE = "activate" + EVENT_KEY$2;
+  var EVENT_SCROLL = "scroll" + EVENT_KEY$2;
+  var EVENT_LOAD_DATA_API = "load" + EVENT_KEY$2 + DATA_API_KEY$1;
+  var METHOD_OFFSET = 'offset';
+  var METHOD_POSITION = 'position';
+  var SELECTOR_DATA_SPY = '[data-spy="scroll"]';
+  var SELECTOR_NAV_LIST_GROUP$1 = '.nav, .list-group';
+  var SELECTOR_NAV_LINKS = '.nav-link';
+  var SELECTOR_NAV_ITEMS = '.nav-item';
+  var SELECTOR_LIST_ITEMS = '.list-group-item';
+  var SELECTOR_DROPDOWN$1 = '.dropdown';
+  var SELECTOR_DROPDOWN_ITEMS = '.dropdown-item';
+  var SELECTOR_DROPDOWN_TOGGLE$1 = '.dropdown-toggle';
+  var Default$1 = {
     offset: 10,
     method: 'auto',
     target: ''
   };
-  var DefaultType$6 = {
+  var DefaultType$1 = {
     offset: 'number',
     method: 'string',
     target: '(string|element)'
   };
-  var Event$8 = {
-    ACTIVATE: "activate" + EVENT_KEY$8,
-    SCROLL: "scroll" + EVENT_KEY$8,
-    LOAD_DATA_API: "load" + EVENT_KEY$8 + DATA_API_KEY$6
-  };
-  var ClassName$8 = {
-    DROPDOWN_ITEM: 'dropdown-item',
-    DROPDOWN_MENU: 'dropdown-menu',
-    ACTIVE: 'active'
-  };
-  var Selector$8 = {
-    DATA_SPY: '[data-spy="scroll"]',
-    ACTIVE: '.active',
-    NAV_LIST_GROUP: '.nav, .list-group',
-    NAV_LINKS: '.nav-link',
-    NAV_ITEMS: '.nav-item',
-    LIST_ITEMS: '.list-group-item',
-    DROPDOWN: '.dropdown',
-    DROPDOWN_ITEMS: '.dropdown-item',
-    DROPDOWN_TOGGLE: '.dropdown-toggle'
-  };
-  var OffsetMethod = {
-    OFFSET: 'offset',
-    POSITION: 'position'
-    /**
-     * ------------------------------------------------------------------------
-     * Class Definition
-     * ------------------------------------------------------------------------
-     */
+  /**
+   * Class definition
+   */
 
-  };
-
-  var ScrollSpy =
-  /*#__PURE__*/
-  function () {
+  var ScrollSpy = /*#__PURE__*/function () {
     function ScrollSpy(element, config) {
       var _this = this;
 
       this._element = element;
       this._scrollElement = element.tagName === 'BODY' ? window : element;
       this._config = this._getConfig(config);
-      this._selector = this._config.target + " " + Selector$8.NAV_LINKS + "," + (this._config.target + " " + Selector$8.LIST_ITEMS + ",") + (this._config.target + " " + Selector$8.DROPDOWN_ITEMS);
+      this._selector = this._config.target + " " + SELECTOR_NAV_LINKS + "," + (this._config.target + " " + SELECTOR_LIST_ITEMS + ",") + (this._config.target + " " + SELECTOR_DROPDOWN_ITEMS);
       this._offsets = [];
       this._targets = [];
       this._activeTarget = null;
       this._scrollHeight = 0;
-      $(this._scrollElement).on(Event$8.SCROLL, function (event) {
+      $__default["default"](this._scrollElement).on(EVENT_SCROLL, function (event) {
         return _this._process(event);
       });
       this.refresh();
@@ -17253,9 +17514,9 @@ module.exports = g;
     _proto.refresh = function refresh() {
       var _this2 = this;
 
-      var autoMethod = this._scrollElement === this._scrollElement.window ? OffsetMethod.OFFSET : OffsetMethod.POSITION;
+      var autoMethod = this._scrollElement === this._scrollElement.window ? METHOD_OFFSET : METHOD_POSITION;
       var offsetMethod = this._config.method === 'auto' ? autoMethod : this._config.method;
-      var offsetBase = offsetMethod === OffsetMethod.POSITION ? this._getScrollTop() : 0;
+      var offsetBase = offsetMethod === METHOD_POSITION ? this._getScrollTop() : 0;
       this._offsets = [];
       this._targets = [];
       this._scrollHeight = this._getScrollHeight();
@@ -17273,7 +17534,7 @@ module.exports = g;
 
           if (targetBCR.width || targetBCR.height) {
             // TODO (fat): remove sketch reliance on jQuery position/offset
-            return [$(target)[offsetMethod]().top + offsetBase, targetSelector];
+            return [$__default["default"](target)[offsetMethod]().top + offsetBase, targetSelector];
           }
         }
 
@@ -17290,8 +17551,8 @@ module.exports = g;
     };
 
     _proto.dispose = function dispose() {
-      $.removeData(this._element, DATA_KEY$8);
-      $(this._scrollElement).off(EVENT_KEY$8);
+      $__default["default"].removeData(this._element, DATA_KEY$2);
+      $__default["default"](this._scrollElement).off(EVENT_KEY$2);
       this._element = null;
       this._scrollElement = null;
       this._config = null;
@@ -17304,20 +17565,20 @@ module.exports = g;
     ;
 
     _proto._getConfig = function _getConfig(config) {
-      config = _objectSpread({}, Default$6, typeof config === 'object' && config ? config : {});
+      config = _extends({}, Default$1, typeof config === 'object' && config ? config : {});
 
-      if (typeof config.target !== 'string') {
-        var id = $(config.target).attr('id');
+      if (typeof config.target !== 'string' && Util.isElement(config.target)) {
+        var id = $__default["default"](config.target).attr('id');
 
         if (!id) {
-          id = Util.getUID(NAME$8);
-          $(config.target).attr('id', id);
+          id = Util.getUID(NAME$2);
+          $__default["default"](config.target).attr('id', id);
         }
 
         config.target = "#" + id;
       }
 
-      Util.typeCheckConfig(NAME$8, config, DefaultType$6);
+      Util.typeCheckConfig(NAME$2, config, DefaultType$1);
       return config;
     };
 
@@ -17362,9 +17623,7 @@ module.exports = g;
         return;
       }
 
-      var offsetLength = this._offsets.length;
-
-      for (var i = offsetLength; i--;) {
+      for (var i = this._offsets.length; i--;) {
         var isActiveTarget = this._activeTarget !== this._targets[i] && scrollTop >= this._offsets[i] && (typeof this._offsets[i + 1] === 'undefined' || scrollTop < this._offsets[i + 1]);
 
         if (isActiveTarget) {
@@ -17382,44 +17641,44 @@ module.exports = g;
         return selector + "[data-target=\"" + target + "\"]," + selector + "[href=\"" + target + "\"]";
       });
 
-      var $link = $([].slice.call(document.querySelectorAll(queries.join(','))));
+      var $link = $__default["default"]([].slice.call(document.querySelectorAll(queries.join(','))));
 
-      if ($link.hasClass(ClassName$8.DROPDOWN_ITEM)) {
-        $link.closest(Selector$8.DROPDOWN).find(Selector$8.DROPDOWN_TOGGLE).addClass(ClassName$8.ACTIVE);
-        $link.addClass(ClassName$8.ACTIVE);
+      if ($link.hasClass(CLASS_NAME_DROPDOWN_ITEM)) {
+        $link.closest(SELECTOR_DROPDOWN$1).find(SELECTOR_DROPDOWN_TOGGLE$1).addClass(CLASS_NAME_ACTIVE$1);
+        $link.addClass(CLASS_NAME_ACTIVE$1);
       } else {
         // Set triggered link as active
-        $link.addClass(ClassName$8.ACTIVE); // Set triggered links parents as active
+        $link.addClass(CLASS_NAME_ACTIVE$1); // Set triggered links parents as active
         // With both <ul> and <nav> markup a parent is the previous sibling of any nav ancestor
 
-        $link.parents(Selector$8.NAV_LIST_GROUP).prev(Selector$8.NAV_LINKS + ", " + Selector$8.LIST_ITEMS).addClass(ClassName$8.ACTIVE); // Handle special case when .nav-link is inside .nav-item
+        $link.parents(SELECTOR_NAV_LIST_GROUP$1).prev(SELECTOR_NAV_LINKS + ", " + SELECTOR_LIST_ITEMS).addClass(CLASS_NAME_ACTIVE$1); // Handle special case when .nav-link is inside .nav-item
 
-        $link.parents(Selector$8.NAV_LIST_GROUP).prev(Selector$8.NAV_ITEMS).children(Selector$8.NAV_LINKS).addClass(ClassName$8.ACTIVE);
+        $link.parents(SELECTOR_NAV_LIST_GROUP$1).prev(SELECTOR_NAV_ITEMS).children(SELECTOR_NAV_LINKS).addClass(CLASS_NAME_ACTIVE$1);
       }
 
-      $(this._scrollElement).trigger(Event$8.ACTIVATE, {
+      $__default["default"](this._scrollElement).trigger(EVENT_ACTIVATE, {
         relatedTarget: target
       });
     };
 
     _proto._clear = function _clear() {
       [].slice.call(document.querySelectorAll(this._selector)).filter(function (node) {
-        return node.classList.contains(ClassName$8.ACTIVE);
+        return node.classList.contains(CLASS_NAME_ACTIVE$1);
       }).forEach(function (node) {
-        return node.classList.remove(ClassName$8.ACTIVE);
+        return node.classList.remove(CLASS_NAME_ACTIVE$1);
       });
     } // Static
     ;
 
     ScrollSpy._jQueryInterface = function _jQueryInterface(config) {
       return this.each(function () {
-        var data = $(this).data(DATA_KEY$8);
+        var data = $__default["default"](this).data(DATA_KEY$2);
 
         var _config = typeof config === 'object' && config;
 
         if (!data) {
           data = new ScrollSpy(this, _config);
-          $(this).data(DATA_KEY$8, data);
+          $__default["default"](this).data(DATA_KEY$2, data);
         }
 
         if (typeof config === 'string') {
@@ -17435,93 +17694,76 @@ module.exports = g;
     _createClass(ScrollSpy, null, [{
       key: "VERSION",
       get: function get() {
-        return VERSION$8;
+        return VERSION$2;
       }
     }, {
       key: "Default",
       get: function get() {
-        return Default$6;
+        return Default$1;
       }
     }]);
 
     return ScrollSpy;
   }();
   /**
-   * ------------------------------------------------------------------------
-   * Data Api implementation
-   * ------------------------------------------------------------------------
+   * Data API implementation
    */
 
 
-  $(window).on(Event$8.LOAD_DATA_API, function () {
-    var scrollSpys = [].slice.call(document.querySelectorAll(Selector$8.DATA_SPY));
+  $__default["default"](window).on(EVENT_LOAD_DATA_API, function () {
+    var scrollSpys = [].slice.call(document.querySelectorAll(SELECTOR_DATA_SPY));
     var scrollSpysLength = scrollSpys.length;
 
     for (var i = scrollSpysLength; i--;) {
-      var $spy = $(scrollSpys[i]);
+      var $spy = $__default["default"](scrollSpys[i]);
 
       ScrollSpy._jQueryInterface.call($spy, $spy.data());
     }
   });
   /**
-   * ------------------------------------------------------------------------
    * jQuery
-   * ------------------------------------------------------------------------
    */
 
-  $.fn[NAME$8] = ScrollSpy._jQueryInterface;
-  $.fn[NAME$8].Constructor = ScrollSpy;
+  $__default["default"].fn[NAME$2] = ScrollSpy._jQueryInterface;
+  $__default["default"].fn[NAME$2].Constructor = ScrollSpy;
 
-  $.fn[NAME$8].noConflict = function () {
-    $.fn[NAME$8] = JQUERY_NO_CONFLICT$8;
+  $__default["default"].fn[NAME$2].noConflict = function () {
+    $__default["default"].fn[NAME$2] = JQUERY_NO_CONFLICT$2;
     return ScrollSpy._jQueryInterface;
   };
 
   /**
-   * ------------------------------------------------------------------------
    * Constants
-   * ------------------------------------------------------------------------
    */
 
-  var NAME$9 = 'tab';
-  var VERSION$9 = '4.3.1';
-  var DATA_KEY$9 = 'bs.tab';
-  var EVENT_KEY$9 = "." + DATA_KEY$9;
-  var DATA_API_KEY$7 = '.data-api';
-  var JQUERY_NO_CONFLICT$9 = $.fn[NAME$9];
-  var Event$9 = {
-    HIDE: "hide" + EVENT_KEY$9,
-    HIDDEN: "hidden" + EVENT_KEY$9,
-    SHOW: "show" + EVENT_KEY$9,
-    SHOWN: "shown" + EVENT_KEY$9,
-    CLICK_DATA_API: "click" + EVENT_KEY$9 + DATA_API_KEY$7
-  };
-  var ClassName$9 = {
-    DROPDOWN_MENU: 'dropdown-menu',
-    ACTIVE: 'active',
-    DISABLED: 'disabled',
-    FADE: 'fade',
-    SHOW: 'show'
-  };
-  var Selector$9 = {
-    DROPDOWN: '.dropdown',
-    NAV_LIST_GROUP: '.nav, .list-group',
-    ACTIVE: '.active',
-    ACTIVE_UL: '> li > .active',
-    DATA_TOGGLE: '[data-toggle="tab"], [data-toggle="pill"], [data-toggle="list"]',
-    DROPDOWN_TOGGLE: '.dropdown-toggle',
-    DROPDOWN_ACTIVE_CHILD: '> .dropdown-menu .active'
-    /**
-     * ------------------------------------------------------------------------
-     * Class Definition
-     * ------------------------------------------------------------------------
-     */
+  var NAME$1 = 'tab';
+  var VERSION$1 = '4.6.1';
+  var DATA_KEY$1 = 'bs.tab';
+  var EVENT_KEY$1 = "." + DATA_KEY$1;
+  var DATA_API_KEY = '.data-api';
+  var JQUERY_NO_CONFLICT$1 = $__default["default"].fn[NAME$1];
+  var CLASS_NAME_DROPDOWN_MENU = 'dropdown-menu';
+  var CLASS_NAME_ACTIVE = 'active';
+  var CLASS_NAME_DISABLED = 'disabled';
+  var CLASS_NAME_FADE$1 = 'fade';
+  var CLASS_NAME_SHOW$1 = 'show';
+  var EVENT_HIDE$1 = "hide" + EVENT_KEY$1;
+  var EVENT_HIDDEN$1 = "hidden" + EVENT_KEY$1;
+  var EVENT_SHOW$1 = "show" + EVENT_KEY$1;
+  var EVENT_SHOWN$1 = "shown" + EVENT_KEY$1;
+  var EVENT_CLICK_DATA_API = "click" + EVENT_KEY$1 + DATA_API_KEY;
+  var SELECTOR_DROPDOWN = '.dropdown';
+  var SELECTOR_NAV_LIST_GROUP = '.nav, .list-group';
+  var SELECTOR_ACTIVE = '.active';
+  var SELECTOR_ACTIVE_UL = '> li > .active';
+  var SELECTOR_DATA_TOGGLE = '[data-toggle="tab"], [data-toggle="pill"], [data-toggle="list"]';
+  var SELECTOR_DROPDOWN_TOGGLE = '.dropdown-toggle';
+  var SELECTOR_DROPDOWN_ACTIVE_CHILD = '> .dropdown-menu .active';
+  /**
+   * Class definition
+   */
 
-  };
-
-  var Tab =
-  /*#__PURE__*/
-  function () {
+  var Tab = /*#__PURE__*/function () {
     function Tab(element) {
       this._element = element;
     } // Getters
@@ -17533,33 +17775,33 @@ module.exports = g;
     _proto.show = function show() {
       var _this = this;
 
-      if (this._element.parentNode && this._element.parentNode.nodeType === Node.ELEMENT_NODE && $(this._element).hasClass(ClassName$9.ACTIVE) || $(this._element).hasClass(ClassName$9.DISABLED)) {
+      if (this._element.parentNode && this._element.parentNode.nodeType === Node.ELEMENT_NODE && $__default["default"](this._element).hasClass(CLASS_NAME_ACTIVE) || $__default["default"](this._element).hasClass(CLASS_NAME_DISABLED)) {
         return;
       }
 
       var target;
       var previous;
-      var listElement = $(this._element).closest(Selector$9.NAV_LIST_GROUP)[0];
+      var listElement = $__default["default"](this._element).closest(SELECTOR_NAV_LIST_GROUP)[0];
       var selector = Util.getSelectorFromElement(this._element);
 
       if (listElement) {
-        var itemSelector = listElement.nodeName === 'UL' || listElement.nodeName === 'OL' ? Selector$9.ACTIVE_UL : Selector$9.ACTIVE;
-        previous = $.makeArray($(listElement).find(itemSelector));
+        var itemSelector = listElement.nodeName === 'UL' || listElement.nodeName === 'OL' ? SELECTOR_ACTIVE_UL : SELECTOR_ACTIVE;
+        previous = $__default["default"].makeArray($__default["default"](listElement).find(itemSelector));
         previous = previous[previous.length - 1];
       }
 
-      var hideEvent = $.Event(Event$9.HIDE, {
+      var hideEvent = $__default["default"].Event(EVENT_HIDE$1, {
         relatedTarget: this._element
       });
-      var showEvent = $.Event(Event$9.SHOW, {
+      var showEvent = $__default["default"].Event(EVENT_SHOW$1, {
         relatedTarget: previous
       });
 
       if (previous) {
-        $(previous).trigger(hideEvent);
+        $__default["default"](previous).trigger(hideEvent);
       }
 
-      $(this._element).trigger(showEvent);
+      $__default["default"](this._element).trigger(showEvent);
 
       if (showEvent.isDefaultPrevented() || hideEvent.isDefaultPrevented()) {
         return;
@@ -17572,14 +17814,14 @@ module.exports = g;
       this._activate(this._element, listElement);
 
       var complete = function complete() {
-        var hiddenEvent = $.Event(Event$9.HIDDEN, {
+        var hiddenEvent = $__default["default"].Event(EVENT_HIDDEN$1, {
           relatedTarget: _this._element
         });
-        var shownEvent = $.Event(Event$9.SHOWN, {
+        var shownEvent = $__default["default"].Event(EVENT_SHOWN$1, {
           relatedTarget: previous
         });
-        $(previous).trigger(hiddenEvent);
-        $(_this._element).trigger(shownEvent);
+        $__default["default"](previous).trigger(hiddenEvent);
+        $__default["default"](_this._element).trigger(shownEvent);
       };
 
       if (target) {
@@ -17590,7 +17832,7 @@ module.exports = g;
     };
 
     _proto.dispose = function dispose() {
-      $.removeData(this._element, DATA_KEY$9);
+      $__default["default"].removeData(this._element, DATA_KEY$1);
       this._element = null;
     } // Private
     ;
@@ -17598,9 +17840,9 @@ module.exports = g;
     _proto._activate = function _activate(element, container, callback) {
       var _this2 = this;
 
-      var activeElements = container && (container.nodeName === 'UL' || container.nodeName === 'OL') ? $(container).find(Selector$9.ACTIVE_UL) : $(container).children(Selector$9.ACTIVE);
+      var activeElements = container && (container.nodeName === 'UL' || container.nodeName === 'OL') ? $__default["default"](container).find(SELECTOR_ACTIVE_UL) : $__default["default"](container).children(SELECTOR_ACTIVE);
       var active = activeElements[0];
-      var isTransitioning = callback && active && $(active).hasClass(ClassName$9.FADE);
+      var isTransitioning = callback && active && $__default["default"](active).hasClass(CLASS_NAME_FADE$1);
 
       var complete = function complete() {
         return _this2._transitionComplete(element, active, callback);
@@ -17608,7 +17850,7 @@ module.exports = g;
 
       if (active && isTransitioning) {
         var transitionDuration = Util.getTransitionDurationFromElement(active);
-        $(active).removeClass(ClassName$9.SHOW).one(Util.TRANSITION_END, complete).emulateTransitionEnd(transitionDuration);
+        $__default["default"](active).removeClass(CLASS_NAME_SHOW$1).one(Util.TRANSITION_END, complete).emulateTransitionEnd(transitionDuration);
       } else {
         complete();
       }
@@ -17616,11 +17858,11 @@ module.exports = g;
 
     _proto._transitionComplete = function _transitionComplete(element, active, callback) {
       if (active) {
-        $(active).removeClass(ClassName$9.ACTIVE);
-        var dropdownChild = $(active.parentNode).find(Selector$9.DROPDOWN_ACTIVE_CHILD)[0];
+        $__default["default"](active).removeClass(CLASS_NAME_ACTIVE);
+        var dropdownChild = $__default["default"](active.parentNode).find(SELECTOR_DROPDOWN_ACTIVE_CHILD)[0];
 
         if (dropdownChild) {
-          $(dropdownChild).removeClass(ClassName$9.ACTIVE);
+          $__default["default"](dropdownChild).removeClass(CLASS_NAME_ACTIVE);
         }
 
         if (active.getAttribute('role') === 'tab') {
@@ -17628,7 +17870,7 @@ module.exports = g;
         }
       }
 
-      $(element).addClass(ClassName$9.ACTIVE);
+      $__default["default"](element).addClass(CLASS_NAME_ACTIVE);
 
       if (element.getAttribute('role') === 'tab') {
         element.setAttribute('aria-selected', true);
@@ -17636,16 +17878,22 @@ module.exports = g;
 
       Util.reflow(element);
 
-      if (element.classList.contains(ClassName$9.FADE)) {
-        element.classList.add(ClassName$9.SHOW);
+      if (element.classList.contains(CLASS_NAME_FADE$1)) {
+        element.classList.add(CLASS_NAME_SHOW$1);
       }
 
-      if (element.parentNode && $(element.parentNode).hasClass(ClassName$9.DROPDOWN_MENU)) {
-        var dropdownElement = $(element).closest(Selector$9.DROPDOWN)[0];
+      var parent = element.parentNode;
+
+      if (parent && parent.nodeName === 'LI') {
+        parent = parent.parentNode;
+      }
+
+      if (parent && $__default["default"](parent).hasClass(CLASS_NAME_DROPDOWN_MENU)) {
+        var dropdownElement = $__default["default"](element).closest(SELECTOR_DROPDOWN)[0];
 
         if (dropdownElement) {
-          var dropdownToggleList = [].slice.call(dropdownElement.querySelectorAll(Selector$9.DROPDOWN_TOGGLE));
-          $(dropdownToggleList).addClass(ClassName$9.ACTIVE);
+          var dropdownToggleList = [].slice.call(dropdownElement.querySelectorAll(SELECTOR_DROPDOWN_TOGGLE));
+          $__default["default"](dropdownToggleList).addClass(CLASS_NAME_ACTIVE);
         }
 
         element.setAttribute('aria-expanded', true);
@@ -17659,12 +17907,12 @@ module.exports = g;
 
     Tab._jQueryInterface = function _jQueryInterface(config) {
       return this.each(function () {
-        var $this = $(this);
-        var data = $this.data(DATA_KEY$9);
+        var $this = $__default["default"](this);
+        var data = $this.data(DATA_KEY$1);
 
         if (!data) {
           data = new Tab(this);
-          $this.data(DATA_KEY$9, data);
+          $this.data(DATA_KEY$1, data);
         }
 
         if (typeof config === 'string') {
@@ -17680,85 +17928,68 @@ module.exports = g;
     _createClass(Tab, null, [{
       key: "VERSION",
       get: function get() {
-        return VERSION$9;
+        return VERSION$1;
       }
     }]);
 
     return Tab;
   }();
   /**
-   * ------------------------------------------------------------------------
-   * Data Api implementation
-   * ------------------------------------------------------------------------
+   * Data API implementation
    */
 
 
-  $(document).on(Event$9.CLICK_DATA_API, Selector$9.DATA_TOGGLE, function (event) {
+  $__default["default"](document).on(EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
     event.preventDefault();
 
-    Tab._jQueryInterface.call($(this), 'show');
+    Tab._jQueryInterface.call($__default["default"](this), 'show');
   });
   /**
-   * ------------------------------------------------------------------------
    * jQuery
-   * ------------------------------------------------------------------------
    */
 
-  $.fn[NAME$9] = Tab._jQueryInterface;
-  $.fn[NAME$9].Constructor = Tab;
+  $__default["default"].fn[NAME$1] = Tab._jQueryInterface;
+  $__default["default"].fn[NAME$1].Constructor = Tab;
 
-  $.fn[NAME$9].noConflict = function () {
-    $.fn[NAME$9] = JQUERY_NO_CONFLICT$9;
+  $__default["default"].fn[NAME$1].noConflict = function () {
+    $__default["default"].fn[NAME$1] = JQUERY_NO_CONFLICT$1;
     return Tab._jQueryInterface;
   };
 
   /**
-   * ------------------------------------------------------------------------
    * Constants
-   * ------------------------------------------------------------------------
    */
 
-  var NAME$a = 'toast';
-  var VERSION$a = '4.3.1';
-  var DATA_KEY$a = 'bs.toast';
-  var EVENT_KEY$a = "." + DATA_KEY$a;
-  var JQUERY_NO_CONFLICT$a = $.fn[NAME$a];
-  var Event$a = {
-    CLICK_DISMISS: "click.dismiss" + EVENT_KEY$a,
-    HIDE: "hide" + EVENT_KEY$a,
-    HIDDEN: "hidden" + EVENT_KEY$a,
-    SHOW: "show" + EVENT_KEY$a,
-    SHOWN: "shown" + EVENT_KEY$a
-  };
-  var ClassName$a = {
-    FADE: 'fade',
-    HIDE: 'hide',
-    SHOW: 'show',
-    SHOWING: 'showing'
-  };
-  var DefaultType$7 = {
-    animation: 'boolean',
-    autohide: 'boolean',
-    delay: 'number'
-  };
-  var Default$7 = {
+  var NAME = 'toast';
+  var VERSION = '4.6.1';
+  var DATA_KEY = 'bs.toast';
+  var EVENT_KEY = "." + DATA_KEY;
+  var JQUERY_NO_CONFLICT = $__default["default"].fn[NAME];
+  var CLASS_NAME_FADE = 'fade';
+  var CLASS_NAME_HIDE = 'hide';
+  var CLASS_NAME_SHOW = 'show';
+  var CLASS_NAME_SHOWING = 'showing';
+  var EVENT_CLICK_DISMISS = "click.dismiss" + EVENT_KEY;
+  var EVENT_HIDE = "hide" + EVENT_KEY;
+  var EVENT_HIDDEN = "hidden" + EVENT_KEY;
+  var EVENT_SHOW = "show" + EVENT_KEY;
+  var EVENT_SHOWN = "shown" + EVENT_KEY;
+  var SELECTOR_DATA_DISMISS = '[data-dismiss="toast"]';
+  var Default = {
     animation: true,
     autohide: true,
     delay: 500
   };
-  var Selector$a = {
-    DATA_DISMISS: '[data-dismiss="toast"]'
-    /**
-     * ------------------------------------------------------------------------
-     * Class Definition
-     * ------------------------------------------------------------------------
-     */
-
+  var DefaultType = {
+    animation: 'boolean',
+    autohide: 'boolean',
+    delay: 'number'
   };
+  /**
+   * Class definition
+   */
 
-  var Toast =
-  /*#__PURE__*/
-  function () {
+  var Toast = /*#__PURE__*/function () {
     function Toast(element, config) {
       this._element = element;
       this._config = this._getConfig(config);
@@ -17774,113 +18005,125 @@ module.exports = g;
     _proto.show = function show() {
       var _this = this;
 
-      $(this._element).trigger(Event$a.SHOW);
+      var showEvent = $__default["default"].Event(EVENT_SHOW);
+      $__default["default"](this._element).trigger(showEvent);
+
+      if (showEvent.isDefaultPrevented()) {
+        return;
+      }
+
+      this._clearTimeout();
 
       if (this._config.animation) {
-        this._element.classList.add(ClassName$a.FADE);
+        this._element.classList.add(CLASS_NAME_FADE);
       }
 
       var complete = function complete() {
-        _this._element.classList.remove(ClassName$a.SHOWING);
+        _this._element.classList.remove(CLASS_NAME_SHOWING);
 
-        _this._element.classList.add(ClassName$a.SHOW);
+        _this._element.classList.add(CLASS_NAME_SHOW);
 
-        $(_this._element).trigger(Event$a.SHOWN);
+        $__default["default"](_this._element).trigger(EVENT_SHOWN);
 
         if (_this._config.autohide) {
-          _this.hide();
+          _this._timeout = setTimeout(function () {
+            _this.hide();
+          }, _this._config.delay);
         }
       };
 
-      this._element.classList.remove(ClassName$a.HIDE);
+      this._element.classList.remove(CLASS_NAME_HIDE);
 
-      this._element.classList.add(ClassName$a.SHOWING);
+      Util.reflow(this._element);
+
+      this._element.classList.add(CLASS_NAME_SHOWING);
 
       if (this._config.animation) {
         var transitionDuration = Util.getTransitionDurationFromElement(this._element);
-        $(this._element).one(Util.TRANSITION_END, complete).emulateTransitionEnd(transitionDuration);
+        $__default["default"](this._element).one(Util.TRANSITION_END, complete).emulateTransitionEnd(transitionDuration);
       } else {
         complete();
       }
     };
 
-    _proto.hide = function hide(withoutTimeout) {
-      var _this2 = this;
-
-      if (!this._element.classList.contains(ClassName$a.SHOW)) {
+    _proto.hide = function hide() {
+      if (!this._element.classList.contains(CLASS_NAME_SHOW)) {
         return;
       }
 
-      $(this._element).trigger(Event$a.HIDE);
+      var hideEvent = $__default["default"].Event(EVENT_HIDE);
+      $__default["default"](this._element).trigger(hideEvent);
 
-      if (withoutTimeout) {
-        this._close();
-      } else {
-        this._timeout = setTimeout(function () {
-          _this2._close();
-        }, this._config.delay);
+      if (hideEvent.isDefaultPrevented()) {
+        return;
       }
+
+      this._close();
     };
 
     _proto.dispose = function dispose() {
-      clearTimeout(this._timeout);
-      this._timeout = null;
+      this._clearTimeout();
 
-      if (this._element.classList.contains(ClassName$a.SHOW)) {
-        this._element.classList.remove(ClassName$a.SHOW);
+      if (this._element.classList.contains(CLASS_NAME_SHOW)) {
+        this._element.classList.remove(CLASS_NAME_SHOW);
       }
 
-      $(this._element).off(Event$a.CLICK_DISMISS);
-      $.removeData(this._element, DATA_KEY$a);
+      $__default["default"](this._element).off(EVENT_CLICK_DISMISS);
+      $__default["default"].removeData(this._element, DATA_KEY);
       this._element = null;
       this._config = null;
     } // Private
     ;
 
     _proto._getConfig = function _getConfig(config) {
-      config = _objectSpread({}, Default$7, $(this._element).data(), typeof config === 'object' && config ? config : {});
-      Util.typeCheckConfig(NAME$a, config, this.constructor.DefaultType);
+      config = _extends({}, Default, $__default["default"](this._element).data(), typeof config === 'object' && config ? config : {});
+      Util.typeCheckConfig(NAME, config, this.constructor.DefaultType);
       return config;
     };
 
     _proto._setListeners = function _setListeners() {
-      var _this3 = this;
+      var _this2 = this;
 
-      $(this._element).on(Event$a.CLICK_DISMISS, Selector$a.DATA_DISMISS, function () {
-        return _this3.hide(true);
+      $__default["default"](this._element).on(EVENT_CLICK_DISMISS, SELECTOR_DATA_DISMISS, function () {
+        return _this2.hide();
       });
     };
 
     _proto._close = function _close() {
-      var _this4 = this;
+      var _this3 = this;
 
       var complete = function complete() {
-        _this4._element.classList.add(ClassName$a.HIDE);
+        _this3._element.classList.add(CLASS_NAME_HIDE);
 
-        $(_this4._element).trigger(Event$a.HIDDEN);
+        $__default["default"](_this3._element).trigger(EVENT_HIDDEN);
       };
 
-      this._element.classList.remove(ClassName$a.SHOW);
+      this._element.classList.remove(CLASS_NAME_SHOW);
 
       if (this._config.animation) {
         var transitionDuration = Util.getTransitionDurationFromElement(this._element);
-        $(this._element).one(Util.TRANSITION_END, complete).emulateTransitionEnd(transitionDuration);
+        $__default["default"](this._element).one(Util.TRANSITION_END, complete).emulateTransitionEnd(transitionDuration);
       } else {
         complete();
       }
+    };
+
+    _proto._clearTimeout = function _clearTimeout() {
+      clearTimeout(this._timeout);
+      this._timeout = null;
     } // Static
     ;
 
     Toast._jQueryInterface = function _jQueryInterface(config) {
       return this.each(function () {
-        var $element = $(this);
-        var data = $element.data(DATA_KEY$a);
+        var $element = $__default["default"](this);
+        var data = $element.data(DATA_KEY);
 
         var _config = typeof config === 'object' && config;
 
         if (!data) {
           data = new Toast(this, _config);
-          $element.data(DATA_KEY$a, data);
+          $element.data(DATA_KEY, data);
         }
 
         if (typeof config === 'string') {
@@ -17896,62 +18139,35 @@ module.exports = g;
     _createClass(Toast, null, [{
       key: "VERSION",
       get: function get() {
-        return VERSION$a;
+        return VERSION;
       }
     }, {
       key: "DefaultType",
       get: function get() {
-        return DefaultType$7;
+        return DefaultType;
       }
     }, {
       key: "Default",
       get: function get() {
-        return Default$7;
+        return Default;
       }
     }]);
 
     return Toast;
   }();
   /**
-   * ------------------------------------------------------------------------
    * jQuery
-   * ------------------------------------------------------------------------
    */
 
 
-  $.fn[NAME$a] = Toast._jQueryInterface;
-  $.fn[NAME$a].Constructor = Toast;
+  $__default["default"].fn[NAME] = Toast._jQueryInterface;
+  $__default["default"].fn[NAME].Constructor = Toast;
 
-  $.fn[NAME$a].noConflict = function () {
-    $.fn[NAME$a] = JQUERY_NO_CONFLICT$a;
+  $__default["default"].fn[NAME].noConflict = function () {
+    $__default["default"].fn[NAME] = JQUERY_NO_CONFLICT;
     return Toast._jQueryInterface;
   };
 
-  /**
-   * --------------------------------------------------------------------------
-   * Bootstrap (v4.3.1): index.js
-   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
-   * --------------------------------------------------------------------------
-   */
-
-  (function () {
-    if (typeof $ === 'undefined') {
-      throw new TypeError('Bootstrap\'s JavaScript requires jQuery. jQuery must be included before Bootstrap\'s JavaScript.');
-    }
-
-    var version = $.fn.jquery.split(' ')[0].split('.');
-    var minMajor = 1;
-    var ltMajor = 2;
-    var minMinor = 9;
-    var minPatch = 1;
-    var maxMajor = 4;
-
-    if (version[0] < ltMajor && version[1] < minMinor || version[0] === minMajor && version[1] === minMinor && version[2] < minPatch || version[0] >= maxMajor) {
-      throw new Error('Bootstrap\'s JavaScript requires at least jQuery v1.9.1 but less than v4.0.0');
-    }
-  })();
-
-  exports.Util = Util;
   exports.Alert = Alert;
   exports.Button = Button;
   exports.Carousel = Carousel;
@@ -17963,6 +18179,7 @@ module.exports = g;
   exports.Tab = Tab;
   exports.Toast = Toast;
   exports.Tooltip = Tooltip;
+  exports.Util = Util;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
@@ -17978,7 +18195,7 @@ module.exports = g;
 __webpack_require__.r(__webpack_exports__);
 /* WEBPACK VAR INJECTION */(function(global) {/**!
  * @fileOverview Kickass library to create and place poppers near their reference elements.
- * @version 1.15.0
+ * @version 1.16.1
  * @license
  * Copyright (c) 2016 Federico Zivolo and contributors
  *
@@ -18000,16 +18217,17 @@ __webpack_require__.r(__webpack_exports__);
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-var isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
+var isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined' && typeof navigator !== 'undefined';
 
-var longerTimeoutBrowsers = ['Edge', 'Trident', 'Firefox'];
-var timeoutDuration = 0;
-for (var i = 0; i < longerTimeoutBrowsers.length; i += 1) {
-  if (isBrowser && navigator.userAgent.indexOf(longerTimeoutBrowsers[i]) >= 0) {
-    timeoutDuration = 1;
-    break;
+var timeoutDuration = function () {
+  var longerTimeoutBrowsers = ['Edge', 'Trident', 'Firefox'];
+  for (var i = 0; i < longerTimeoutBrowsers.length; i += 1) {
+    if (isBrowser && navigator.userAgent.indexOf(longerTimeoutBrowsers[i]) >= 0) {
+      return 1;
+    }
   }
-}
+  return 0;
+}();
 
 function microtaskDebounce(fn) {
   var called = false;
@@ -18127,6 +18345,17 @@ function getScrollParent(element) {
   }
 
   return getScrollParent(getParentNode(element));
+}
+
+/**
+ * Returns the reference node of the reference object, or the reference object itself.
+ * @method
+ * @memberof Popper.Utils
+ * @param {Element|Object} reference - the reference element (the popper will be relative to this)
+ * @returns {Element} parent
+ */
+function getReferenceNode(reference) {
+  return reference && reference.referenceNode ? reference.referenceNode : reference;
 }
 
 var isIE11 = isBrowser && !!(window.MSInputMethodContext && document.documentMode);
@@ -18312,7 +18541,7 @@ function getBordersSize(styles, axis) {
   var sideA = axis === 'x' ? 'Left' : 'Top';
   var sideB = sideA === 'Left' ? 'Right' : 'Bottom';
 
-  return parseFloat(styles['border' + sideA + 'Width'], 10) + parseFloat(styles['border' + sideB + 'Width'], 10);
+  return parseFloat(styles['border' + sideA + 'Width']) + parseFloat(styles['border' + sideB + 'Width']);
 }
 
 function getSize(axis, body, html, computedStyle) {
@@ -18437,8 +18666,8 @@ function getBoundingClientRect(element) {
 
   // subtract scrollbar size from sizes
   var sizes = element.nodeName === 'HTML' ? getWindowSizes(element.ownerDocument) : {};
-  var width = sizes.width || element.clientWidth || result.right - result.left;
-  var height = sizes.height || element.clientHeight || result.bottom - result.top;
+  var width = sizes.width || element.clientWidth || result.width;
+  var height = sizes.height || element.clientHeight || result.height;
 
   var horizScrollbar = element.offsetWidth - width;
   var vertScrollbar = element.offsetHeight - height;
@@ -18467,8 +18696,8 @@ function getOffsetRectRelativeToArbitraryNode(children, parent) {
   var scrollParent = getScrollParent(children);
 
   var styles = getStyleComputedProperty(parent);
-  var borderTopWidth = parseFloat(styles.borderTopWidth, 10);
-  var borderLeftWidth = parseFloat(styles.borderLeftWidth, 10);
+  var borderTopWidth = parseFloat(styles.borderTopWidth);
+  var borderLeftWidth = parseFloat(styles.borderLeftWidth);
 
   // In cases where the parent is fixed, we must ignore negative scroll in offset calc
   if (fixedPosition && isHTML) {
@@ -18489,8 +18718,8 @@ function getOffsetRectRelativeToArbitraryNode(children, parent) {
   // differently when margins are applied to it. The margins are included in
   // the box of the documentElement, in the other cases not.
   if (!isIE10 && isHTML) {
-    var marginTop = parseFloat(styles.marginTop, 10);
-    var marginLeft = parseFloat(styles.marginLeft, 10);
+    var marginTop = parseFloat(styles.marginTop);
+    var marginLeft = parseFloat(styles.marginLeft);
 
     offsets.top -= borderTopWidth - marginTop;
     offsets.bottom -= borderTopWidth - marginTop;
@@ -18590,7 +18819,7 @@ function getBoundaries(popper, reference, padding, boundariesElement) {
   // NOTE: 1 DOM access here
 
   var boundaries = { top: 0, left: 0 };
-  var offsetParent = fixedPosition ? getFixedPositionOffsetParent(popper) : findCommonOffsetParent(popper, reference);
+  var offsetParent = fixedPosition ? getFixedPositionOffsetParent(popper) : findCommonOffsetParent(popper, getReferenceNode(reference));
 
   // Handle viewport case
   if (boundariesElement === 'viewport') {
@@ -18718,7 +18947,7 @@ function computeAutoPlacement(placement, refRect, popper, reference, boundariesE
 function getReferenceOffsets(state, popper, reference) {
   var fixedPosition = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
 
-  var commonOffsetParent = fixedPosition ? getFixedPositionOffsetParent(popper) : findCommonOffsetParent(popper, reference);
+  var commonOffsetParent = fixedPosition ? getFixedPositionOffsetParent(popper) : findCommonOffsetParent(popper, getReferenceNode(reference));
   return getOffsetRectRelativeToArbitraryNode(reference, commonOffsetParent, fixedPosition);
 }
 
@@ -18980,7 +19209,7 @@ function destroy() {
 
   this.disableEventListeners();
 
-  // remove the popper if user explicity asked for the deletion on destroy
+  // remove the popper if user explicitly asked for the deletion on destroy
   // do not use `remove` because IE11 doesn't support it
   if (this.options.removeOnDestroy) {
     this.popper.parentNode.removeChild(this.popper);
@@ -19429,8 +19658,8 @@ function arrow(data, options) {
   // Compute the sideValue using the updated popper offsets
   // take popper margin in account because we don't have this info available
   var css = getStyleComputedProperty(data.instance.popper);
-  var popperMarginSide = parseFloat(css['margin' + sideCapitalized], 10);
-  var popperBorderSide = parseFloat(css['border' + sideCapitalized + 'Width'], 10);
+  var popperMarginSide = parseFloat(css['margin' + sideCapitalized]);
+  var popperBorderSide = parseFloat(css['border' + sideCapitalized + 'Width']);
   var sideValue = center - data.offsets.popper[side] - popperMarginSide - popperBorderSide;
 
   // prevent arrowElement from being placed not contiguously to its popper
@@ -20588,7 +20817,7 @@ Popper.Defaults = Defaults;
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;//
-// SmoothScroll for websites v1.4.9 (Balazs Galambosi)
+// SmoothScroll for websites v1.4.10 (Balazs Galambosi)
 // http://www.smoothscroll.net/
 //
 // Licensed under the terms of the MIT license.
@@ -21220,7 +21449,9 @@ function isTouchpad(deltaY) {
         } catch (e) { }  
     }, 1000);
     var dpiScaledWheelDelta = deltaY > 120 && allDeltasDivisableBy(deltaY); // win64 
-    return !allDeltasDivisableBy(120) && !allDeltasDivisableBy(100) && !dpiScaledWheelDelta;
+    var tp = !allDeltasDivisableBy(120) && !allDeltasDivisableBy(100) && !dpiScaledWheelDelta;
+    if (deltaY < 50) return true;
+    return tp;
 } 
 
 function isDivisible(n, divisor) {
@@ -21379,7 +21610,7 @@ else {}
 /* 9 */
 /***/ (function(module, exports) {
 
-!function(){"use strict";if("undefined"!=typeof window){var t=window.navigator.userAgent.match(/Edge\/(\d{2})\./),n=!!t&&16<=parseInt(t[1],10);if(!("objectFit"in document.documentElement.style!=!1)||n){var o=function(t,e,i){var n,o,l,a,d;if((i=i.split(" ")).length<2&&(i[1]=i[0]),"x"===t)n=i[0],o=i[1],l="left",a="right",d=e.clientWidth;else{if("y"!==t)return;n=i[1],o=i[0],l="top",a="bottom",d=e.clientHeight}if(n!==l&&o!==l){if(n!==a&&o!==a)return"center"===n||"50%"===n?(e.style[l]="50%",void(e.style["margin-"+l]=d/-2+"px")):void(0<=n.indexOf("%")?(n=parseInt(n))<50?(e.style[l]=n+"%",e.style["margin-"+l]=d*(n/-100)+"px"):(n=100-n,e.style[a]=n+"%",e.style["margin-"+a]=d*(n/-100)+"px"):e.style[l]=n);e.style[a]="0"}else e.style[l]="0"},l=function(t){var e=t.dataset?t.dataset.objectFit:t.getAttribute("data-object-fit"),i=t.dataset?t.dataset.objectPosition:t.getAttribute("data-object-position");e=e||"cover",i=i||"50% 50%";var n=t.parentNode;return function(t){var e=window.getComputedStyle(t,null),i=e.getPropertyValue("position"),n=e.getPropertyValue("overflow"),o=e.getPropertyValue("display");i&&"static"!==i||(t.style.position="relative"),"hidden"!==n&&(t.style.overflow="hidden"),o&&"inline"!==o||(t.style.display="block"),0===t.clientHeight&&(t.style.height="100%"),-1===t.className.indexOf("object-fit-polyfill")&&(t.className=t.className+" object-fit-polyfill")}(n),function(t){var e=window.getComputedStyle(t,null),i={"max-width":"none","max-height":"none","min-width":"0px","min-height":"0px",top:"auto",right:"auto",bottom:"auto",left:"auto","margin-top":"0px","margin-right":"0px","margin-bottom":"0px","margin-left":"0px"};for(var n in i)e.getPropertyValue(n)!==i[n]&&(t.style[n]=i[n])}(t),t.style.position="absolute",t.style.width="auto",t.style.height="auto","scale-down"===e&&(e=t.clientWidth<n.clientWidth&&t.clientHeight<n.clientHeight?"none":"contain"),"none"===e?(o("x",t,i),void o("y",t,i)):"fill"===e?(t.style.width="100%",t.style.height="100%",o("x",t,i),void o("y",t,i)):(t.style.height="100%",void("cover"===e&&t.clientWidth>n.clientWidth||"contain"===e&&t.clientWidth<n.clientWidth?(t.style.top="0",t.style.marginTop="0",o("x",t,i)):(t.style.width="100%",t.style.height="auto",t.style.left="0",t.style.marginLeft="0",o("y",t,i))))},e=function(t){if(void 0===t||t instanceof Event)t=document.querySelectorAll("[data-object-fit]");else if(t&&t.nodeName)t=[t];else{if("object"!=typeof t||!t.length||!t[0].nodeName)return!1;t=t}for(var e=0;e<t.length;e++)if(t[e].nodeName){var i=t[e].nodeName.toLowerCase();if("img"===i){if(n)continue;t[e].complete?l(t[e]):t[e].addEventListener("load",function(){l(this)})}else"video"===i?0<t[e].readyState?l(t[e]):t[e].addEventListener("loadedmetadata",function(){l(this)}):l(t[e])}return!0};"loading"===document.readyState?document.addEventListener("DOMContentLoaded",e):e(),window.addEventListener("resize",e),window.objectFitPolyfill=e}else window.objectFitPolyfill=function(){return!1}}}();
+!function(){"use strict";if("undefined"!=typeof window){var t=window.navigator.userAgent.match(/Edge\/(\d{2})\./),e=t?parseInt(t[1],10):null,n=!!e&&(16<=e&&e<=18);if(!("objectFit"in document.documentElement.style!=!1)||n){var o=function(t,e,i){var n,o,l,a,d;if((i=i.split(" ")).length<2&&(i[1]=i[0]),"x"===t)n=i[0],o=i[1],l="left",a="right",d=e.clientWidth;else{if("y"!==t)return;n=i[1],o=i[0],l="top",a="bottom",d=e.clientHeight}if(n!==l&&o!==l){if(n!==a&&o!==a)return"center"===n||"50%"===n?(e.style[l]="50%",void(e.style["margin-"+l]=d/-2+"px")):void(0<=n.indexOf("%")?(n=parseInt(n,10))<50?(e.style[l]=n+"%",e.style["margin-"+l]=d*(n/-100)+"px"):(n=100-n,e.style[a]=n+"%",e.style["margin-"+a]=d*(n/-100)+"px"):e.style[l]=n);e.style[a]="0"}else e.style[l]="0"},l=function(t){var e=t.dataset?t.dataset.objectFit:t.getAttribute("data-object-fit"),i=t.dataset?t.dataset.objectPosition:t.getAttribute("data-object-position");e=e||"cover",i=i||"50% 50%";var n=t.parentNode;return function(t){var e=window.getComputedStyle(t,null),i=e.getPropertyValue("position"),n=e.getPropertyValue("overflow"),o=e.getPropertyValue("display");i&&"static"!==i||(t.style.position="relative"),"hidden"!==n&&(t.style.overflow="hidden"),o&&"inline"!==o||(t.style.display="block"),0===t.clientHeight&&(t.style.height="100%"),-1===t.className.indexOf("object-fit-polyfill")&&(t.className=t.className+" object-fit-polyfill")}(n),function(t){var e=window.getComputedStyle(t,null),i={"max-width":"none","max-height":"none","min-width":"0px","min-height":"0px",top:"auto",right:"auto",bottom:"auto",left:"auto","margin-top":"0px","margin-right":"0px","margin-bottom":"0px","margin-left":"0px"};for(var n in i)e.getPropertyValue(n)!==i[n]&&(t.style[n]=i[n])}(t),t.style.position="absolute",t.style.width="auto",t.style.height="auto","scale-down"===e&&(e=t.clientWidth<n.clientWidth&&t.clientHeight<n.clientHeight?"none":"contain"),"none"===e?(o("x",t,i),void o("y",t,i)):"fill"===e?(t.style.width="100%",t.style.height="100%",o("x",t,i),void o("y",t,i)):(t.style.height="100%",void("cover"===e&&t.clientWidth>n.clientWidth||"contain"===e&&t.clientWidth<n.clientWidth?(t.style.top="0",t.style.marginTop="0",o("x",t,i)):(t.style.width="100%",t.style.height="auto",t.style.left="0",t.style.marginLeft="0",o("y",t,i))))},i=function(t){if(void 0===t||t instanceof Event)t=document.querySelectorAll("[data-object-fit]");else if(t&&t.nodeName)t=[t];else{if("object"!=typeof t||!t.length||!t[0].nodeName)return!1;t=t}for(var e=0;e<t.length;e++)if(t[e].nodeName){var i=t[e].nodeName.toLowerCase();if("img"===i){if(n)continue;t[e].complete?l(t[e]):t[e].addEventListener("load",function(){l(this)})}else"video"===i?0<t[e].readyState?l(t[e]):t[e].addEventListener("loadedmetadata",function(){l(this)}):l(t[e])}return!0};"loading"===document.readyState?document.addEventListener("DOMContentLoaded",i):i(),window.addEventListener("resize",i),window.objectFitPolyfill=i}else window.objectFitPolyfill=function(){return!1}}}();
 
 /***/ }),
 /* 10 */
@@ -21556,12971 +21787,6 @@ window.AOS = __webpack_require__(13);
 
 /***/ }),
 /* 14 */
-/***/ (function(module, exports) {
-
-
-/**
- *
- */
-
-+function($){
-  page.registerVendor('Constellation');
-
-  page.initConstellation = function() {
-    var distance = 120;
-
-    if( $( window ).width() < 700) {
-      distance = 25;
-    }
-
-    $('.constellation').each(function(){
-      var canvas = $(this),
-          color  = canvas.dataAttr( 'color', 'rgba(255, 255, 255, .8)' ),
-          length = canvas.dataAttr( 'length', 150 ),
-          radius = canvas.dataAttr( 'radius', 150 ),
-          starW  = canvas.dataAttr( 'starWidth', 1 ),
-          lineW  = canvas.dataAttr( 'lineWidth', 0.2 );
-
-      if ( color == 'dark' ) {
-        color = 'rgba(0, 0, 0, .6)';
-      }
-
-      canvas.constellation({
-        distance: distance,
-        length: length,
-        radius: radius,
-        star: {
-          color: color,
-          width: starW
-        },
-        line: {
-          color: color,
-          width: lineW
-        }
-      });
-    });
-
-  }
-
-}(jQuery);
-
-
-// https://codepen.io/acauamontiel/pen/mJdnw
-
-/*!
- * Mantis.js / jQuery / Zepto.js plugin for Constellation
- * @version 1.2.2
- * @author Acauã Montiel <contato@acauamontiel.com.br>
- * @license http://acaua.mit-license.org/
- */
-(function ($, window) {
-  /**
-   * Makes a nice constellation on canvas
-   * @constructor Constellation
-   */
-  function Constellation (canvas, options) {
-    var $canvas = $(canvas),
-      context = canvas.getContext('2d'),
-      defaults = {
-        star: {
-          color: 'rgba(255, 255, 255, .5)',
-          width: 1
-        },
-        line: {
-          color: 'rgba(255, 255, 255, .5)',
-          width: 0.2
-        },
-        position: {
-          x: 0, // This value will be overwritten at startup
-          y: 0 // This value will be overwritten at startup
-        },
-        width: window.innerWidth,
-        height: window.innerHeight,
-        velocity: 0.1,
-        length: 100,
-        distance: 120,
-        radius: 150,
-        stars: []
-      },
-      config = $.extend(true, {}, defaults, options);
-
-    function Star () {
-      this.x = Math.random() * canvas.width;
-      this.y = Math.random() * canvas.height;
-
-      this.vx = (config.velocity - (Math.random() * 0.5));
-      this.vy = (config.velocity - (Math.random() * 0.5));
-
-      this.radius = Math.random() * config.star.width;
-    }
-
-    Star.prototype = {
-      create: function(){
-        context.beginPath();
-        context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-        context.fill();
-      },
-
-      animate: function(){
-        var i;
-        for (i = 0; i < config.length; i++) {
-
-          var star = config.stars[i];
-
-          if (star.y < 0 || star.y > canvas.height) {
-            star.vx = star.vx;
-            star.vy = - star.vy;
-          } else if (star.x < 0 || star.x > canvas.width) {
-            star.vx = - star.vx;
-            star.vy = star.vy;
-          }
-
-          star.x += star.vx;
-          star.y += star.vy;
-        }
-      },
-
-      line: function(){
-        var length = config.length,
-          iStar,
-          jStar,
-          i,
-          j;
-
-        for (i = 0; i < length; i++) {
-          for (j = 0; j < length; j++) {
-            iStar = config.stars[i];
-            jStar = config.stars[j];
-
-            if (
-              (iStar.x - jStar.x) < config.distance &&
-              (iStar.y - jStar.y) < config.distance &&
-              (iStar.x - jStar.x) > - config.distance &&
-              (iStar.y - jStar.y) > - config.distance
-            ) {
-              if (
-                (iStar.x - config.position.x) < config.radius &&
-                (iStar.y - config.position.y) < config.radius &&
-                (iStar.x - config.position.x) > - config.radius &&
-                (iStar.y - config.position.y) > - config.radius
-              ) {
-                context.beginPath();
-                context.moveTo(iStar.x, iStar.y);
-                context.lineTo(jStar.x, jStar.y);
-                context.stroke();
-                context.closePath();
-              }
-            }
-          }
-        }
-      }
-    };
-
-    this.createStars = function () {
-      var length = config.length,
-        star,
-        i;
-
-      context.clearRect(0, 0, canvas.width, canvas.height);
-
-      for (i = 0; i < length; i++) {
-        config.stars.push(new Star());
-        star = config.stars[i];
-
-        star.create();
-      }
-
-      star.line();
-      star.animate();
-    };
-
-    this.setCanvas = function () {
-      canvas.width = config.width;
-      canvas.height = config.height;
-    };
-
-    this.setContext = function () {
-      context.fillStyle = config.star.color;
-      context.strokeStyle = config.line.color;
-      context.lineWidth = config.line.width;
-    };
-
-    this.setInitialPosition = function () {
-      if (!options || !options.hasOwnProperty('position')) {
-        config.position = {
-          x: canvas.width * 0.5,
-          y: canvas.height * 0.5
-        };
-      }
-    };
-
-    this.loop = function (callback) {
-      callback();
-
-      window.requestAnimationFrame(function () {
-        //stats.begin(); // Only for Stats
-        this.loop(callback);
-        //stats.end(); // Only for Stats
-      }.bind(this));
-    };
-
-    this.bind = function () {
-      $canvas.on('mousemove', function(e){
-        config.position.x = e.pageX - $canvas.offset().left;
-        config.position.y = e.pageY - $canvas.offset().top;
-      });
-    };
-
-    this.init = function () {
-      this.setCanvas();
-      this.setContext();
-      this.setInitialPosition();
-      this.loop(this.createStars);
-      this.bind();
-    };
-  }
-
-  $.fn.constellation = function (options) {
-    return this.each(function () {
-      var c = new Constellation(this, options);
-      c.init();
-    });
-  };
-})($, window);
-
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-/**
- * Load required plugin.
- */
-__webpack_require__(16);
-
-
-/**
- * Configure the plugin.
- */
-
-+function($){
-  page.registerVendor('Countdown');
-
-  page.initCountdown = function() {
-
-    $('[data-countdown]').each(function() {
-      var tag     = $(this),
-          format  = '',
-          options = {
-            textDay:    'Day',
-            textHour:   'Hour',
-            textMinute: 'Minute',
-            textSecond: 'Second',
-          };
-
-      options = $.extend( options, page.getDataOptions(tag));
-
-
-      format += '<div class="row gap-x-4">';
-      format += '<div class="col"><h5>%D</h5><small>'+ options.textDay +'%!D</small></div>';
-      format += '<div class="col"><h5>%H</h5><small>'+ options.textHour +'%!H</small></div>';
-      format += '<div class="col"><h5>%M</h5><small>'+ options.textMinute +'%!M</small></div>';
-      format += '<div class="col"><h5>%S</h5><small>'+ options.textSecond +'%!S</small></div>';
-      format += '</div>';
-
-      if ( tag.hasDataAttr('format') ) {
-        format = tag.data('format');
-      }
-
-      tag.countdown( tag.data('countdown'), function(event) {
-        $(this).html(event.strftime( format ));
-      } )
-
-    });
-
-  }
-
-}(jQuery);
-
-
-
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
- * The Final Countdown for jQuery v2.2.0 (http://hilios.github.io/jQuery.countdown/)
- * Copyright (c) 2016 Edson Hilios
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-(function(factory) {
-    "use strict";
-    if (true) {
-        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(3) ], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
-				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
-				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-    } else {}
-})(function($) {
-    "use strict";
-    var instances = [], matchers = [], defaultOptions = {
-        precision: 100,
-        elapse: false,
-        defer: false
-    };
-    matchers.push(/^[0-9]*$/.source);
-    matchers.push(/([0-9]{1,2}\/){2}[0-9]{4}( [0-9]{1,2}(:[0-9]{2}){2})?/.source);
-    matchers.push(/[0-9]{4}([\/\-][0-9]{1,2}){2}( [0-9]{1,2}(:[0-9]{2}){2})?/.source);
-    matchers = new RegExp(matchers.join("|"));
-    function parseDateString(dateString) {
-        if (dateString instanceof Date) {
-            return dateString;
-        }
-        if (String(dateString).match(matchers)) {
-            if (String(dateString).match(/^[0-9]*$/)) {
-                dateString = Number(dateString);
-            }
-            if (String(dateString).match(/\-/)) {
-                dateString = String(dateString).replace(/\-/g, "/");
-            }
-            return new Date(dateString);
-        } else {
-            throw new Error("Couldn't cast `" + dateString + "` to a date object.");
-        }
-    }
-    var DIRECTIVE_KEY_MAP = {
-        Y: "years",
-        m: "months",
-        n: "daysToMonth",
-        d: "daysToWeek",
-        w: "weeks",
-        W: "weeksToMonth",
-        H: "hours",
-        M: "minutes",
-        S: "seconds",
-        D: "totalDays",
-        I: "totalHours",
-        N: "totalMinutes",
-        T: "totalSeconds"
-    };
-    function escapedRegExp(str) {
-        var sanitize = str.toString().replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
-        return new RegExp(sanitize);
-    }
-    function strftime(offsetObject) {
-        return function(format) {
-            var directives = format.match(/%(-|!)?[A-Z]{1}(:[^;]+;)?/gi);
-            if (directives) {
-                for (var i = 0, len = directives.length; i < len; ++i) {
-                    var directive = directives[i].match(/%(-|!)?([a-zA-Z]{1})(:[^;]+;)?/), regexp = escapedRegExp(directive[0]), modifier = directive[1] || "", plural = directive[3] || "", value = null;
-                    directive = directive[2];
-                    if (DIRECTIVE_KEY_MAP.hasOwnProperty(directive)) {
-                        value = DIRECTIVE_KEY_MAP[directive];
-                        value = Number(offsetObject[value]);
-                    }
-                    if (value !== null) {
-                        if (modifier === "!") {
-                            value = pluralize(plural, value);
-                        }
-                        if (modifier === "") {
-                            if (value < 10) {
-                                value = "0" + value.toString();
-                            }
-                        }
-                        format = format.replace(regexp, value.toString());
-                    }
-                }
-            }
-            format = format.replace(/%%/, "%");
-            return format;
-        };
-    }
-    function pluralize(format, count) {
-        var plural = "s", singular = "";
-        if (format) {
-            format = format.replace(/(:|;|\s)/gi, "").split(/\,/);
-            if (format.length === 1) {
-                plural = format[0];
-            } else {
-                singular = format[0];
-                plural = format[1];
-            }
-        }
-        if (Math.abs(count) > 1) {
-            return plural;
-        } else {
-            return singular;
-        }
-    }
-    var Countdown = function(el, finalDate, options) {
-        this.el = el;
-        this.$el = $(el);
-        this.interval = null;
-        this.offset = {};
-        this.options = $.extend({}, defaultOptions);
-        this.instanceNumber = instances.length;
-        instances.push(this);
-        this.$el.data("countdown-instance", this.instanceNumber);
-        if (options) {
-            if (typeof options === "function") {
-                this.$el.on("update.countdown", options);
-                this.$el.on("stoped.countdown", options);
-                this.$el.on("finish.countdown", options);
-            } else {
-                this.options = $.extend({}, defaultOptions, options);
-            }
-        }
-        this.setFinalDate(finalDate);
-        if (this.options.defer === false) {
-            this.start();
-        }
-    };
-    $.extend(Countdown.prototype, {
-        start: function() {
-            if (this.interval !== null) {
-                clearInterval(this.interval);
-            }
-            var self = this;
-            this.update();
-            this.interval = setInterval(function() {
-                self.update.call(self);
-            }, this.options.precision);
-        },
-        stop: function() {
-            clearInterval(this.interval);
-            this.interval = null;
-            this.dispatchEvent("stoped");
-        },
-        toggle: function() {
-            if (this.interval) {
-                this.stop();
-            } else {
-                this.start();
-            }
-        },
-        pause: function() {
-            this.stop();
-        },
-        resume: function() {
-            this.start();
-        },
-        remove: function() {
-            this.stop.call(this);
-            instances[this.instanceNumber] = null;
-            delete this.$el.data().countdownInstance;
-        },
-        setFinalDate: function(value) {
-            this.finalDate = parseDateString(value);
-        },
-        update: function() {
-            if (this.$el.closest("html").length === 0) {
-                this.remove();
-                return;
-            }
-            var hasEventsAttached = $._data(this.el, "events") !== undefined, now = new Date(), newTotalSecsLeft;
-            newTotalSecsLeft = this.finalDate.getTime() - now.getTime();
-            newTotalSecsLeft = Math.ceil(newTotalSecsLeft / 1e3);
-            newTotalSecsLeft = !this.options.elapse && newTotalSecsLeft < 0 ? 0 : Math.abs(newTotalSecsLeft);
-            if (this.totalSecsLeft === newTotalSecsLeft || !hasEventsAttached) {
-                return;
-            } else {
-                this.totalSecsLeft = newTotalSecsLeft;
-            }
-            this.elapsed = now >= this.finalDate;
-            this.offset = {
-                seconds: this.totalSecsLeft % 60,
-                minutes: Math.floor(this.totalSecsLeft / 60) % 60,
-                hours: Math.floor(this.totalSecsLeft / 60 / 60) % 24,
-                days: Math.floor(this.totalSecsLeft / 60 / 60 / 24) % 7,
-                daysToWeek: Math.floor(this.totalSecsLeft / 60 / 60 / 24) % 7,
-                daysToMonth: Math.floor(this.totalSecsLeft / 60 / 60 / 24 % 30.4368),
-                weeks: Math.floor(this.totalSecsLeft / 60 / 60 / 24 / 7),
-                weeksToMonth: Math.floor(this.totalSecsLeft / 60 / 60 / 24 / 7) % 4,
-                months: Math.floor(this.totalSecsLeft / 60 / 60 / 24 / 30.4368),
-                years: Math.abs(this.finalDate.getFullYear() - now.getFullYear()),
-                totalDays: Math.floor(this.totalSecsLeft / 60 / 60 / 24),
-                totalHours: Math.floor(this.totalSecsLeft / 60 / 60),
-                totalMinutes: Math.floor(this.totalSecsLeft / 60),
-                totalSeconds: this.totalSecsLeft
-            };
-            if (!this.options.elapse && this.totalSecsLeft === 0) {
-                this.stop();
-                this.dispatchEvent("finish");
-            } else {
-                this.dispatchEvent("update");
-            }
-        },
-        dispatchEvent: function(eventName) {
-            var event = $.Event(eventName + ".countdown");
-            event.finalDate = this.finalDate;
-            event.elapsed = this.elapsed;
-            event.offset = $.extend({}, this.offset);
-            event.strftime = strftime(this.offset);
-            this.$el.trigger(event);
-        }
-    });
-    $.fn.countdown = function() {
-        var argumentsArray = Array.prototype.slice.call(arguments, 0);
-        return this.each(function() {
-            var instanceNumber = $(this).data("countdown-instance");
-            if (instanceNumber !== undefined) {
-                var instance = instances[instanceNumber], method = argumentsArray[0];
-                if (Countdown.prototype.hasOwnProperty(method)) {
-                    instance[method].apply(instance, argumentsArray.slice(1));
-                } else if (String(method).match(/^[$A-Z_][0-9A-Z_$]*$/i) === null) {
-                    instance.setFinalDate.call(instance, method);
-                    instance.start();
-                } else {
-                    $.error("Method %s does not exist on jQuery.countdown".replace(/\%s/gi, method));
-                }
-            } else {
-                new Countdown(this, argumentsArray[0], argumentsArray[1]);
-            }
-        });
-    };
-});
-
-/***/ }),
-/* 17 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var countup_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(19);
-
-/**
- * Load required plugins.
- */
-__webpack_require__(18);
-
-
-/**
- * Configure the plugin.
- */
-
-+function($){
-  page.registerVendor('Countup');
-
-  page.initCountup = function() {
-
-    $('[data-provide~="countup"]:not(.counted)').each(function() {
-      var tag = $(this);
-      var extraOptions = {};
-      extraOptions = $.extend( extraOptions, page.getDataOptions(tag));
-
-      var options = {
-        startVal: tag.dataAttr('from', 0),
-        endVal:   tag.dataAttr('to', 0),
-        options:  extraOptions,
-      };
-      options = $.extend( options, page.getDataOptions(tag));
-
-      tag.waypoint({
-        handler: function($direction) {
-          tag.countup(options).addClass('counted');
-        },
-        offset: '100%'
-      });
-
-    });
-
-  }
-
-}(jQuery);
-
-
-
-(function ($) {
-  $.fn.countup = function (params) {
-    // make sure dependency is present
-    if (typeof countup_js__WEBPACK_IMPORTED_MODULE_0__["CountUp"] !== 'function') {
-      console.error('countUp.js is a required dependency of countUp-jquery.js.');
-      return;
-    }
-    
-    var defaults = {
-      startVal: 0,
-      decimalPlaces: 0,
-      duration: 4,
-    };
-
-    if (typeof params === 'number') {
-      defaults.endVal = params;
-    }
-    else if (typeof params === 'object') {
-      $.extend(defaults, params);
-    }
-    else {
-      console.error('countUp-jquery requires its argument to be either an object or number');
-      return;
-    }
-
-    this.each(function (i, elem) {
-      var countUp = new countup_js__WEBPACK_IMPORTED_MODULE_0__["CountUp"](elem, defaults.endVal, defaults.options);
-      countUp.start();
-    });
-
-    return this;
-  };
-
-}(jQuery));
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports) {
-
-/*!
-Waypoints - 4.0.1
-Copyright © 2011-2016 Caleb Troughton
-Licensed under the MIT license.
-https://github.com/imakewebthings/waypoints/blob/master/licenses.txt
-*/
-(function() {
-  'use strict'
-
-  var keyCounter = 0
-  var allWaypoints = {}
-
-  /* http://imakewebthings.com/waypoints/api/waypoint */
-  function Waypoint(options) {
-    if (!options) {
-      throw new Error('No options passed to Waypoint constructor')
-    }
-    if (!options.element) {
-      throw new Error('No element option passed to Waypoint constructor')
-    }
-    if (!options.handler) {
-      throw new Error('No handler option passed to Waypoint constructor')
-    }
-
-    this.key = 'waypoint-' + keyCounter
-    this.options = Waypoint.Adapter.extend({}, Waypoint.defaults, options)
-    this.element = this.options.element
-    this.adapter = new Waypoint.Adapter(this.element)
-    this.callback = options.handler
-    this.axis = this.options.horizontal ? 'horizontal' : 'vertical'
-    this.enabled = this.options.enabled
-    this.triggerPoint = null
-    this.group = Waypoint.Group.findOrCreate({
-      name: this.options.group,
-      axis: this.axis
-    })
-    this.context = Waypoint.Context.findOrCreateByElement(this.options.context)
-
-    if (Waypoint.offsetAliases[this.options.offset]) {
-      this.options.offset = Waypoint.offsetAliases[this.options.offset]
-    }
-    this.group.add(this)
-    this.context.add(this)
-    allWaypoints[this.key] = this
-    keyCounter += 1
-  }
-
-  /* Private */
-  Waypoint.prototype.queueTrigger = function(direction) {
-    this.group.queueTrigger(this, direction)
-  }
-
-  /* Private */
-  Waypoint.prototype.trigger = function(args) {
-    if (!this.enabled) {
-      return
-    }
-    if (this.callback) {
-      this.callback.apply(this, args)
-    }
-  }
-
-  /* Public */
-  /* http://imakewebthings.com/waypoints/api/destroy */
-  Waypoint.prototype.destroy = function() {
-    this.context.remove(this)
-    this.group.remove(this)
-    delete allWaypoints[this.key]
-  }
-
-  /* Public */
-  /* http://imakewebthings.com/waypoints/api/disable */
-  Waypoint.prototype.disable = function() {
-    this.enabled = false
-    return this
-  }
-
-  /* Public */
-  /* http://imakewebthings.com/waypoints/api/enable */
-  Waypoint.prototype.enable = function() {
-    this.context.refresh()
-    this.enabled = true
-    return this
-  }
-
-  /* Public */
-  /* http://imakewebthings.com/waypoints/api/next */
-  Waypoint.prototype.next = function() {
-    return this.group.next(this)
-  }
-
-  /* Public */
-  /* http://imakewebthings.com/waypoints/api/previous */
-  Waypoint.prototype.previous = function() {
-    return this.group.previous(this)
-  }
-
-  /* Private */
-  Waypoint.invokeAll = function(method) {
-    var allWaypointsArray = []
-    for (var waypointKey in allWaypoints) {
-      allWaypointsArray.push(allWaypoints[waypointKey])
-    }
-    for (var i = 0, end = allWaypointsArray.length; i < end; i++) {
-      allWaypointsArray[i][method]()
-    }
-  }
-
-  /* Public */
-  /* http://imakewebthings.com/waypoints/api/destroy-all */
-  Waypoint.destroyAll = function() {
-    Waypoint.invokeAll('destroy')
-  }
-
-  /* Public */
-  /* http://imakewebthings.com/waypoints/api/disable-all */
-  Waypoint.disableAll = function() {
-    Waypoint.invokeAll('disable')
-  }
-
-  /* Public */
-  /* http://imakewebthings.com/waypoints/api/enable-all */
-  Waypoint.enableAll = function() {
-    Waypoint.Context.refreshAll()
-    for (var waypointKey in allWaypoints) {
-      allWaypoints[waypointKey].enabled = true
-    }
-    return this
-  }
-
-  /* Public */
-  /* http://imakewebthings.com/waypoints/api/refresh-all */
-  Waypoint.refreshAll = function() {
-    Waypoint.Context.refreshAll()
-  }
-
-  /* Public */
-  /* http://imakewebthings.com/waypoints/api/viewport-height */
-  Waypoint.viewportHeight = function() {
-    return window.innerHeight || document.documentElement.clientHeight
-  }
-
-  /* Public */
-  /* http://imakewebthings.com/waypoints/api/viewport-width */
-  Waypoint.viewportWidth = function() {
-    return document.documentElement.clientWidth
-  }
-
-  Waypoint.adapters = []
-
-  Waypoint.defaults = {
-    context: window,
-    continuous: true,
-    enabled: true,
-    group: 'default',
-    horizontal: false,
-    offset: 0
-  }
-
-  Waypoint.offsetAliases = {
-    'bottom-in-view': function() {
-      return this.context.innerHeight() - this.adapter.outerHeight()
-    },
-    'right-in-view': function() {
-      return this.context.innerWidth() - this.adapter.outerWidth()
-    }
-  }
-
-  window.Waypoint = Waypoint
-}())
-;(function() {
-  'use strict'
-
-  function requestAnimationFrameShim(callback) {
-    window.setTimeout(callback, 1000 / 60)
-  }
-
-  var keyCounter = 0
-  var contexts = {}
-  var Waypoint = window.Waypoint
-  var oldWindowLoad = window.onload
-
-  /* http://imakewebthings.com/waypoints/api/context */
-  function Context(element) {
-    this.element = element
-    this.Adapter = Waypoint.Adapter
-    this.adapter = new this.Adapter(element)
-    this.key = 'waypoint-context-' + keyCounter
-    this.didScroll = false
-    this.didResize = false
-    this.oldScroll = {
-      x: this.adapter.scrollLeft(),
-      y: this.adapter.scrollTop()
-    }
-    this.waypoints = {
-      vertical: {},
-      horizontal: {}
-    }
-
-    element.waypointContextKey = this.key
-    contexts[element.waypointContextKey] = this
-    keyCounter += 1
-    if (!Waypoint.windowContext) {
-      Waypoint.windowContext = true
-      Waypoint.windowContext = new Context(window)
-    }
-
-    this.createThrottledScrollHandler()
-    this.createThrottledResizeHandler()
-  }
-
-  /* Private */
-  Context.prototype.add = function(waypoint) {
-    var axis = waypoint.options.horizontal ? 'horizontal' : 'vertical'
-    this.waypoints[axis][waypoint.key] = waypoint
-    this.refresh()
-  }
-
-  /* Private */
-  Context.prototype.checkEmpty = function() {
-    var horizontalEmpty = this.Adapter.isEmptyObject(this.waypoints.horizontal)
-    var verticalEmpty = this.Adapter.isEmptyObject(this.waypoints.vertical)
-    var isWindow = this.element == this.element.window
-    if (horizontalEmpty && verticalEmpty && !isWindow) {
-      this.adapter.off('.waypoints')
-      delete contexts[this.key]
-    }
-  }
-
-  /* Private */
-  Context.prototype.createThrottledResizeHandler = function() {
-    var self = this
-
-    function resizeHandler() {
-      self.handleResize()
-      self.didResize = false
-    }
-
-    this.adapter.on('resize.waypoints', function() {
-      if (!self.didResize) {
-        self.didResize = true
-        Waypoint.requestAnimationFrame(resizeHandler)
-      }
-    })
-  }
-
-  /* Private */
-  Context.prototype.createThrottledScrollHandler = function() {
-    var self = this
-    function scrollHandler() {
-      self.handleScroll()
-      self.didScroll = false
-    }
-
-    this.adapter.on('scroll.waypoints', function() {
-      if (!self.didScroll || Waypoint.isTouch) {
-        self.didScroll = true
-        Waypoint.requestAnimationFrame(scrollHandler)
-      }
-    })
-  }
-
-  /* Private */
-  Context.prototype.handleResize = function() {
-    Waypoint.Context.refreshAll()
-  }
-
-  /* Private */
-  Context.prototype.handleScroll = function() {
-    var triggeredGroups = {}
-    var axes = {
-      horizontal: {
-        newScroll: this.adapter.scrollLeft(),
-        oldScroll: this.oldScroll.x,
-        forward: 'right',
-        backward: 'left'
-      },
-      vertical: {
-        newScroll: this.adapter.scrollTop(),
-        oldScroll: this.oldScroll.y,
-        forward: 'down',
-        backward: 'up'
-      }
-    }
-
-    for (var axisKey in axes) {
-      var axis = axes[axisKey]
-      var isForward = axis.newScroll > axis.oldScroll
-      var direction = isForward ? axis.forward : axis.backward
-
-      for (var waypointKey in this.waypoints[axisKey]) {
-        var waypoint = this.waypoints[axisKey][waypointKey]
-        if (waypoint.triggerPoint === null) {
-          continue
-        }
-        var wasBeforeTriggerPoint = axis.oldScroll < waypoint.triggerPoint
-        var nowAfterTriggerPoint = axis.newScroll >= waypoint.triggerPoint
-        var crossedForward = wasBeforeTriggerPoint && nowAfterTriggerPoint
-        var crossedBackward = !wasBeforeTriggerPoint && !nowAfterTriggerPoint
-        if (crossedForward || crossedBackward) {
-          waypoint.queueTrigger(direction)
-          triggeredGroups[waypoint.group.id] = waypoint.group
-        }
-      }
-    }
-
-    for (var groupKey in triggeredGroups) {
-      triggeredGroups[groupKey].flushTriggers()
-    }
-
-    this.oldScroll = {
-      x: axes.horizontal.newScroll,
-      y: axes.vertical.newScroll
-    }
-  }
-
-  /* Private */
-  Context.prototype.innerHeight = function() {
-    /*eslint-disable eqeqeq */
-    if (this.element == this.element.window) {
-      return Waypoint.viewportHeight()
-    }
-    /*eslint-enable eqeqeq */
-    return this.adapter.innerHeight()
-  }
-
-  /* Private */
-  Context.prototype.remove = function(waypoint) {
-    delete this.waypoints[waypoint.axis][waypoint.key]
-    this.checkEmpty()
-  }
-
-  /* Private */
-  Context.prototype.innerWidth = function() {
-    /*eslint-disable eqeqeq */
-    if (this.element == this.element.window) {
-      return Waypoint.viewportWidth()
-    }
-    /*eslint-enable eqeqeq */
-    return this.adapter.innerWidth()
-  }
-
-  /* Public */
-  /* http://imakewebthings.com/waypoints/api/context-destroy */
-  Context.prototype.destroy = function() {
-    var allWaypoints = []
-    for (var axis in this.waypoints) {
-      for (var waypointKey in this.waypoints[axis]) {
-        allWaypoints.push(this.waypoints[axis][waypointKey])
-      }
-    }
-    for (var i = 0, end = allWaypoints.length; i < end; i++) {
-      allWaypoints[i].destroy()
-    }
-  }
-
-  /* Public */
-  /* http://imakewebthings.com/waypoints/api/context-refresh */
-  Context.prototype.refresh = function() {
-    /*eslint-disable eqeqeq */
-    var isWindow = this.element == this.element.window
-    /*eslint-enable eqeqeq */
-    var contextOffset = isWindow ? undefined : this.adapter.offset()
-    var triggeredGroups = {}
-    var axes
-
-    this.handleScroll()
-    axes = {
-      horizontal: {
-        contextOffset: isWindow ? 0 : contextOffset.left,
-        contextScroll: isWindow ? 0 : this.oldScroll.x,
-        contextDimension: this.innerWidth(),
-        oldScroll: this.oldScroll.x,
-        forward: 'right',
-        backward: 'left',
-        offsetProp: 'left'
-      },
-      vertical: {
-        contextOffset: isWindow ? 0 : contextOffset.top,
-        contextScroll: isWindow ? 0 : this.oldScroll.y,
-        contextDimension: this.innerHeight(),
-        oldScroll: this.oldScroll.y,
-        forward: 'down',
-        backward: 'up',
-        offsetProp: 'top'
-      }
-    }
-
-    for (var axisKey in axes) {
-      var axis = axes[axisKey]
-      for (var waypointKey in this.waypoints[axisKey]) {
-        var waypoint = this.waypoints[axisKey][waypointKey]
-        var adjustment = waypoint.options.offset
-        var oldTriggerPoint = waypoint.triggerPoint
-        var elementOffset = 0
-        var freshWaypoint = oldTriggerPoint == null
-        var contextModifier, wasBeforeScroll, nowAfterScroll
-        var triggeredBackward, triggeredForward
-
-        if (waypoint.element !== waypoint.element.window) {
-          elementOffset = waypoint.adapter.offset()[axis.offsetProp]
-        }
-
-        if (typeof adjustment === 'function') {
-          adjustment = adjustment.apply(waypoint)
-        }
-        else if (typeof adjustment === 'string') {
-          adjustment = parseFloat(adjustment)
-          if (waypoint.options.offset.indexOf('%') > - 1) {
-            adjustment = Math.ceil(axis.contextDimension * adjustment / 100)
-          }
-        }
-
-        contextModifier = axis.contextScroll - axis.contextOffset
-        waypoint.triggerPoint = Math.floor(elementOffset + contextModifier - adjustment)
-        wasBeforeScroll = oldTriggerPoint < axis.oldScroll
-        nowAfterScroll = waypoint.triggerPoint >= axis.oldScroll
-        triggeredBackward = wasBeforeScroll && nowAfterScroll
-        triggeredForward = !wasBeforeScroll && !nowAfterScroll
-
-        if (!freshWaypoint && triggeredBackward) {
-          waypoint.queueTrigger(axis.backward)
-          triggeredGroups[waypoint.group.id] = waypoint.group
-        }
-        else if (!freshWaypoint && triggeredForward) {
-          waypoint.queueTrigger(axis.forward)
-          triggeredGroups[waypoint.group.id] = waypoint.group
-        }
-        else if (freshWaypoint && axis.oldScroll >= waypoint.triggerPoint) {
-          waypoint.queueTrigger(axis.forward)
-          triggeredGroups[waypoint.group.id] = waypoint.group
-        }
-      }
-    }
-
-    Waypoint.requestAnimationFrame(function() {
-      for (var groupKey in triggeredGroups) {
-        triggeredGroups[groupKey].flushTriggers()
-      }
-    })
-
-    return this
-  }
-
-  /* Private */
-  Context.findOrCreateByElement = function(element) {
-    return Context.findByElement(element) || new Context(element)
-  }
-
-  /* Private */
-  Context.refreshAll = function() {
-    for (var contextId in contexts) {
-      contexts[contextId].refresh()
-    }
-  }
-
-  /* Public */
-  /* http://imakewebthings.com/waypoints/api/context-find-by-element */
-  Context.findByElement = function(element) {
-    return contexts[element.waypointContextKey]
-  }
-
-  window.onload = function() {
-    if (oldWindowLoad) {
-      oldWindowLoad()
-    }
-    Context.refreshAll()
-  }
-
-
-  Waypoint.requestAnimationFrame = function(callback) {
-    var requestFn = window.requestAnimationFrame ||
-      window.mozRequestAnimationFrame ||
-      window.webkitRequestAnimationFrame ||
-      requestAnimationFrameShim
-    requestFn.call(window, callback)
-  }
-  Waypoint.Context = Context
-}())
-;(function() {
-  'use strict'
-
-  function byTriggerPoint(a, b) {
-    return a.triggerPoint - b.triggerPoint
-  }
-
-  function byReverseTriggerPoint(a, b) {
-    return b.triggerPoint - a.triggerPoint
-  }
-
-  var groups = {
-    vertical: {},
-    horizontal: {}
-  }
-  var Waypoint = window.Waypoint
-
-  /* http://imakewebthings.com/waypoints/api/group */
-  function Group(options) {
-    this.name = options.name
-    this.axis = options.axis
-    this.id = this.name + '-' + this.axis
-    this.waypoints = []
-    this.clearTriggerQueues()
-    groups[this.axis][this.name] = this
-  }
-
-  /* Private */
-  Group.prototype.add = function(waypoint) {
-    this.waypoints.push(waypoint)
-  }
-
-  /* Private */
-  Group.prototype.clearTriggerQueues = function() {
-    this.triggerQueues = {
-      up: [],
-      down: [],
-      left: [],
-      right: []
-    }
-  }
-
-  /* Private */
-  Group.prototype.flushTriggers = function() {
-    for (var direction in this.triggerQueues) {
-      var waypoints = this.triggerQueues[direction]
-      var reverse = direction === 'up' || direction === 'left'
-      waypoints.sort(reverse ? byReverseTriggerPoint : byTriggerPoint)
-      for (var i = 0, end = waypoints.length; i < end; i += 1) {
-        var waypoint = waypoints[i]
-        if (waypoint.options.continuous || i === waypoints.length - 1) {
-          waypoint.trigger([direction])
-        }
-      }
-    }
-    this.clearTriggerQueues()
-  }
-
-  /* Private */
-  Group.prototype.next = function(waypoint) {
-    this.waypoints.sort(byTriggerPoint)
-    var index = Waypoint.Adapter.inArray(waypoint, this.waypoints)
-    var isLast = index === this.waypoints.length - 1
-    return isLast ? null : this.waypoints[index + 1]
-  }
-
-  /* Private */
-  Group.prototype.previous = function(waypoint) {
-    this.waypoints.sort(byTriggerPoint)
-    var index = Waypoint.Adapter.inArray(waypoint, this.waypoints)
-    return index ? this.waypoints[index - 1] : null
-  }
-
-  /* Private */
-  Group.prototype.queueTrigger = function(waypoint, direction) {
-    this.triggerQueues[direction].push(waypoint)
-  }
-
-  /* Private */
-  Group.prototype.remove = function(waypoint) {
-    var index = Waypoint.Adapter.inArray(waypoint, this.waypoints)
-    if (index > -1) {
-      this.waypoints.splice(index, 1)
-    }
-  }
-
-  /* Public */
-  /* http://imakewebthings.com/waypoints/api/first */
-  Group.prototype.first = function() {
-    return this.waypoints[0]
-  }
-
-  /* Public */
-  /* http://imakewebthings.com/waypoints/api/last */
-  Group.prototype.last = function() {
-    return this.waypoints[this.waypoints.length - 1]
-  }
-
-  /* Private */
-  Group.findOrCreate = function(options) {
-    return groups[options.axis][options.name] || new Group(options)
-  }
-
-  Waypoint.Group = Group
-}())
-;(function() {
-  'use strict'
-
-  var $ = window.jQuery
-  var Waypoint = window.Waypoint
-
-  function JQueryAdapter(element) {
-    this.$element = $(element)
-  }
-
-  $.each([
-    'innerHeight',
-    'innerWidth',
-    'off',
-    'offset',
-    'on',
-    'outerHeight',
-    'outerWidth',
-    'scrollLeft',
-    'scrollTop'
-  ], function(i, method) {
-    JQueryAdapter.prototype[method] = function() {
-      var args = Array.prototype.slice.call(arguments)
-      return this.$element[method].apply(this.$element, args)
-    }
-  })
-
-  $.each([
-    'extend',
-    'inArray',
-    'isEmptyObject'
-  ], function(i, method) {
-    JQueryAdapter[method] = $[method]
-  })
-
-  Waypoint.adapters.push({
-    name: 'jquery',
-    Adapter: JQueryAdapter
-  })
-  Waypoint.Adapter = JQueryAdapter
-}())
-;(function() {
-  'use strict'
-
-  var Waypoint = window.Waypoint
-
-  function createExtension(framework) {
-    return function() {
-      var waypoints = []
-      var overrides = arguments[0]
-
-      if (framework.isFunction(arguments[0])) {
-        overrides = framework.extend({}, arguments[1])
-        overrides.handler = arguments[0]
-      }
-
-      this.each(function() {
-        var options = framework.extend({}, overrides, {
-          element: this
-        })
-        if (typeof options.context === 'string') {
-          options.context = framework(this).closest(options.context)[0]
-        }
-        waypoints.push(new Waypoint(options))
-      })
-
-      return waypoints
-    }
-  }
-
-  if (window.jQuery) {
-    window.jQuery.fn.waypoint = createExtension(window.jQuery)
-  }
-  if (window.Zepto) {
-    window.Zepto.fn.waypoint = createExtension(window.Zepto)
-  }
-}())
-;
-
-/***/ }),
-/* 19 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CountUp", function() { return CountUp; });
-var __assign=undefined&&undefined.__assign||function(){return(__assign=Object.assign||function(t){for(var i,a=1,s=arguments.length;a<s;a++)for(var n in i=arguments[a])Object.prototype.hasOwnProperty.call(i,n)&&(t[n]=i[n]);return t}).apply(this,arguments)},CountUp=function(){function t(t,i,a){var s=this;this.target=t,this.endVal=i,this.options=a,this.version="2.0.4",this.defaults={startVal:0,decimalPlaces:0,duration:2,useEasing:!0,useGrouping:!0,smartEasingThreshold:999,smartEasingAmount:333,separator:",",decimal:".",prefix:"",suffix:""},this.finalEndVal=null,this.useEasing=!0,this.countDown=!1,this.error="",this.startVal=0,this.paused=!0,this.count=function(t){s.startTime||(s.startTime=t);var i=t-s.startTime;s.remaining=s.duration-i,s.useEasing?s.countDown?s.frameVal=s.startVal-s.easingFn(i,0,s.startVal-s.endVal,s.duration):s.frameVal=s.easingFn(i,s.startVal,s.endVal-s.startVal,s.duration):s.countDown?s.frameVal=s.startVal-(s.startVal-s.endVal)*(i/s.duration):s.frameVal=s.startVal+(s.endVal-s.startVal)*(i/s.duration),s.countDown?s.frameVal=s.frameVal<s.endVal?s.endVal:s.frameVal:s.frameVal=s.frameVal>s.endVal?s.endVal:s.frameVal,s.frameVal=Math.round(s.frameVal*s.decimalMult)/s.decimalMult,s.printValue(s.frameVal),i<s.duration?s.rAF=requestAnimationFrame(s.count):null!==s.finalEndVal?s.update(s.finalEndVal):s.callback&&s.callback()},this.formatNumber=function(t){var i,a,n,e,r,o=t<0?"-":"";if(i=Math.abs(t).toFixed(s.options.decimalPlaces),n=(a=(i+="").split("."))[0],e=a.length>1?s.options.decimal+a[1]:"",s.options.useGrouping){r="";for(var l=0,h=n.length;l<h;++l)0!==l&&l%3==0&&(r=s.options.separator+r),r=n[h-l-1]+r;n=r}return s.options.numerals&&s.options.numerals.length&&(n=n.replace(/[0-9]/g,function(t){return s.options.numerals[+t]}),e=e.replace(/[0-9]/g,function(t){return s.options.numerals[+t]})),o+s.options.prefix+n+e+s.options.suffix},this.easeOutExpo=function(t,i,a,s){return a*(1-Math.pow(2,-10*t/s))*1024/1023+i},this.options=__assign({},this.defaults,a),this.formattingFn=this.options.formattingFn?this.options.formattingFn:this.formatNumber,this.easingFn=this.options.easingFn?this.options.easingFn:this.easeOutExpo,this.startVal=this.validateValue(this.options.startVal),this.frameVal=this.startVal,this.endVal=this.validateValue(i),this.options.decimalPlaces=Math.max(this.options.decimalPlaces),this.decimalMult=Math.pow(10,this.options.decimalPlaces),this.resetDuration(),this.options.separator=String(this.options.separator),this.useEasing=this.options.useEasing,""===this.options.separator&&(this.options.useGrouping=!1),this.el="string"==typeof t?document.getElementById(t):t,this.el?this.printValue(this.startVal):this.error="[CountUp] target is null or undefined"}return t.prototype.determineDirectionAndSmartEasing=function(){var t=this.finalEndVal?this.finalEndVal:this.endVal;this.countDown=this.startVal>t;var i=t-this.startVal;if(Math.abs(i)>this.options.smartEasingThreshold){this.finalEndVal=t;var a=this.countDown?1:-1;this.endVal=t+a*this.options.smartEasingAmount,this.duration=this.duration/2}else this.endVal=t,this.finalEndVal=null;this.finalEndVal?this.useEasing=!1:this.useEasing=this.options.useEasing},t.prototype.start=function(t){this.error||(this.callback=t,this.duration>0?(this.determineDirectionAndSmartEasing(),this.paused=!1,this.rAF=requestAnimationFrame(this.count)):this.printValue(this.endVal))},t.prototype.pauseResume=function(){this.paused?(this.startTime=null,this.duration=this.remaining,this.startVal=this.frameVal,this.determineDirectionAndSmartEasing(),this.rAF=requestAnimationFrame(this.count)):cancelAnimationFrame(this.rAF),this.paused=!this.paused},t.prototype.reset=function(){cancelAnimationFrame(this.rAF),this.paused=!0,this.resetDuration(),this.startVal=this.validateValue(this.options.startVal),this.frameVal=this.startVal,this.printValue(this.startVal)},t.prototype.update=function(t){cancelAnimationFrame(this.rAF),this.startTime=null,this.endVal=this.validateValue(t),this.endVal!==this.frameVal&&(this.startVal=this.frameVal,this.finalEndVal||this.resetDuration(),this.determineDirectionAndSmartEasing(),this.rAF=requestAnimationFrame(this.count))},t.prototype.printValue=function(t){var i=this.formattingFn(t);"INPUT"===this.el.tagName?this.el.value=i:"text"===this.el.tagName||"tspan"===this.el.tagName?this.el.textContent=i:this.el.innerHTML=i},t.prototype.ensureNumber=function(t){return"number"==typeof t&&!isNaN(t)},t.prototype.validateValue=function(t){var i=Number(t);return this.ensureNumber(i)?i:(this.error="[CountUp] invalid start or end value: "+t,null)},t.prototype.resetDuration=function(){this.startTime=null,this.duration=1e3*Number(this.options.duration),this.remaining=this.duration},t}();
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-/**
- * Load required plugin.
- */
-window.Granim = __webpack_require__(21);
-
-
-/**
- * Configure the plugin.
- */
-
-+function($){
-  page.registerVendor('Granim');
-
-  page.initGranim = function() {
-    $('[data-granim]').each(function(){
-      var tag       = $(this),
-          granim    = tag.data('granim').split(','),
-          gradients = [],
-          opacity   = [1,1];
-
-      var len = granim.length;
-      if ( len > 0 ) {
-        if ( granim[0].indexOf('-') > -1 ) {
-          for (var i = 0; i < len; i++) {
-            gradients[i] = granim[i].split('-');
-          }
-
-          for (var i = 0; i < gradients[0].length; i++) {
-            opacity[i] = 1;
-          }
-        }
-        else {
-          for (var i = 0; i < len/2; i++) {
-            gradients[i] = [granim[i*2], granim[i*2+1]];
-          }
-        }
-      }
-
-      var options = {
-        element: tag[0],
-        name: 'granim',
-        direction: tag.dataAttr('direction', 'left-right'),
-        isPausedWhenNotInView: true,
-        opacity: opacity,
-        states : {
-          "default-state": {
-            gradients: gradients,
-            transitionSpeed: 5000,
-            loop: true
-          }
-         }
-      };
-
-      if (tag.hasDataAttr('opacity')) {
-        options.opacity = tag.data('opacity').split(',');
-      }
-
-      if (tag.hasDataAttr('image')) {
-        options.image = {
-          source: tag.dataAttr('image', ''),
-          position: ['center', 'center'],
-          stretchMode: ['stretch-if-bigger', 'stretch-if-bigger'],
-          blendingMode: 'multiply',
-        }
-      }
-
-      var granimInstance = new Granim(options);
-
-    });
-  }
-
-}(jQuery);
-
-
-
-
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(22);
-
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function Granim(options) {
-	this.getElement(options.element);
-	this.x1 = 0;
-	this.y1 = 0;
-	this.name = options.name || false;
-	this.elToSetClassOn = options.elToSetClassOn || 'body';
-	this.direction = options.direction || 'diagonal';
-	this.customDirection = options.customDirection || {};
-	this.validateInput('direction');
-	this.isPausedWhenNotInView = options.isPausedWhenNotInView || false;
-	this.states = options.states;
-	this.stateTransitionSpeed = options.stateTransitionSpeed || 1000;
-	this.previousTimeStamp = null;
-	this.progress = 0;
-	this.isPaused = false;
-	this.isCleared = false;
-	this.isPausedBecauseNotInView = false;
-	this.context = this.canvas.getContext('2d');
-	this.channels = {};
-	this.channelsIndex = 0;
-	this.activeState = options.defaultStateName || 'default-state';
-	this.isChangingState = false;
-	this.currentColors = [];
-	this.currentColorsPos = [];
-	this.activetransitionSpeed = null;
-	this.eventPolyfill();
-	this.scrollDebounceThreshold = options.scrollDebounceThreshold || 300;
-	this.scrollDebounceTimeout = null;
-	this.isImgLoaded = false;
-	this.isCanvasInWindowView = false;
-	this.firstScrollInit = true;
-	this.animating = false;
-	this.gradientLength = this.states[this.activeState].gradients[0].length;
-	if (options.image && options.image.source) {
-		this.image = {
-			source: options.image.source,
-			position: options.image.position || ['center', 'center'],
-			stretchMode: options.image.stretchMode || false,
-			blendingMode: options.image.blendingMode || false
-		};
-	}
-	this.events = {
-		start: new CustomEvent('granim:start'),
-		end: new CustomEvent('granim:end'),
-		gradientChange: function(details) {
-			return new CustomEvent('granim:gradientChange', {
-				detail: {
-					isLooping: details.isLooping,
-					colorsFrom: details.colorsFrom,
-					colorsTo: details.colorsTo,
-					activeState: details.activeState
-				},
-				bubbles: false,
-				cancelable: false
-			});
-		}
-	};
-	this.callbacks = {
-		onStart: typeof options.onStart === 'function' ? options.onStart : false,
-		onGradientChange: typeof options.onGradientChange === 'function' ?
-			options.onGradientChange :
-			false,
-		onEnd: typeof options.onEnd === 'function' ? options.onEnd : false
-	};
-	this.getDimensions();
-	this.canvas.setAttribute('width', this.x1);
-	this.canvas.setAttribute('height', this.y1);
-	this.setColors();
-
-	if (this.image) {
-		this.validateInput('image');
-		this.prepareImage();
-	}
-
-	this.pauseWhenNotInViewNameSpace = this.pauseWhenNotInView.bind(this);
-	this.setSizeAttributesNameSpace = this.setSizeAttributes.bind(this);
-	this.onResize();
-
-	if (this.isPausedWhenNotInView) {
-		this.onScroll();
-		
-	} else {
-		if (!this.image) {
-			this.refreshColorsAndPos();
-			this.animation = requestAnimationFrame(this.animateColors.bind(this));
-			this.animating = true;
-		}
-	}
-
-	// Callback and Event
-	if (this.callbacks.onStart) this.callbacks.onStart();
-	this.canvas.dispatchEvent(this.events.start);
-}
-
-Granim.prototype.animateColors = __webpack_require__(23);
-Granim.prototype.changeBlendingMode = __webpack_require__(24);
-Granim.prototype.changeDirection = __webpack_require__(25);
-Granim.prototype.changeState = __webpack_require__(26);
-Granim.prototype.clear = __webpack_require__(27);
-Granim.prototype.convertColorToRgba = __webpack_require__(28);
-Granim.prototype.destroy = __webpack_require__(29);
-Granim.prototype.eventPolyfill = __webpack_require__(30);
-Granim.prototype.getColor = __webpack_require__(31);
-Granim.prototype.getColorDiff = __webpack_require__(32);
-Granim.prototype.getColorPos = __webpack_require__(33);
-Granim.prototype.getColorPosDiff = __webpack_require__(34);
-Granim.prototype.getCurrentColors = __webpack_require__(35);
-Granim.prototype.getCurrentColorsPos = __webpack_require__(36);
-Granim.prototype.getDimensions = __webpack_require__(37);
-Granim.prototype.getElement = __webpack_require__(38);
-Granim.prototype.getLightness = __webpack_require__(39);
-Granim.prototype.makeGradient = __webpack_require__(40);
-Granim.prototype.onResize = __webpack_require__(41);
-Granim.prototype.onScroll = __webpack_require__(42);
-Granim.prototype.pause = __webpack_require__(43);
-Granim.prototype.pauseWhenNotInView = __webpack_require__(44);
-Granim.prototype.play = __webpack_require__(45);
-Granim.prototype.prepareImage = __webpack_require__(46);
-Granim.prototype.refreshColorsAndPos = __webpack_require__(47);
-Granim.prototype.setColors = __webpack_require__(48);
-Granim.prototype.setDirection = __webpack_require__(49);
-Granim.prototype.setSizeAttributes = __webpack_require__(50);
-Granim.prototype.triggerError = __webpack_require__(51);
-Granim.prototype.validateInput = __webpack_require__(52);
-
-module.exports = Granim;
-
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function(timestamp) {
-	var wasWindowIdled = timestamp - this.previousTimeStamp > 100;
-	var isLoop = this.states[this.activeState].loop !== undefined ? this.states[this.activeState].loop : true;
-	var progressPercent, isLooping, nextGradient;
-
-	// If tab was inactive then resumed, reset the previous timestamp
-	if (this.previousTimeStamp === null || wasWindowIdled) {
-		this.previousTimeStamp = timestamp;
-	}
-
-	// Compute progress and save the timestamp
-	this.progress = this.progress + (timestamp - this.previousTimeStamp);
-	progressPercent = (this.progress / this.activetransitionSpeed * 100).toFixed(2);
-	this.previousTimeStamp = timestamp;
-
-	// Set the new gradient colors in a property
-	this.refreshColorsAndPos(progressPercent);
-
-	// Continue the animation or prepare for the next one
-	if (progressPercent < 100) {
-		this.animation = requestAnimationFrame(this.animateColors.bind(this));
-
-	} else {
-		// if the current animation index is inferior to the penultimate gradient
-		// or to the last gradient with the loop mode activated
-		if (this.channelsIndex < this.states[this.activeState].gradients.length - 2 || isLoop) {
-
-			// Set the active transition speed to the active state one after changing state
-			if (this.isChangingState) {
-				this.activetransitionSpeed = this.states[this.activeState].transitionSpeed || 5000;
-				this.isChangingState = false;
-			}
-
-			// Resetting properties
-			this.previousTimeStamp = null;
-			this.progress = 0;
-			this.channelsIndex++;
-			isLooping = false;
-
-			// If it's going to loop or if it's the transition after the loop
-			if (this.channelsIndex === this.states[this.activeState].gradients.length - 1) {
-				isLooping = true;
-				
-			} else if (this.channelsIndex === this.states[this.activeState].gradients.length) {
-				this.channelsIndex = 0;
-			}
-
-			// Checking the next gradient to send in args of an event and a callback
-			nextGradient = this.states[this.activeState].gradients[this.channelsIndex + 1] === undefined ?
-				this.states[this.activeState].gradients[0] :
-				this.states[this.activeState].gradients[this.channelsIndex + 1];
-
-			// Compute the colors for the transition and render a new frame
-			this.setColors();
-			this.animation = requestAnimationFrame(this.animateColors.bind(this));
-			
-			// Callback and Event
-			if (this.callbacks.onGradientChange) {
-				this.callbacks.onGradientChange({
-					isLooping: isLooping,
-					colorsFrom: this.states[this.activeState].gradients[this.channelsIndex],
-					colorsTo: nextGradient,
-					activeState: this.activeState
-				});
-			}
-
-			this.canvas.dispatchEvent(this.events.gradientChange({
-				isLooping: isLooping,
-				colorsFrom: this.states[this.activeState].gradients[this.channelsIndex],
-				colorsTo: nextGradient,
-				activeState: this.activeState
-			}));
-
-		// Else if it was the last gradient on the list and the loop mode is off
-		} else {
-			cancelAnimationFrame(this.animation);
-
-			// Callback and Event
-			if (this.callbacks.onEnd) this.callbacks.onEnd();
-			this.canvas.dispatchEvent(new CustomEvent('granim:end'));
-		}
-	}
-};
-
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function(newBlendingMode) {
-	this.context.clearRect(0, 0, this.x1, this.y1);
-	this.context.globalCompositeOperation =
-		this.image.blendingMode = newBlendingMode;
-	this.validateInput('blendingMode');
-	if (this.isPaused) this.refreshColorsAndPos();
-};
-
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function(newDirection) {
-	this.context.clearRect(0, 0, this.x1, this.y1);
-	this.direction = newDirection;
-	this.validateInput('direction');
-	if (this.isPaused) this.refreshColorsAndPos();
-};
-
-
-/***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function(newState) {
-	var _this = this;
-
-	// Prevent transitioning to the same state
-	if (this.activeState === newState) {
-		return;
-	}
-
-	// Setting the good properties for the transition
-	if (!this.isPaused) {
-		this.isPaused = true;
-		this.pause();
-	}
-
-	this.channelsIndex = -1;
-	this.activetransitionSpeed = this.stateTransitionSpeed;
-	this.activeColorsDiff = [];
-	this.activeColorsPosDiff = [];
-	this.activeColors = this.getCurrentColors();
-	this.activeColorsPos = this.getCurrentColorsPos();
-	this.progress = 0;
-	this.previousTimeStamp = null;
-	this.isChangingState = true;
-
-	// Compute the gradient color and pos diff between the last frame gradient
-	// and the first one of the new state
-	this.states[newState].gradients[0].forEach(function(gradientColor, i, arr) {
-		var nextColors = _this.convertColorToRgba(_this.getColor(gradientColor));
-		var nextColorsPos = _this.getColorPos(gradientColor, i);
-		var colorDiff = _this.getColorDiff(_this.activeColors[i], nextColors);
-		var colorPosDiff = _this.getColorPosDiff(_this.activeColorsPos[i], nextColorsPos);
-		_this.activeColorsDiff.push(colorDiff);
-		_this.activeColorsPosDiff.push(colorPosDiff);
-	});
-
-	// Start the animation
-	this.activeState = newState;
-	this.play();
-};
-
-
-/***/ }),
-/* 27 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function() {
-	if (!this.isPaused) {
-		cancelAnimationFrame(this.animation);
-
-	} else {
-		this.isPaused = false;
-	}
-	this.isCleared = true;
-	this.context.clearRect(0, 0, this.x1, this.y1);
-};
-
-
-/***/ }),
-/* 28 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var regex = {
-	hexa: /^#(?:[0-9a-fA-F]{3}){1,2}$/,
-	rgba: /^rgba\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3}), ?(.?\d{1,3})\)$/,
-	rgb: /^rgb\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)$/,
-	hsla: /^hsla\((\d{1,3}), ?(\d{1,3})%, ?(\d{1,3})%, ?(.?\d{1,3})\)$/,
-	hsl: /^hsl\((\d{1,3}), ?(\d{1,3})%, ?(\d{1,3})%\)$/
-}, match;
-
-module.exports = function(color) {
-	switch(identifyColorType(color)) {
-		default:
-			this.triggerError('colorType');
-
-		case 'hexa':
-			return hexToRgba(color);
-
-		case 'rgba':
-			return [
-				parseInt(match[1], 10),
-				parseInt(match[2], 10),
-				parseInt(match[3], 10),
-				parseFloat(match[4])
-			];
-
-		case 'rgb':
-			return [
-				parseInt(match[1], 10),
-				parseInt(match[2], 10),
-				parseInt(match[3], 10),
-				1
-			];
-
-		case 'hsla':
-			return hslaToRgb(
-				parseInt(match[1], 10) / 360,
-				parseInt(match[2], 10) / 100,
-				parseInt(match[3], 10) / 100,
-				parseFloat(match[4])
-			);
-
-		case 'hsl':
-			return hslaToRgb(
-				parseInt(match[1], 10) / 360,
-				parseInt(match[2], 10) / 100,
-				parseInt(match[3], 10) / 100,
-				1
-			);
-	}
-};
-
-function identifyColorType(color) {
-	var colorTypes = Object.keys(regex);
-	var i = 0;
-	for (i; i < colorTypes.length; i++) {
-		match = regex[colorTypes[i]].exec(color);
-		if (match) return colorTypes[i];
-	}
-	return false;
-}
-
-function hexToRgba(hex) {
-	// Expand shorthand form (e.g. '03F') to full form (e.g. '0033FF')
-	var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-	hex = hex.replace(shorthandRegex, function(m, r, g, b) {
-		return r + r + g + g + b + b;
-	});
-	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-	return result ? [
-		parseInt(result[1], 16),
-		parseInt(result[2], 16),
-		parseInt(result[3], 16),
-		1
-	] : null;
-}
-
-function hue2rgb(p, q, t) {
-	if (t < 0) t += 1;
-	if (t > 1) t -= 1;
-	if (t < 1 / 6) return p + (q - p) * 6 * t;
-	if (t < 1 / 2) return q;
-	if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-	return p;
-}
-
-function hslaToRgb(h, s, l, a) {
-	var r, g, b, q, p;
-	if (s === 0) {
-		r = g = b = l; // achromatic
-	} else {
-		q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-		p = 2 * l - q;
-		r = hue2rgb(p, q, h + 1/3);
-		g = hue2rgb(p, q, h);
-		b = hue2rgb(p, q, h - 1/3);
-	}
-	return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255), a];
-}
-
-
-/***/ }),
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function() {
-	this.onResize('removeListeners');
-	this.onScroll('removeListeners');
-	this.clear();
-};
-
-
-/***/ }),
-/* 30 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function() {
-	if ( typeof window.CustomEvent === 'function' ) return;
-
-	function CustomEvent(event, params) {
-		params = params || { bubbles: false, cancelable: false, detail: undefined };
-		var evt = document.createEvent('CustomEvent');
-		evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
-		return evt;
-	}
-
-	CustomEvent.prototype = window.Event.prototype;
-
-	window.CustomEvent = CustomEvent;
-};
-
-
-/***/ }),
-/* 31 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function(gradientColor) {
-	if (typeof gradientColor === 'string') {
-		return gradientColor;
-
-	} else if (typeof gradientColor === 'object' && gradientColor.color) {
-		return gradientColor.color;
-
-	} else {
-		this.triggerError('gradient.color');
-	}
-};
-
-
-/***/ }),
-/* 32 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function(colorA, colorB) {
-	var i = 0;
-	var colorDiff = [];
-
-	for (i; i < 4; i++) {
-		colorDiff.push(colorB[i] - colorA[i]);
-	}
-
-	return colorDiff;
-};
-
-
-/***/ }),
-/* 33 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function(gradientColor, i) {
-	if (typeof gradientColor === 'object' && gradientColor.pos) {
-		return gradientColor.pos;
-
-	} else {
-		// Ensure first and last position to be 0 and 100
-		return parseFloat(!i ? 0 : ((1 / (this.gradientLength - 1)) * i).toFixed(2));
-	}
-};
-
-
-/***/ }),
-/* 34 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function(posA, posB) {
-	return posB - posA;
-};
-
-
-/***/ }),
-/* 35 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function() {
-	var i, j;
-	var currentColors = [];
-
-	for (i = 0; i < this.currentColors.length; i++) {
-		currentColors.push([]);
-
-		for (j = 0; j < 4; j++) {
-			currentColors[i].push(this.currentColors[i][j]);
-		}
-	}
-
-	// Return a deep copy of the current colors
-	return currentColors;
-};
-
-
-/***/ }),
-/* 36 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function() {
-	var currentColorsPos = [], i;
-
-	for (i = 0; i < this.currentColorsPos.length; i++) {
-		currentColorsPos.push(this.currentColorsPos[i]);
-	}
-
-	// Return a deep copy of the current colors
-	return currentColorsPos;
-};
-
-
-/***/ }),
-/* 37 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function() {
-	this.x1 = this.canvas.offsetWidth;
-	this.y1 = this.canvas.offsetHeight;
-};
-
-
-/***/ }),
-/* 38 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function(element) {
-	if (element instanceof HTMLCanvasElement) {
-		this.canvas = element;
-
-	} else if (typeof element === 'string') {
-		this.canvas = document.querySelector(element);
-
-	} else {
-		throw new Error('The element you used is neither a String, nor a HTMLCanvasElement');
-	}
-
-	if (!this.canvas) {
-		throw new Error('`' + element + '` could not be found in the DOM');
-	}
-};
-
-
-/***/ }),
-/* 39 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function() {
-	var currentColors = this.getCurrentColors();
-	var gradientAverage = null;
-	var lightnessAverage, i;
-	var colorsAverage = currentColors.map(function(el) {
-		// Compute the average lightness of each color
-		// in the current gradient
-		return Math.max(el[0], el[1], el[2]);
-	});
-
-	for (i = 0; i < colorsAverage.length; i++) {
-		// Add all the average lightness of each color
-		gradientAverage = gradientAverage === null ?
-			colorsAverage[i] : gradientAverage + colorsAverage[i];
-
-		if (i === colorsAverage.length - 1) {
-			// if it's the last lightness average
-			// divide it by the total length to
-			// have the global average lightness
-			lightnessAverage = Math.round(gradientAverage / (i + 1));
-		}
-	}
-
-	return lightnessAverage >= 128 ? 'light' : 'dark';
-};
-
-
-/***/ }),
-/* 40 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function() {
-	var gradient = this.setDirection();
-	var elToSetClassOnClass = document.querySelector(this.elToSetClassOn).classList;
-	var i = 0;
-	this.context.clearRect(0, 0, this.x1, this.y1);
-
-	if (this.image) {
-		this.context.drawImage(
-			this.imageNode,
-			this.imagePosition.x,
-			this.imagePosition.y,
-			this.imagePosition.width,
-			this.imagePosition.height
-		);
-	}
-
-	for (i; i < this.currentColors.length; i++) {
-		gradient.addColorStop(this.currentColorsPos[i], 'rgba(' +
-			this.currentColors[i][0] + ', ' +
-			this.currentColors[i][1] + ', ' +
-			this.currentColors[i][2] + ', ' +
-			this.currentColors[i][3] + ')'
-		);
-	}
-
-	if (this.name) {
-		if (this.getLightness() === 'light') {
-			elToSetClassOnClass.remove(this.name + '-dark');
-			elToSetClassOnClass.add(this.name + '-light');
-
-		} else {
-			elToSetClassOnClass.remove(this.name + '-light');
-			elToSetClassOnClass.add(this.name + '-dark');
-		}
-	}
-
-	this.context.fillStyle = gradient;
-	this.context.fillRect(0, 0, this.x1, this.y1);
-};
-
-
-/***/ }),
-/* 41 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function(type) {
-	if (type === 'removeListeners') {
-		window.removeEventListener('resize', this.setSizeAttributesNameSpace);
-		return;
-	}
-
-	window.addEventListener('resize', this.setSizeAttributesNameSpace);
-};
-
-
-/***/ }),
-/* 42 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function(type) {
-	if (type === 'removeListeners') {
-		window.removeEventListener('scroll', this.pauseWhenNotInViewNameSpace);
-		return;
-	}
-
-	window.addEventListener('scroll', this.pauseWhenNotInViewNameSpace);
-	this.pauseWhenNotInViewNameSpace();
-};
-
-
-/***/ }),
-/* 43 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function(state) {
-	var isPausedBecauseNotInView = state === 'isPausedBecauseNotInView';
-	if (this.isCleared) return;
-	if (!isPausedBecauseNotInView) this.isPaused = true;
-	cancelAnimationFrame(this.animation);
-	this.animating = false;
-};
-
-
-/***/ }),
-/* 44 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function() {
-	var _this = this;
-	if (this.scrollDebounceTimeout) clearTimeout(this.scrollDebounceTimeout);
-
-	this.scrollDebounceTimeout = setTimeout(function() {
-		var elPos = _this.canvas.getBoundingClientRect();
-		_this.isCanvasInWindowView = !(elPos.bottom < 0 || elPos.right < 0 ||
-			elPos.left > window.innerWidth || elPos.top > window.innerHeight);
-
-		if (_this.isCanvasInWindowView) {
-			if (!_this.isPaused || _this.firstScrollInit) {
-				if (_this.image && !_this.isImgLoaded) {return;}
-				_this.isPausedBecauseNotInView = false;
-				_this.play('isPlayedBecauseInView');
-				_this.firstScrollInit = false;
-			}
-
-		} else {
-			if (!_this.image && _this.firstScrollInit) {
-				_this.refreshColorsAndPos();
-				_this.firstScrollInit = false;
-			}
-
-			if (!_this.isPaused && !_this.isPausedBecauseNotInView) {
-				_this.isPausedBecauseNotInView = true;
-				_this.pause('isPausedBecauseNotInView');
-			}
-		}
-	}, this.scrollDebounceThreshold);
-};
-
-
-/***/ }),
-/* 45 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function(state) {
-	var isPlayedBecauseInView = state === 'isPlayedBecauseInView';
-	if (!isPlayedBecauseInView) this.isPaused = false;
-	this.isCleared = false;
-	if (!this.animating) {
-		this.animation = requestAnimationFrame(this.animateColors.bind(this));
-		this.animating = true;
-	}
-};
-
-
-/***/ }),
-/* 46 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function() {
-	var _this = this;
-
-	if (!this.imagePosition) {
-		this.imagePosition = { x: 0, y: 0, width: 0, height: 0 };
-	}
-
-	if (this.image.blendingMode) {
-		this.context.globalCompositeOperation = this.image.blendingMode;
-	}
-
-	if (this.imageNode) {
-		setImagePosition();
-		return;
-	}
-
-	this.imageNode = new Image();
-	this.imageNode.onerror = function() {
-		throw new Error('Granim: The image source is invalid.');
-	};
-	this.imageNode.onload = function() {
-		_this.imgOriginalWidth = _this.imageNode.width;
-		_this.imgOriginalHeight = _this.imageNode.height;
-		setImagePosition();
-		_this.refreshColorsAndPos();
-		if (!_this.isPausedWhenNotInView || _this.isCanvasInWindowView) {
-			_this.animation = requestAnimationFrame(_this.animateColors.bind(_this));
-		}
-		_this.isImgLoaded = true;
-	};
-	this.imageNode.src = this.image.source;
-
-	function setImagePosition() {
-		var i, currentAxis;
-
-		for (i = 0; i < 2; i++) {
-			currentAxis = !i ? 'x' : 'y';
-			setImageAxisPosition(currentAxis);
-		}
-
-		function setImageAxisPosition(axis) {
-			var canvasWidthOrHeight = _this[axis + '1'];
-			var imgOriginalWidthOrHeight = _this[axis === 'x' ? 'imgOriginalWidth' : 'imgOriginalHeight'];
-			var imageAlignIndex = axis === 'x' ? _this.image.position[0] : _this.image.position[1];
-			var imageAxisPosition;
-			switch(imageAlignIndex) {
-				case 'center':
-					imageAxisPosition = imgOriginalWidthOrHeight > canvasWidthOrHeight
-						? -(imgOriginalWidthOrHeight - canvasWidthOrHeight) / 2
-						: (canvasWidthOrHeight - imgOriginalWidthOrHeight) / 2;
-					_this.imagePosition[axis] = imageAxisPosition;
-					_this.imagePosition[axis === 'x' ? 'width' : 'height'] = imgOriginalWidthOrHeight;
-					break;
-
-				case 'top':
-					_this.imagePosition['y'] = 0;
-					_this.imagePosition['height'] = imgOriginalWidthOrHeight;
-					break;
-
-				case 'bottom':
-					_this.imagePosition['y'] = canvasWidthOrHeight - imgOriginalWidthOrHeight;
-					_this.imagePosition['height'] = imgOriginalWidthOrHeight;
-					break;
-
-				case 'right':
-					_this.imagePosition['x'] = canvasWidthOrHeight - imgOriginalWidthOrHeight;
-					_this.imagePosition['width'] = imgOriginalWidthOrHeight;
-					break;
-
-				case 'left':
-					_this.imagePosition['x'] = 0;
-					_this.imagePosition['width'] = imgOriginalWidthOrHeight;
-					break;
-			}
-
-			if (_this.image.stretchMode) {
-				imageAlignIndex = axis === 'x' ? _this.image.stretchMode[0] : _this.image.stretchMode[1];
-				switch(imageAlignIndex) {
-					case 'none':
-						break;
-					case 'stretch':
-						_this.imagePosition[axis] = 0;
-						_this.imagePosition[axis === 'x' ? 'width' : 'height'] = canvasWidthOrHeight;
-						break;
-
-					case 'stretch-if-bigger':
-						if (imgOriginalWidthOrHeight < canvasWidthOrHeight) break;
-						_this.imagePosition[axis] = 0;
-						_this.imagePosition[axis === 'x' ? 'width' : 'height'] = canvasWidthOrHeight;
-						break;
-
-					case 'stretch-if-smaller':
-						if (imgOriginalWidthOrHeight > canvasWidthOrHeight) break;
-						_this.imagePosition[axis] = 0;
-						_this.imagePosition[axis === 'x' ? 'width' : 'height'] = canvasWidthOrHeight;
-						break;
-				}
-			}
-		}
-	}
-};
-
-
-/***/ }),
-/* 47 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function(progressPercent) {
-	var _this = this, activeChannel, activeChannelPos, i, j;
-
-	// Loop through each colors of the active gradient
-	for (i = 0; i < this.activeColors.length; i++) {
-
-		// Generate RGBA colors
-		for (j = 0; j < 4; j++) {
-			// If color value [0-255] round to the integer,
-			// Else if opacity [0-1] round to 2 decimals
-			activeChannel = _this.activeColors[i][j] +
-				(j !== 3
-					? Math.ceil(_this.activeColorsDiff[i][j] / 100 * progressPercent)
-					: Math.round((_this.activeColorsDiff[i][j] / 100 * progressPercent) * 100) / 100
-				);
-
-			// Prevent colors values from going < 0 & > 255
-			if (activeChannel <= 255 && activeChannel >= 0) {
-				_this.currentColors[i][j] = activeChannel;
-			}
-		}
-
-		// Generate gradient color position
-		activeChannelPos = parseFloat((_this.activeColorsPos[i] +
-			(_this.activeColorsPosDiff[i] / 100 * progressPercent)
-		).toFixed(4));
-
-		if (activeChannelPos <= 1 && activeChannelPos >= 0) {
-			_this.currentColorsPos[i] = activeChannelPos;
-		}
-	}
-
-	this.makeGradient();
-};
-
-
-/***/ }),
-/* 48 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function() {
-	var _this = this, colorDiff, colorPosDiff, nextColors, nextColorsPos;
-
-	if (!this.channels[this.activeState]) this.channels[this.activeState] = [];
-
-	// If the actual channel exist, reassign properties and exit
-	// (each channel is saved to prevent recomputing it each time)
-	if (this.channels[this.activeState][this.channelsIndex] !== undefined) {
-		this.activeColors = this.channels[this.activeState][this.channelsIndex].colors;
-		this.activeColorsDiff = this.channels[this.activeState][this.channelsIndex].colorsDiff;
-		this.activeColorsPos = this.channels[this.activeState][this.channelsIndex].colorsPos;
-		this.activeColorsPosDiff = this.channels[this.activeState][this.channelsIndex].colorsPosDiff;
-		return;
-	}
-
-	// Set blank properties
-	this.channels[this.activeState].push([{}]);
-	this.channels[this.activeState][this.channelsIndex].colors = [];
-	this.channels[this.activeState][this.channelsIndex].colorsDiff = [];
-	this.channels[this.activeState][this.channelsIndex].colorsPos = [];
-	this.channels[this.activeState][this.channelsIndex].colorsPosDiff = [];
-	this.activeColors = [];
-	this.activeColorsDiff = [];
-	this.activeColorsPos = [];
-	this.activeColorsPosDiff = [];
-
-	// Go on each gradient of the current state
-	this.states[this.activeState].gradients[this.channelsIndex].forEach(function(color, i) {
-		// Push the hex color converted to rgba on the channel and the active color properties
-		var colorPos = _this.getColorPos(color, i);
-		var color = _this.getColor(color);
-		var rgbaColor = _this.convertColorToRgba(color);
-		var activeChannel = _this.channels[_this.activeState];
-
-		activeChannel[_this.channelsIndex].colors.push(rgbaColor);
-		_this.activeColors.push(rgbaColor);
-		activeChannel[_this.channelsIndex].colorsPos.push(colorPos);
-		_this.activeColorsPos.push(colorPos);
-
-		// If it's the first channel to be set, set the currentColors
-		if (!_this.isCurrentColorsSet) {
-			_this.currentColors.push(_this.convertColorToRgba(color));
-			_this.currentColorsPos.push(colorPos);
-		}
-
-		// If it's the last gradient, compute the color diff between the last gradient and the first one,
-		// else between the penultimate one and the last one
-		if (_this.channelsIndex === _this.states[_this.activeState].gradients.length - 1) {
-			colorDiff = _this.getColorDiff(
-				activeChannel[_this.channelsIndex].colors[i],
-				activeChannel[0].colors[i]
-			);
-			colorPosDiff = _this.getColorPosDiff(
-				activeChannel[_this.channelsIndex].colorsPos[i],
-				activeChannel[0].colorsPos[i]
-			);
-
-		} else {
-			nextColors = _this.convertColorToRgba(_this.getColor(_this.states[_this.activeState].gradients[_this.channelsIndex + 1][i]));
-			nextColorsPos = _this.getColorPos(_this.states[_this.activeState].gradients[_this.channelsIndex + 1][i], i);
-			colorDiff = _this.getColorDiff(activeChannel[_this.channelsIndex].colors[i], nextColors);
-			colorPosDiff = _this.getColorPosDiff(activeChannel[_this.channelsIndex].colorsPos[i], nextColorsPos);
-		}
-
-		activeChannel[_this.channelsIndex].colorsDiff.push(colorDiff);
-		_this.activeColorsDiff.push(colorDiff);
-		activeChannel[_this.channelsIndex].colorsPosDiff.push(colorPosDiff);
-		_this.activeColorsPosDiff.push(colorPosDiff);
-	});
-
-	this.activetransitionSpeed = this.states[this.activeState].transitionSpeed || 5000;
-	this.isCurrentColorsSet = true;
-};
-
-
-/***/ }),
-/* 49 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function() {
-	var ctx = this.context;
-
-	switch(this.direction) {
-		case 'diagonal':
-			return ctx.createLinearGradient(0, 0, this.x1, this.y1);
-
-		case 'left-right':
-			return ctx.createLinearGradient(0, 0, this.x1, 0);
-
-		case 'top-bottom':
-			return ctx.createLinearGradient(this.x1 / 2, 0, this.x1 / 2, this.y1);
-
-		case 'radial':
-			return ctx.createRadialGradient(this.x1 / 2, this.y1 / 2, this.x1 / 2, this.x1 / 2, this.y1 / 2, 0);
-
-		case 'custom':
-			return ctx.createLinearGradient(
-				getCustomCoordinateInPixels(this.customDirection.x0, this.x1),
-				getCustomCoordinateInPixels(this.customDirection.y0, this.y1),
-				getCustomCoordinateInPixels(this.customDirection.x1, this.x1),
-				getCustomCoordinateInPixels(this.customDirection.y1, this.y1)
-			);
-	}
-};
-
-function getCustomCoordinateInPixels(coordinate, size) {
-	return coordinate.indexOf('%') > -1
-		? size / 100 * parseInt(coordinate.split('%')[0], 10)
-		: parseInt(coordinate.split('px')[0], 10);
-}
-
-
-/***/ }),
-/* 50 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function() {
-	this.getDimensions();
-	this.canvas.setAttribute('width', this.x1);
-	this.canvas.setAttribute('height', this.y1);
-	if (this.image) this.prepareImage();
-	this.refreshColorsAndPos();
-};
-
-
-/***/ }),
-/* 51 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function(element) {
-	var siteURL = 'https://sarcadass.github.io/granim.js/api.html';
-	throw new Error('Granim: Input error on "' + element + '" option.\nCheck the API ' + siteURL + '.');
-};
-
-
-/***/ }),
-/* 52 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function(inputType) {
-	var xPositionValues = ['left', 'center', 'right'];
-	var yPositionValues = ['top', 'center', 'bottom'];
-	var stretchModeValues = ['none', 'stretch', 'stretch-if-smaller', 'stretch-if-bigger'];
-	var blendingModeValues = ['multiply', 'screen', 'normal', 'overlay', 'darken',
-		'lighten', 'lighter', 'color-dodge', 'color-burn', 'hard-light', 'soft-light',
-		'difference', 'exclusion', 'hue', 'saturation', 'color', 'luminosity'];
-	var directionValues = ['diagonal', 'left-right', 'top-bottom', 'radial', 'custom'];
-
-	switch(inputType) {
-		case 'image':
-			// Validate image.position
-			if ((!Array.isArray(this.image.position) || this.image.position.length !== 2) ||
-				xPositionValues.indexOf(this.image.position[0]) === -1 ||
-				yPositionValues.indexOf(this.image.position[1]) === -1
-			) { this.triggerError('image.position'); }
-			// Validate image.stretchMode
-			if (this.image.stretchMode) {
-				if ((!Array.isArray(this.image.stretchMode) || this.image.stretchMode.length !== 2) ||
-					stretchModeValues.indexOf(this.image.stretchMode[0]) === -1 ||
-					stretchModeValues.indexOf(this.image.stretchMode[1]) === -1
-				) { this.triggerError('image.stretchMode'); }
-			}
-			break;
-
-		case 'blendingMode':
-			if (blendingModeValues.indexOf(this.image.blendingMode) === -1) {
-				this.clear();
-				this.triggerError('blendingMode');
-			}
-			break;
-
-		case 'direction':
-			if (directionValues.indexOf(this.direction) === -1) {
-				this.triggerError('direction');
-			} else {
-				if (this.direction === 'custom') {
-					if (!areDefinedInPixelsOrPercentage([
-						this.customDirection.x0,
-						this.customDirection.x1,
-						this.customDirection.y0,
-						this.customDirection.y1
-					])) {
-						this.triggerError('customDirection');
-					}
-				}
-			}
-			break;
-	}
-};
-
-function areDefinedInPixelsOrPercentage(array) {
-	var definedInPixelsOrPercentage = true, i = 0, value;
-	while (definedInPixelsOrPercentage && i < array.length) {
-		value = array[i];
-		if (typeof value !== 'string') {
-			definedInPixelsOrPercentage = false;
-		} else {
-			var splittedValue = null;
-			var unit = null;
-			if (value.indexOf('px') !== -1) unit = 'px';
-			if (value.indexOf('%') !== -1) unit = '%';
-			splittedValue = value.split(unit).filter(function(value) {
-				return value.length > 0;
-			});
-			// Check if there is a unit ('px' or '%'),
-			// a char before the unit,
-			// no char after the unit,
-			// the string without the unit is only composed of digits
-			if (
-				!unit
-				|| splittedValue.length > 2
-				|| !splittedValue[0]
-				|| splittedValue[1]
-				|| !/^-?\d+\.?\d*$/.test(splittedValue[0])
-			) {
-				definedInPixelsOrPercentage = false;
-			}
-		}
-		i++;
-	}
-	return definedInPixelsOrPercentage;
-}
-
-
-/***/ }),
-/* 53 */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-/**
- * Load required plugin.
- */
-__webpack_require__(54);
-__webpack_require__(55);
-
-
-/**
- * Configure the plugin.
- */
-
-+function($){
-  page.registerVendor('Jarallax');
-
-  page.initJarallax = function() {
-
-    // Parallax image
-    //
-    $('[data-parallax]').each(function() {
-      var tag = $(this);
-      var options = {
-        imgSrc: tag.data('parallax'),
-        speed: 0.3,
-      };
-
-      if ( tag.hasClass('header') ) {
-        options.speed = 0.6;
-      }
-
-      options = $.extend( options, page.getDataOptions(tag));
-
-      tag.jarallax( options );
-
-    });
-
-
-    // Video backgrounds
-    //
-    $('[data-video]').each(function() {
-      var tag = $(this);
-      var options = {
-        videoSrc: tag.data('video'),
-        speed: 1,
-      };
-
-      if ( options.videoSrc.indexOf('mp4:') > -1 ) {
-        options.speed = 0.5;
-      }
-
-      options = $.extend( options, page.getDataOptions(tag));
-
-      tag.jarallax( options );
-
-    });
-
-  }
-
-}(jQuery);
-
-
-
-
-
-/***/ }),
-/* 54 */
-/***/ (function(module, exports) {
-
-/*!
- * Name    : Just Another Parallax [Jarallax]
- * Version : 1.10.7
- * Author  : nK <https://nkdev.info>
- * GitHub  : https://github.com/nk-o/jarallax
- */!function(o){var n={};function i(e){if(n[e])return n[e].exports;var t=n[e]={i:e,l:!1,exports:{}};return o[e].call(t.exports,t,t.exports,i),t.l=!0,t.exports}i.m=o,i.c=n,i.d=function(e,t,o){i.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:o})},i.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},i.t=function(t,e){if(1&e&&(t=i(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var o=Object.create(null);if(i.r(o),Object.defineProperty(o,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var n in t)i.d(o,n,function(e){return t[e]}.bind(null,n));return o},i.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return i.d(t,"a",t),t},i.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},i.p="",i(i.s=11)}([,,function(e,t,o){"use strict";e.exports=function(e){"complete"===document.readyState||"interactive"===document.readyState?e.call():document.attachEvent?document.attachEvent("onreadystatechange",function(){"interactive"===document.readyState&&e.call()}):document.addEventListener&&document.addEventListener("DOMContentLoaded",e)}},,function(o,e,t){"use strict";(function(e){var t;t="undefined"!=typeof window?window:void 0!==e?e:"undefined"!=typeof self?self:{},o.exports=t}).call(this,t(5))},function(e,t,o){"use strict";var n,i="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e};n=function(){return this}();try{n=n||Function("return this")()||(0,eval)("this")}catch(e){"object"===("undefined"==typeof window?"undefined":i(window))&&(n=window)}e.exports=n},,,,,,function(e,t,o){e.exports=o(12)},function(e,t,o){"use strict";var n="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},i=l(o(2)),a=o(4),r=l(o(13));function l(e){return e&&e.__esModule?e:{default:e}}var s=a.window.jarallax;if(a.window.jarallax=r.default,a.window.jarallax.noConflict=function(){return a.window.jarallax=s,this},void 0!==a.jQuery){var c=function(){var e=arguments||[];Array.prototype.unshift.call(e,this);var t=r.default.apply(a.window,e);return"object"!==(void 0===t?"undefined":n(t))?t:this};c.constructor=r.default.constructor;var u=a.jQuery.fn.jarallax;a.jQuery.fn.jarallax=c,a.jQuery.fn.jarallax.noConflict=function(){return a.jQuery.fn.jarallax=u,this}}(0,i.default)(function(){(0,r.default)(document.querySelectorAll("[data-jarallax]"))})},function(e,j,S){"use strict";(function(e){Object.defineProperty(j,"__esModule",{value:!0});var d=function(e,t){if(Array.isArray(e))return e;if(Symbol.iterator in Object(e))return function(e,t){var o=[],n=!0,i=!1,a=void 0;try{for(var r,l=e[Symbol.iterator]();!(n=(r=l.next()).done)&&(o.push(r.value),!t||o.length!==t);n=!0);}catch(e){i=!0,a=e}finally{try{!n&&l.return&&l.return()}finally{if(i)throw a}}return o}(e,t);throw new TypeError("Invalid attempt to destructure non-iterable instance")},t=function(){function n(e,t){for(var o=0;o<t.length;o++){var n=t[o];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}return function(e,t,o){return t&&n(e.prototype,t),o&&n(e,o),e}}(),p="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},o=a(S(2)),n=a(S(14)),i=S(4);function a(e){return e&&e.__esModule?e:{default:e}}var s=-1<navigator.userAgent.indexOf("MSIE ")||-1<navigator.userAgent.indexOf("Trident/")||-1<navigator.userAgent.indexOf("Edge/"),r=function(){for(var e="transform WebkitTransform MozTransform".split(" "),t=document.createElement("div"),o=0;o<e.length;o++)if(t&&void 0!==t.style[e[o]])return e[o];return!1}(),b=void 0,v=void 0,l=void 0,c=!1,u=!1;function m(e){b=i.window.innerWidth||document.documentElement.clientWidth,v=i.window.innerHeight||document.documentElement.clientHeight,"object"!==(void 0===e?"undefined":p(e))||"load"!==e.type&&"dom-loaded"!==e.type||(c=!0)}m(),i.window.addEventListener("resize",m),i.window.addEventListener("orientationchange",m),i.window.addEventListener("load",m),(0,o.default)(function(){m({type:"dom-loaded"})});var f=[],y=!1;function g(){if(f.length){l=void 0!==i.window.pageYOffset?i.window.pageYOffset:(document.documentElement||document.body.parentNode||document.body).scrollTop;var t=c||!y||y.width!==b||y.height!==v,o=u||t||!y||y.y!==l;u=c=!1,(t||o)&&(f.forEach(function(e){t&&e.onResize(),o&&e.onScroll()}),y={width:b,height:v,y:l}),(0,n.default)(g)}}var h=!!e.ResizeObserver&&new e.ResizeObserver(function(e){e&&e.length&&(0,n.default)(function(){e.forEach(function(e){e.target&&e.target.jarallax&&(c||e.target.jarallax.onResize(),u=!0)})})}),x=0,w=function(){function u(e,t){!function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,u);var o=this;o.instanceID=x++,o.$item=e,o.defaults={type:"scroll",speed:.5,imgSrc:null,imgElement:".jarallax-img",imgSize:"cover",imgPosition:"50% 50%",imgRepeat:"no-repeat",keepImg:!1,elementInViewport:null,zIndex:-100,disableParallax:!1,disableVideo:!1,automaticResize:!0,videoSrc:null,videoStartTime:0,videoEndTime:0,videoVolume:0,videoLoop:!0,videoPlayOnlyVisible:!0,onScroll:null,onInit:null,onDestroy:null,onCoverImage:null};var n=o.$item.getAttribute("data-jarallax"),i=JSON.parse(n||"{}");n&&console.warn("Detected usage of deprecated data-jarallax JSON options, you should use pure data-attribute options. See info here - https://github.com/nk-o/jarallax/issues/53");var a=o.$item.dataset||{},r={};if(Object.keys(a).forEach(function(e){var t=e.substr(0,1).toLowerCase()+e.substr(1);t&&void 0!==o.defaults[t]&&(r[t]=a[e])}),o.options=o.extend({},o.defaults,i,r,t),o.pureOptions=o.extend({},o.options),Object.keys(o.options).forEach(function(e){"true"===o.options[e]?o.options[e]=!0:"false"===o.options[e]&&(o.options[e]=!1)}),o.options.speed=Math.min(2,Math.max(-1,parseFloat(o.options.speed))),(o.options.noAndroid||o.options.noIos)&&(console.warn("Detected usage of deprecated noAndroid or noIos options, you should use disableParallax option. See info here - https://github.com/nk-o/jarallax/#disable-on-mobile-devices"),o.options.disableParallax||(o.options.noIos&&o.options.noAndroid?o.options.disableParallax=/iPad|iPhone|iPod|Android/:o.options.noIos?o.options.disableParallax=/iPad|iPhone|iPod/:o.options.noAndroid&&(o.options.disableParallax=/Android/))),"string"==typeof o.options.disableParallax&&(o.options.disableParallax=new RegExp(o.options.disableParallax)),o.options.disableParallax instanceof RegExp){var l=o.options.disableParallax;o.options.disableParallax=function(){return l.test(navigator.userAgent)}}if("function"!=typeof o.options.disableParallax&&(o.options.disableParallax=function(){return!1}),"string"==typeof o.options.disableVideo&&(o.options.disableVideo=new RegExp(o.options.disableVideo)),o.options.disableVideo instanceof RegExp){var s=o.options.disableVideo;o.options.disableVideo=function(){return s.test(navigator.userAgent)}}"function"!=typeof o.options.disableVideo&&(o.options.disableVideo=function(){return!1});var c=o.options.elementInViewport;c&&"object"===(void 0===c?"undefined":p(c))&&void 0!==c.length&&(c=d(c,1)[0]);c instanceof Element||(c=null),o.options.elementInViewport=c,o.image={src:o.options.imgSrc||null,$container:null,useImgTag:!1,position:/iPad|iPhone|iPod|Android/.test(navigator.userAgent)?"absolute":"fixed"},o.initImg()&&o.canInitParallax()&&o.init()}return t(u,[{key:"css",value:function(t,o){return"string"==typeof o?i.window.getComputedStyle(t).getPropertyValue(o):(o.transform&&r&&(o[r]=o.transform),Object.keys(o).forEach(function(e){t.style[e]=o[e]}),t)}},{key:"extend",value:function(o){var n=arguments;return o=o||{},Object.keys(arguments).forEach(function(t){n[t]&&Object.keys(n[t]).forEach(function(e){o[e]=n[t][e]})}),o}},{key:"getWindowData",value:function(){return{width:b,height:v,y:l}}},{key:"initImg",value:function(){var e=this,t=e.options.imgElement;return t&&"string"==typeof t&&(t=e.$item.querySelector(t)),t instanceof Element||(t=null),t&&(e.options.keepImg?e.image.$item=t.cloneNode(!0):(e.image.$item=t,e.image.$itemParent=t.parentNode),e.image.useImgTag=!0),!!e.image.$item||(null===e.image.src&&(e.image.src=e.css(e.$item,"background-image").replace(/^url\(['"]?/g,"").replace(/['"]?\)$/g,"")),!(!e.image.src||"none"===e.image.src))}},{key:"canInitParallax",value:function(){return r&&!this.options.disableParallax()}},{key:"init",value:function(){var e=this,t={position:"absolute",top:0,left:0,width:"100%",height:"100%",overflow:"hidden",pointerEvents:"none"},o={};if(!e.options.keepImg){var n=e.$item.getAttribute("style");if(n&&e.$item.setAttribute("data-jarallax-original-styles",n),e.image.useImgTag){var i=e.image.$item.getAttribute("style");i&&e.image.$item.setAttribute("data-jarallax-original-styles",i)}}if("static"===e.css(e.$item,"position")&&e.css(e.$item,{position:"relative"}),"auto"===e.css(e.$item,"z-index")&&e.css(e.$item,{zIndex:0}),e.image.$container=document.createElement("div"),e.css(e.image.$container,t),e.css(e.image.$container,{"z-index":e.options.zIndex}),s&&e.css(e.image.$container,{opacity:.9999}),e.image.$container.setAttribute("id","jarallax-container-"+e.instanceID),e.$item.appendChild(e.image.$container),e.image.useImgTag?o=e.extend({"object-fit":e.options.imgSize,"object-position":e.options.imgPosition,"font-family":"object-fit: "+e.options.imgSize+"; object-position: "+e.options.imgPosition+";","max-width":"none"},t,o):(e.image.$item=document.createElement("div"),e.image.src&&(o=e.extend({"background-position":e.options.imgPosition,"background-size":e.options.imgSize,"background-repeat":e.options.imgRepeat,"background-image":'url("'+e.image.src+'")'},t,o))),"opacity"!==e.options.type&&"scale"!==e.options.type&&"scale-opacity"!==e.options.type&&1!==e.options.speed||(e.image.position="absolute"),"fixed"===e.image.position)for(var a=0,r=e.$item;null!==r&&r!==document&&0===a;){var l=e.css(r,"-webkit-transform")||e.css(r,"-moz-transform")||e.css(r,"transform");l&&"none"!==l&&(a=1,e.image.position="absolute"),r=r.parentNode}o.position=e.image.position,e.css(e.image.$item,o),e.image.$container.appendChild(e.image.$item),e.onResize(),e.onScroll(!0),e.options.automaticResize&&h&&h.observe(e.$item),e.options.onInit&&e.options.onInit.call(e),"none"!==e.css(e.$item,"background-image")&&e.css(e.$item,{"background-image":"none"}),e.addToParallaxList()}},{key:"addToParallaxList",value:function(){f.push(this),1===f.length&&g()}},{key:"removeFromParallaxList",value:function(){var o=this;f.forEach(function(e,t){e.instanceID===o.instanceID&&f.splice(t,1)})}},{key:"destroy",value:function(){var e=this;e.removeFromParallaxList();var t=e.$item.getAttribute("data-jarallax-original-styles");if(e.$item.removeAttribute("data-jarallax-original-styles"),t?e.$item.setAttribute("style",t):e.$item.removeAttribute("style"),e.image.useImgTag){var o=e.image.$item.getAttribute("data-jarallax-original-styles");e.image.$item.removeAttribute("data-jarallax-original-styles"),o?e.image.$item.setAttribute("style",t):e.image.$item.removeAttribute("style"),e.image.$itemParent&&e.image.$itemParent.appendChild(e.image.$item)}e.$clipStyles&&e.$clipStyles.parentNode.removeChild(e.$clipStyles),e.image.$container&&e.image.$container.parentNode.removeChild(e.image.$container),e.options.onDestroy&&e.options.onDestroy.call(e),delete e.$item.jarallax}},{key:"clipContainer",value:function(){if("fixed"===this.image.position){var e=this,t=e.image.$container.getBoundingClientRect(),o=t.width,n=t.height;if(!e.$clipStyles)e.$clipStyles=document.createElement("style"),e.$clipStyles.setAttribute("type","text/css"),e.$clipStyles.setAttribute("id","jarallax-clip-"+e.instanceID),(document.head||document.getElementsByTagName("head")[0]).appendChild(e.$clipStyles);var i="#jarallax-container-"+e.instanceID+" {\n           clip: rect(0 "+o+"px "+n+"px 0);\n           clip: rect(0, "+o+"px, "+n+"px, 0);\n        }";e.$clipStyles.styleSheet?e.$clipStyles.styleSheet.cssText=i:e.$clipStyles.innerHTML=i}}},{key:"coverImage",value:function(){var e=this,t=e.image.$container.getBoundingClientRect(),o=t.height,n=e.options.speed,i="scroll"===e.options.type||"scroll-opacity"===e.options.type,a=0,r=o,l=0;return i&&(n<0?(a=n*Math.max(o,v),v<o&&(a-=n*(o-v))):a=n*(o+v),1<n?r=Math.abs(a-v):n<0?r=a/n+Math.abs(a):r+=(v-o)*(1-n),a/=2),e.parallaxScrollDistance=a,l=i?(v-r)/2:(o-r)/2,e.css(e.image.$item,{height:r+"px",marginTop:l+"px",left:"fixed"===e.image.position?t.left+"px":"0",width:t.width+"px"}),e.options.onCoverImage&&e.options.onCoverImage.call(e),{image:{height:r,marginTop:l},container:t}}},{key:"isVisible",value:function(){return this.isElementInViewport||!1}},{key:"onScroll",value:function(e){var t=this,o=t.$item.getBoundingClientRect(),n=o.top,i=o.height,a={},r=o;if(t.options.elementInViewport&&(r=t.options.elementInViewport.getBoundingClientRect()),t.isElementInViewport=0<=r.bottom&&0<=r.right&&r.top<=v&&r.left<=b,e||t.isElementInViewport){var l=Math.max(0,n),s=Math.max(0,i+n),c=Math.max(0,-n),u=Math.max(0,n+i-v),d=Math.max(0,i-(n+i-v)),p=Math.max(0,-n+v-i),m=1-2*(v-n)/(v+i),f=1;if(i<v?f=1-(c||u)/i:s<=v?f=s/v:d<=v&&(f=d/v),"opacity"!==t.options.type&&"scale-opacity"!==t.options.type&&"scroll-opacity"!==t.options.type||(a.transform="translate3d(0,0,0)",a.opacity=f),"scale"===t.options.type||"scale-opacity"===t.options.type){var y=1;t.options.speed<0?y-=t.options.speed*f:y+=t.options.speed*(1-f),a.transform="scale("+y+") translate3d(0,0,0)"}if("scroll"===t.options.type||"scroll-opacity"===t.options.type){var g=t.parallaxScrollDistance*m;"absolute"===t.image.position&&(g-=n),a.transform="translate3d(0,"+g+"px,0)"}t.css(t.image.$item,a),t.options.onScroll&&t.options.onScroll.call(t,{section:o,beforeTop:l,beforeTopEnd:s,afterTop:c,beforeBottom:u,beforeBottomEnd:d,afterBottom:p,visiblePercent:f,fromViewportCenter:m})}}},{key:"onResize",value:function(){this.coverImage(),this.clipContainer()}}]),u}(),$=function(e){("object"===("undefined"==typeof HTMLElement?"undefined":p(HTMLElement))?e instanceof HTMLElement:e&&"object"===(void 0===e?"undefined":p(e))&&null!==e&&1===e.nodeType&&"string"==typeof e.nodeName)&&(e=[e]);for(var t=arguments[1],o=Array.prototype.slice.call(arguments,2),n=e.length,i=0,a=void 0;i<n;i++)if("object"===(void 0===t?"undefined":p(t))||void 0===t?e[i].jarallax||(e[i].jarallax=new w(e[i],t)):e[i].jarallax&&(a=e[i].jarallax[t].apply(e[i].jarallax,o)),void 0!==a)return a;return e};$.constructor=w,j.default=$}).call(this,S(5))},function(e,t,o){"use strict";var n=o(4),i=n.requestAnimationFrame||n.webkitRequestAnimationFrame||n.mozRequestAnimationFrame||function(e){var t=+new Date,o=Math.max(0,16-(t-a)),n=setTimeout(e,o);return a=t,n},a=+new Date;var r=n.cancelAnimationFrame||n.webkitCancelAnimationFrame||n.mozCancelAnimationFrame||clearTimeout;Function.prototype.bind&&(i=i.bind(n),r=r.bind(n)),(e.exports=i).cancel=r}]);
-//# sourceMappingURL=jarallax.min.js.map
-
-
-/***/ }),
-/* 55 */
-/***/ (function(module, exports) {
-
-/*!
- * Name    : Video Background Extension for Jarallax
- * Version : 1.0.1
- * Author  : nK <https://nkdev.info>
- * GitHub  : https://github.com/nk-o/jarallax
- */!function(o){var i={};function n(e){if(i[e])return i[e].exports;var t=i[e]={i:e,l:!1,exports:{}};return o[e].call(t.exports,t,t.exports,n),t.l=!0,t.exports}n.m=o,n.c=i,n.d=function(e,t,o){n.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:o})},n.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},n.t=function(t,e){if(1&e&&(t=n(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var o=Object.create(null);if(n.r(o),Object.defineProperty(o,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var i in t)n.d(o,i,function(e){return t[e]}.bind(null,i));return o},n.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return n.d(t,"a",t),t},n.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},n.p="",n(n.s=6)}([,,function(e,t,o){"use strict";e.exports=function(e){"complete"===document.readyState||"interactive"===document.readyState?e.call():document.attachEvent?document.attachEvent("onreadystatechange",function(){"interactive"===document.readyState&&e.call()}):document.addEventListener&&document.addEventListener("DOMContentLoaded",e)}},,function(o,e,t){"use strict";(function(e){var t;t="undefined"!=typeof window?window:void 0!==e?e:"undefined"!=typeof self?self:{},o.exports=t}).call(this,t(5))},function(e,t,o){"use strict";var i,n="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e};i=function(){return this}();try{i=i||Function("return this")()||(0,eval)("this")}catch(e){"object"===("undefined"==typeof window?"undefined":n(window))&&(i=window)}e.exports=i},function(e,t,o){e.exports=o(7)},function(e,t,o){"use strict";var i=l(o(8)),n=l(o(4)),a=l(o(2)),r=l(o(10));function l(e){return e&&e.__esModule?e:{default:e}}n.default.VideoWorker=n.default.VideoWorker||i.default,(0,r.default)(),(0,a.default)(function(){"undefined"!=typeof jarallax&&jarallax(document.querySelectorAll("[data-jarallax-video]"))})},function(e,t,o){"use strict";e.exports=o(9)},function(e,t,o){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var n="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},a=function(){function i(e,t){for(var o=0;o<t.length;o++){var i=t[o];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}return function(e,t,o){return t&&i(e.prototype,t),o&&i(e,o),e}}();function i(){this._done=[],this._fail=[]}i.prototype={execute:function(e,t){var o=e.length;for(t=Array.prototype.slice.call(t);o--;)e[o].apply(null,t)},resolve:function(){this.execute(this._done,arguments)},reject:function(){this.execute(this._fail,arguments)},done:function(e){this._done.push(e)},fail:function(e){this._fail.push(e)}};var r=0,l=0,u=0,p=0,d=0,s=new i,y=new i,c=function(){function i(e,t){!function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,i);var o=this;o.url=e,o.options_default={autoplay:!1,loop:!1,mute:!1,volume:100,showContols:!0,startTime:0,endTime:0},o.options=o.extend({},o.options_default,t),o.videoID=o.parseURL(e),o.videoID&&(o.ID=r++,o.loadAPI(),o.init())}return a(i,[{key:"extend",value:function(o){var i=arguments;return o=o||{},Object.keys(arguments).forEach(function(t){i[t]&&Object.keys(i[t]).forEach(function(e){o[e]=i[t][e]})}),o}},{key:"parseURL",value:function(e){var t,o,i,n,a,r=!(!(t=e.match(/.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\&\?]*).*/))||11!==t[1].length)&&t[1],l=!(!(o=e.match(/https?:\/\/(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|video\/|)(\d+)(?:$|\/|\?)/))||!o[3])&&o[3],u=(i=e.split(/,(?=mp4\:|webm\:|ogv\:|ogg\:)/),n={},a=0,i.forEach(function(e){var t=e.match(/^(mp4|webm|ogv|ogg)\:(.*)/);t&&t[1]&&t[2]&&(n["ogv"===t[1]?"ogg":t[1]]=t[2],a=1)}),!!a&&n);return r?(this.type="youtube",r):l?(this.type="vimeo",l):!!u&&(this.type="local",u)}},{key:"isValid",value:function(){return!!this.videoID}},{key:"on",value:function(e,t){this.userEventsList=this.userEventsList||[],(this.userEventsList[e]||(this.userEventsList[e]=[])).push(t)}},{key:"off",value:function(o,i){var n=this;this.userEventsList&&this.userEventsList[o]&&(i?this.userEventsList[o].forEach(function(e,t){e===i&&(n.userEventsList[o][t]=!1)}):delete this.userEventsList[o])}},{key:"fire",value:function(e){var t=this,o=[].slice.call(arguments,1);this.userEventsList&&void 0!==this.userEventsList[e]&&this.userEventsList[e].forEach(function(e){e&&e.apply(t,o)})}},{key:"play",value:function(e){var t=this;t.player&&("youtube"===t.type&&t.player.playVideo&&(void 0!==e&&t.player.seekTo(e||0),YT.PlayerState.PLAYING!==t.player.getPlayerState()&&t.player.playVideo()),"vimeo"===t.type&&(void 0!==e&&t.player.setCurrentTime(e),t.player.getPaused().then(function(e){e&&t.player.play()})),"local"===t.type&&(void 0!==e&&(t.player.currentTime=e),t.player.paused&&t.player.play()))}},{key:"pause",value:function(){var t=this;t.player&&("youtube"===t.type&&t.player.pauseVideo&&YT.PlayerState.PLAYING===t.player.getPlayerState()&&t.player.pauseVideo(),"vimeo"===t.type&&t.player.getPaused().then(function(e){e||t.player.pause()}),"local"===t.type&&(t.player.paused||t.player.pause()))}},{key:"mute",value:function(){var e=this;e.player&&("youtube"===e.type&&e.player.mute&&e.player.mute(),"vimeo"===e.type&&e.player.setVolume&&e.player.setVolume(0),"local"===e.type&&(e.$video.muted=!0))}},{key:"unmute",value:function(){var e=this;e.player&&("youtube"===e.type&&e.player.mute&&e.player.unMute(),"vimeo"===e.type&&e.player.setVolume&&e.player.setVolume(e.options.volume),"local"===e.type&&(e.$video.muted=!1))}},{key:"setVolume",value:function(){var e=0<arguments.length&&void 0!==arguments[0]&&arguments[0],t=this;t.player&&e&&("youtube"===t.type&&t.player.setVolume&&t.player.setVolume(e),"vimeo"===t.type&&t.player.setVolume&&t.player.setVolume(e),"local"===t.type&&(t.$video.volume=e/100))}},{key:"getVolume",value:function(t){var e=this;e.player?("youtube"===e.type&&e.player.getVolume&&t(e.player.getVolume()),"vimeo"===e.type&&e.player.getVolume&&e.player.getVolume().then(function(e){t(e)}),"local"===e.type&&t(100*e.$video.volume)):t(!1)}},{key:"getMuted",value:function(t){var e=this;e.player?("youtube"===e.type&&e.player.isMuted&&t(e.player.isMuted()),"vimeo"===e.type&&e.player.getVolume&&e.player.getVolume().then(function(e){t(!!e)}),"local"===e.type&&t(e.$video.muted)):t(null)}},{key:"getImageURL",value:function(t){var o=this;if(o.videoImage)t(o.videoImage);else{if("youtube"===o.type){var e=["maxresdefault","sddefault","hqdefault","0"],i=0,n=new Image;n.onload=function(){120!==(this.naturalWidth||this.width)||i===e.length-1?(o.videoImage="https://img.youtube.com/vi/"+o.videoID+"/"+e[i]+".jpg",t(o.videoImage)):(i++,this.src="https://img.youtube.com/vi/"+o.videoID+"/"+e[i]+".jpg")},n.src="https://img.youtube.com/vi/"+o.videoID+"/"+e[i]+".jpg"}if("vimeo"===o.type){var a=new XMLHttpRequest;a.open("GET","https://vimeo.com/api/v2/video/"+o.videoID+".json",!0),a.onreadystatechange=function(){if(4===this.readyState&&200<=this.status&&this.status<400){var e=JSON.parse(this.responseText);o.videoImage=e[0].thumbnail_large,t(o.videoImage)}},a.send(),a=null}}}},{key:"getIframe",value:function(e){this.getVideo(e)}},{key:"getVideo",value:function(u){var p=this;p.$video?u(p.$video):p.onAPIready(function(){var e=void 0;if(p.$video||((e=document.createElement("div")).style.display="none"),"youtube"===p.type){p.playerOptions={},p.playerOptions.videoId=p.videoID,p.playerOptions.playerVars={autohide:1,rel:0,autoplay:0,playsinline:1},p.options.showContols||(p.playerOptions.playerVars.iv_load_policy=3,p.playerOptions.playerVars.modestbranding=1,p.playerOptions.playerVars.controls=0,p.playerOptions.playerVars.showinfo=0,p.playerOptions.playerVars.disablekb=1);var t=void 0,o=void 0;p.playerOptions.events={onReady:function(t){if(p.options.mute?t.target.mute():p.options.volume&&t.target.setVolume(p.options.volume),p.options.autoplay&&p.play(p.options.startTime),p.fire("ready",t),p.options.loop&&!p.options.endTime){p.options.endTime=p.player.getDuration()-.1}setInterval(function(){p.getVolume(function(e){p.options.volume!==e&&(p.options.volume=e,p.fire("volumechange",t))})},150)},onStateChange:function(e){p.options.loop&&e.data===YT.PlayerState.ENDED&&p.play(p.options.startTime),t||e.data!==YT.PlayerState.PLAYING||(t=1,p.fire("started",e)),e.data===YT.PlayerState.PLAYING&&p.fire("play",e),e.data===YT.PlayerState.PAUSED&&p.fire("pause",e),e.data===YT.PlayerState.ENDED&&p.fire("ended",e),e.data===YT.PlayerState.PLAYING?o=setInterval(function(){p.fire("timeupdate",e),p.options.endTime&&p.player.getCurrentTime()>=p.options.endTime&&(p.options.loop?p.play(p.options.startTime):p.pause())},150):clearInterval(o)}};var i=!p.$video;if(i){var n=document.createElement("div");n.setAttribute("id",p.playerID),e.appendChild(n),document.body.appendChild(e)}p.player=p.player||new window.YT.Player(p.playerID,p.playerOptions),i&&(p.$video=document.getElementById(p.playerID),p.videoWidth=parseInt(p.$video.getAttribute("width"),10)||1280,p.videoHeight=parseInt(p.$video.getAttribute("height"),10)||720)}if("vimeo"===p.type){if(p.playerOptions={id:p.videoID,autopause:0,transparent:0,autoplay:p.options.autoplay?1:0,loop:p.options.loop?1:0,muted:p.options.mute?1:0},p.options.volume&&(p.playerOptions.volume=p.options.volume),p.options.showContols||(p.playerOptions.badge=0,p.playerOptions.byline=0,p.playerOptions.portrait=0,p.playerOptions.title=0),!p.$video){var a="";Object.keys(p.playerOptions).forEach(function(e){""!==a&&(a+="&"),a+=e+"="+encodeURIComponent(p.playerOptions[e])}),p.$video=document.createElement("iframe"),p.$video.setAttribute("id",p.playerID),p.$video.setAttribute("src","https://player.vimeo.com/video/"+p.videoID+"?"+a),p.$video.setAttribute("frameborder","0"),p.$video.setAttribute("mozallowfullscreen",""),p.$video.setAttribute("allowfullscreen",""),e.appendChild(p.$video),document.body.appendChild(e)}p.player=p.player||new Vimeo.Player(p.$video,p.playerOptions),p.options.startTime&&p.options.autoplay&&p.player.setCurrentTime(p.options.startTime),p.player.getVideoWidth().then(function(e){p.videoWidth=e||1280}),p.player.getVideoHeight().then(function(e){p.videoHeight=e||720});var r=void 0;p.player.on("timeupdate",function(e){r||(p.fire("started",e),r=1),p.fire("timeupdate",e),p.options.endTime&&p.options.endTime&&e.seconds>=p.options.endTime&&(p.options.loop?p.play(p.options.startTime):p.pause())}),p.player.on("play",function(e){p.fire("play",e),p.options.startTime&&0===e.seconds&&p.play(p.options.startTime)}),p.player.on("pause",function(e){p.fire("pause",e)}),p.player.on("ended",function(e){p.fire("ended",e)}),p.player.on("loaded",function(e){p.fire("ready",e)}),p.player.on("volumechange",function(e){p.fire("volumechange",e)})}if("local"===p.type){p.$video||(p.$video=document.createElement("video"),p.options.showContols&&(p.$video.controls=!0),p.options.mute?p.$video.muted=!0:p.$video.volume&&(p.$video.volume=p.options.volume/100),p.options.loop&&(p.$video.loop=!0),p.$video.setAttribute("playsinline",""),p.$video.setAttribute("webkit-playsinline",""),p.$video.setAttribute("id",p.playerID),e.appendChild(p.$video),document.body.appendChild(e),Object.keys(p.videoID).forEach(function(e){var t,o,i,n;t=p.$video,o=p.videoID[e],i="video/"+e,(n=document.createElement("source")).src=o,n.type=i,t.appendChild(n)})),p.player=p.player||p.$video;var l=void 0;p.player.addEventListener("playing",function(e){l||p.fire("started",e),l=1}),p.player.addEventListener("timeupdate",function(e){p.fire("timeupdate",e),p.options.endTime&&p.options.endTime&&this.currentTime>=p.options.endTime&&(p.options.loop?p.play(p.options.startTime):p.pause())}),p.player.addEventListener("play",function(e){p.fire("play",e)}),p.player.addEventListener("pause",function(e){p.fire("pause",e)}),p.player.addEventListener("ended",function(e){p.fire("ended",e)}),p.player.addEventListener("loadedmetadata",function(){p.videoWidth=this.videoWidth||1280,p.videoHeight=this.videoHeight||720,p.fire("ready"),p.options.autoplay&&p.play(p.options.startTime)}),p.player.addEventListener("volumechange",function(e){p.getVolume(function(e){p.options.volume=e}),p.fire("volumechange",e)})}u(p.$video)})}},{key:"init",value:function(){this.playerID="VideoWorker-"+this.ID}},{key:"loadAPI",value:function(){if(!l||!u){var e="";if("youtube"!==this.type||l||(l=1,e="https://www.youtube.com/iframe_api"),"vimeo"!==this.type||u||(u=1,e="https://player.vimeo.com/api/player.js"),e){var t=document.createElement("script"),o=document.getElementsByTagName("head")[0];t.src=e,o.appendChild(t),t=o=null}}}},{key:"onAPIready",value:function(e){if("youtube"===this.type&&("undefined"!=typeof YT&&0!==YT.loaded||p?"object"===("undefined"==typeof YT?"undefined":n(YT))&&1===YT.loaded?e():s.done(function(){e()}):(p=1,window.onYouTubeIframeAPIReady=function(){window.onYouTubeIframeAPIReady=null,s.resolve("done"),e()})),"vimeo"===this.type)if("undefined"!=typeof Vimeo||d)"undefined"!=typeof Vimeo?e():y.done(function(){e()});else{d=1;var t=setInterval(function(){"undefined"!=typeof Vimeo&&(clearInterval(t),y.resolve("done"),e())},20)}"local"===this.type&&e()}}]),i}();t.default=c},function(e,t,o){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.default=function(){var e=0<arguments.length&&void 0!==arguments[0]?arguments[0]:u.default.jarallax;if(void 0===e)return;var t=e.constructor,i=t.prototype.init;t.prototype.init=function(){var o=this;i.apply(o),o.video&&!o.options.disableVideo()&&o.video.getVideo(function(e){var t=e.parentNode;o.css(e,{position:o.image.position,top:"0px",left:"0px",right:"0px",bottom:"0px",width:"100%",height:"100%",maxWidth:"none",maxHeight:"none",margin:0,zIndex:-1}),o.$video=e,o.image.$container.appendChild(e),t.parentNode.removeChild(t)})};var l=t.prototype.coverImage;t.prototype.coverImage=function(){var e=this,t=l.apply(e),o=!!e.image.$item&&e.image.$item.nodeName;if(t&&e.video&&o&&("IFRAME"===o||"VIDEO"===o)){var i=t.image.height,n=i*e.image.width/e.image.height,a=(t.container.width-n)/2,r=t.image.marginTop;t.container.width>n&&(n=t.container.width,i=n*e.image.height/e.image.width,a=0,r+=(t.image.height-i)/2),"IFRAME"===o&&(i+=400,r-=200),e.css(e.$video,{width:n+"px",marginLeft:a+"px",height:i+"px",marginTop:r+"px"})}return t};var o=t.prototype.initImg;t.prototype.initImg=function(){var e=this,t=o.apply(e);return e.options.videoSrc||(e.options.videoSrc=e.$item.getAttribute("data-jarallax-video")||null),e.options.videoSrc?(e.defaultInitImgResult=t,!0):t};var n=t.prototype.canInitParallax;t.prototype.canInitParallax=function(){var o=this,e=n.apply(o);if(!o.options.videoSrc)return e;var t=new r.default(o.options.videoSrc,{autoplay:!0,loop:o.options.videoLoop,showContols:!1,startTime:o.options.videoStartTime||0,endTime:o.options.videoEndTime||0,mute:o.options.videoVolume?0:1,volume:o.options.videoVolume||0});if(t.isValid())if(e){if(t.on("ready",function(){if(o.options.videoPlayOnlyVisible){var e=o.onScroll;o.onScroll=function(){e.apply(o),(o.options.videoLoop||!o.options.videoLoop&&!o.videoEnded)&&(o.isVisible()?t.play():t.pause())}}else t.play()}),t.on("started",function(){o.image.$default_item=o.image.$item,o.image.$item=o.$video,o.image.width=o.video.videoWidth||1280,o.image.height=o.video.videoHeight||720,o.coverImage(),o.clipContainer(),o.onScroll(),o.image.$default_item&&(o.image.$default_item.style.display="none")}),t.on("ended",function(){o.videoEnded=!0,o.options.videoLoop||o.image.$default_item&&(o.image.$item=o.image.$default_item,o.image.$item.style.display="block",o.coverImage(),o.clipContainer(),o.onScroll())}),o.video=t,!o.defaultInitImgResult)return"local"!==t.type?(t.getImageURL(function(e){o.image.src=e,o.init()}),!1):(o.image.src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",!0)}else o.defaultInitImgResult||t.getImageURL(function(e){var t=o.$item.getAttribute("style");t&&o.$item.setAttribute("data-jarallax-original-styles",t),o.css(o.$item,{"background-image":'url("'+e+'")',"background-position":"center","background-size":"cover"})});return e};var a=t.prototype.destroy;t.prototype.destroy=function(){var e=this;e.image.$default_item&&(e.image.$item=e.image.$default_item,delete e.image.$default_item),a.apply(e)}};var r=i(o(8)),u=i(o(4));function i(e){return e&&e.__esModule?e:{default:e}}}]);
-//# sourceMappingURL=jarallax-video.min.js.map
-
-
-/***/ }),
-/* 56 */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-/**
- * Load required plugin.
- */
-window.Lity = __webpack_require__(57);
-
-/**
- * Configure the plugin.
- */
-
-+function($){
-  page.registerVendor('Lity');
-
-  page.initLity = function() {
-
-    $(document).on('click', '[data-provide~="lightbox"]', Lity);
-
-  }
-
-}(jQuery);
-
-
-
-
-
-/***/ }),
-/* 57 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*! Lity - v2.3.1 - 2018-04-20
-* http://sorgalla.com/lity/
-* Copyright (c) 2015-2018 Jan Sorgalla; Licensed MIT */
-(function(window, factory) {
-    if (true) {
-        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function($) {
-            return factory(window, $);
-        }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-    } else {}
-}(typeof window !== "undefined" ? window : this, function(window, $) {
-    'use strict';
-
-    var document = window.document;
-
-    var _win = $(window);
-    var _deferred = $.Deferred;
-    var _html = $('html');
-    var _instances = [];
-
-    var _attrAriaHidden = 'aria-hidden';
-    var _dataAriaHidden = 'lity-' + _attrAriaHidden;
-
-    var _focusableElementsSelector = 'a[href],area[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),button:not([disabled]),iframe,object,embed,[contenteditable],[tabindex]:not([tabindex^="-"])';
-
-    var _defaultOptions = {
-        esc: true,
-        handler: null,
-        handlers: {
-            image: imageHandler,
-            inline: inlineHandler,
-            youtube: youtubeHandler,
-            vimeo: vimeoHandler,
-            googlemaps: googlemapsHandler,
-            facebookvideo: facebookvideoHandler,
-            iframe: iframeHandler
-        },
-        template: '<div class="lity" role="dialog" aria-label="Dialog Window (Press escape to close)" tabindex="-1"><div class="lity-wrap" data-lity-close role="document"><div class="lity-loader" aria-hidden="true">Loading...</div><div class="lity-container"><div class="lity-content"></div><button class="lity-close" type="button" aria-label="Close (Press escape to close)" data-lity-close>&times;</button></div></div></div>'
-    };
-
-    var _imageRegexp = /(^data:image\/)|(\.(png|jpe?g|gif|svg|webp|bmp|ico|tiff?)(\?\S*)?$)/i;
-    var _youtubeRegex = /(youtube(-nocookie)?\.com|youtu\.be)\/(watch\?v=|v\/|u\/|embed\/?)?([\w-]{11})(.*)?/i;
-    var _vimeoRegex =  /(vimeo(pro)?.com)\/(?:[^\d]+)?(\d+)\??(.*)?$/;
-    var _googlemapsRegex = /((maps|www)\.)?google\.([^\/\?]+)\/?((maps\/?)?\?)(.*)/i;
-    var _facebookvideoRegex = /(facebook\.com)\/([a-z0-9_-]*)\/videos\/([0-9]*)(.*)?$/i;
-
-    var _transitionEndEvent = (function() {
-        var el = document.createElement('div');
-
-        var transEndEventNames = {
-            WebkitTransition: 'webkitTransitionEnd',
-            MozTransition: 'transitionend',
-            OTransition: 'oTransitionEnd otransitionend',
-            transition: 'transitionend'
-        };
-
-        for (var name in transEndEventNames) {
-            if (el.style[name] !== undefined) {
-                return transEndEventNames[name];
-            }
-        }
-
-        return false;
-    })();
-
-    function transitionEnd(element) {
-        var deferred = _deferred();
-
-        if (!_transitionEndEvent || !element.length) {
-            deferred.resolve();
-        } else {
-            element.one(_transitionEndEvent, deferred.resolve);
-            setTimeout(deferred.resolve, 500);
-        }
-
-        return deferred.promise();
-    }
-
-    function settings(currSettings, key, value) {
-        if (arguments.length === 1) {
-            return $.extend({}, currSettings);
-        }
-
-        if (typeof key === 'string') {
-            if (typeof value === 'undefined') {
-                return typeof currSettings[key] === 'undefined'
-                    ? null
-                    : currSettings[key];
-            }
-
-            currSettings[key] = value;
-        } else {
-            $.extend(currSettings, key);
-        }
-
-        return this;
-    }
-
-    function parseQueryParams(params) {
-        var pairs = decodeURI(params.split('#')[0]).split('&');
-        var obj = {}, p;
-
-        for (var i = 0, n = pairs.length; i < n; i++) {
-            if (!pairs[i]) {
-                continue;
-            }
-
-            p = pairs[i].split('=');
-            obj[p[0]] = p[1];
-        }
-
-        return obj;
-    }
-
-    function appendQueryParams(url, params) {
-        return url + (url.indexOf('?') > -1 ? '&' : '?') + $.param(params);
-    }
-
-    function transferHash(originalUrl, newUrl) {
-        var pos = originalUrl.indexOf('#');
-
-        if (-1 === pos) {
-            return newUrl;
-        }
-
-        if (pos > 0) {
-            originalUrl = originalUrl.substr(pos);
-        }
-
-        return newUrl + originalUrl;
-    }
-
-    function error(msg) {
-        return $('<span class="lity-error"/>').append(msg);
-    }
-
-    function imageHandler(target, instance) {
-        var desc = (instance.opener() && instance.opener().data('lity-desc')) || 'Image with no description';
-        var img = $('<img src="' + target + '" alt="' + desc + '"/>');
-        var deferred = _deferred();
-        var failed = function() {
-            deferred.reject(error('Failed loading image'));
-        };
-
-        img
-            .on('load', function() {
-                if (this.naturalWidth === 0) {
-                    return failed();
-                }
-
-                deferred.resolve(img);
-            })
-            .on('error', failed)
-        ;
-
-        return deferred.promise();
-    }
-
-    imageHandler.test = function(target) {
-        return _imageRegexp.test(target);
-    };
-
-    function inlineHandler(target, instance) {
-        var el, placeholder, hasHideClass;
-
-        try {
-            el = $(target);
-        } catch (e) {
-            return false;
-        }
-
-        if (!el.length) {
-            return false;
-        }
-
-        placeholder = $('<i style="display:none !important"/>');
-        hasHideClass = el.hasClass('lity-hide');
-
-        instance
-            .element()
-            .one('lity:remove', function() {
-                placeholder
-                    .before(el)
-                    .remove()
-                ;
-
-                if (hasHideClass && !el.closest('.lity-content').length) {
-                    el.addClass('lity-hide');
-                }
-            })
-        ;
-
-        return el
-            .removeClass('lity-hide')
-            .after(placeholder)
-        ;
-    }
-
-    function youtubeHandler(target) {
-        var matches = _youtubeRegex.exec(target);
-
-        if (!matches) {
-            return false;
-        }
-
-        return iframeHandler(
-            transferHash(
-                target,
-                appendQueryParams(
-                    'https://www.youtube' + (matches[2] || '') + '.com/embed/' + matches[4],
-                    $.extend(
-                        {
-                            autoplay: 1
-                        },
-                        parseQueryParams(matches[5] || '')
-                    )
-                )
-            )
-        );
-    }
-
-    function vimeoHandler(target) {
-        var matches = _vimeoRegex.exec(target);
-
-        if (!matches) {
-            return false;
-        }
-
-        return iframeHandler(
-            transferHash(
-                target,
-                appendQueryParams(
-                    'https://player.vimeo.com/video/' + matches[3],
-                    $.extend(
-                        {
-                            autoplay: 1
-                        },
-                        parseQueryParams(matches[4] || '')
-                    )
-                )
-            )
-        );
-    }
-
-    function facebookvideoHandler(target) {
-        var matches = _facebookvideoRegex.exec(target);
-
-        if (!matches) {
-            return false;
-        }
-
-        if (0 !== target.indexOf('http')) {
-            target = 'https:' + target;
-        }
-
-        return iframeHandler(
-            transferHash(
-                target,
-                appendQueryParams(
-                    'https://www.facebook.com/plugins/video.php?href=' + target,
-                    $.extend(
-                        {
-                            autoplay: 1
-                        },
-                        parseQueryParams(matches[4] || '')
-                    )
-                )
-            )
-        );
-    }
-
-    function googlemapsHandler(target) {
-        var matches = _googlemapsRegex.exec(target);
-
-        if (!matches) {
-            return false;
-        }
-
-        return iframeHandler(
-            transferHash(
-                target,
-                appendQueryParams(
-                    'https://www.google.' + matches[3] + '/maps?' + matches[6],
-                    {
-                        output: matches[6].indexOf('layer=c') > 0 ? 'svembed' : 'embed'
-                    }
-                )
-            )
-        );
-    }
-
-    function iframeHandler(target) {
-        return '<div class="lity-iframe-container"><iframe frameborder="0" allowfullscreen src="' + target + '"/></div>';
-    }
-
-    function winHeight() {
-        return document.documentElement.clientHeight
-            ? document.documentElement.clientHeight
-            : Math.round(_win.height());
-    }
-
-    function keydown(e) {
-        var current = currentInstance();
-
-        if (!current) {
-            return;
-        }
-
-        // ESC key
-        if (e.keyCode === 27 && !!current.options('esc')) {
-            current.close();
-        }
-
-        // TAB key
-        if (e.keyCode === 9) {
-            handleTabKey(e, current);
-        }
-    }
-
-    function handleTabKey(e, instance) {
-        var focusableElements = instance.element().find(_focusableElementsSelector);
-        var focusedIndex = focusableElements.index(document.activeElement);
-
-        if (e.shiftKey && focusedIndex <= 0) {
-            focusableElements.get(focusableElements.length - 1).focus();
-            e.preventDefault();
-        } else if (!e.shiftKey && focusedIndex === focusableElements.length - 1) {
-            focusableElements.get(0).focus();
-            e.preventDefault();
-        }
-    }
-
-    function resize() {
-        $.each(_instances, function(i, instance) {
-            instance.resize();
-        });
-    }
-
-    function registerInstance(instanceToRegister) {
-        if (1 === _instances.unshift(instanceToRegister)) {
-            _html.addClass('lity-active');
-
-            _win
-                .on({
-                    resize: resize,
-                    keydown: keydown
-                })
-            ;
-        }
-
-        $('body > *').not(instanceToRegister.element())
-            .addClass('lity-hidden')
-            .each(function() {
-                var el = $(this);
-
-                if (undefined !== el.data(_dataAriaHidden)) {
-                    return;
-                }
-
-                el.data(_dataAriaHidden, el.attr(_attrAriaHidden) || null);
-            })
-            .attr(_attrAriaHidden, 'true')
-        ;
-    }
-
-    function removeInstance(instanceToRemove) {
-        var show;
-
-        instanceToRemove
-            .element()
-            .attr(_attrAriaHidden, 'true')
-        ;
-
-        if (1 === _instances.length) {
-            _html.removeClass('lity-active');
-
-            _win
-                .off({
-                    resize: resize,
-                    keydown: keydown
-                })
-            ;
-        }
-
-        _instances = $.grep(_instances, function(instance) {
-            return instanceToRemove !== instance;
-        });
-
-        if (!!_instances.length) {
-            show = _instances[0].element();
-        } else {
-            show = $('.lity-hidden');
-        }
-
-        show
-            .removeClass('lity-hidden')
-            .each(function() {
-                var el = $(this), oldAttr = el.data(_dataAriaHidden);
-
-                if (!oldAttr) {
-                    el.removeAttr(_attrAriaHidden);
-                } else {
-                    el.attr(_attrAriaHidden, oldAttr);
-                }
-
-                el.removeData(_dataAriaHidden);
-            })
-        ;
-    }
-
-    function currentInstance() {
-        if (0 === _instances.length) {
-            return null;
-        }
-
-        return _instances[0];
-    }
-
-    function factory(target, instance, handlers, preferredHandler) {
-        var handler = 'inline', content;
-
-        var currentHandlers = $.extend({}, handlers);
-
-        if (preferredHandler && currentHandlers[preferredHandler]) {
-            content = currentHandlers[preferredHandler](target, instance);
-            handler = preferredHandler;
-        } else {
-            // Run inline and iframe handlers after all other handlers
-            $.each(['inline', 'iframe'], function(i, name) {
-                delete currentHandlers[name];
-
-                currentHandlers[name] = handlers[name];
-            });
-
-            $.each(currentHandlers, function(name, currentHandler) {
-                // Handler might be "removed" by setting callback to null
-                if (!currentHandler) {
-                    return true;
-                }
-
-                if (
-                    currentHandler.test &&
-                    !currentHandler.test(target, instance)
-                ) {
-                    return true;
-                }
-
-                content = currentHandler(target, instance);
-
-                if (false !== content) {
-                    handler = name;
-                    return false;
-                }
-            });
-        }
-
-        return {handler: handler, content: content || ''};
-    }
-
-    function Lity(target, options, opener, activeElement) {
-        var self = this;
-        var result;
-        var isReady = false;
-        var isClosed = false;
-        var element;
-        var content;
-
-        options = $.extend(
-            {},
-            _defaultOptions,
-            options
-        );
-
-        element = $(options.template);
-
-        // -- API --
-
-        self.element = function() {
-            return element;
-        };
-
-        self.opener = function() {
-            return opener;
-        };
-
-        self.options  = $.proxy(settings, self, options);
-        self.handlers = $.proxy(settings, self, options.handlers);
-
-        self.resize = function() {
-            if (!isReady || isClosed) {
-                return;
-            }
-
-            content
-                .css('max-height', winHeight() + 'px')
-                .trigger('lity:resize', [self])
-            ;
-        };
-
-        self.close = function() {
-            if (!isReady || isClosed) {
-                return;
-            }
-
-            isClosed = true;
-
-            removeInstance(self);
-
-            var deferred = _deferred();
-
-            // We return focus only if the current focus is inside this instance
-            if (
-                activeElement &&
-                (
-                    document.activeElement === element[0] ||
-                    $.contains(element[0], document.activeElement)
-                )
-            ) {
-                try {
-                    activeElement.focus();
-                } catch (e) {
-                    // Ignore exceptions, eg. for SVG elements which can't be
-                    // focused in IE11
-                }
-            }
-
-            content.trigger('lity:close', [self]);
-
-            element
-                .removeClass('lity-opened')
-                .addClass('lity-closed')
-            ;
-
-            transitionEnd(content.add(element))
-                .always(function() {
-                    content.trigger('lity:remove', [self]);
-                    element.remove();
-                    element = undefined;
-                    deferred.resolve();
-                })
-            ;
-
-            return deferred.promise();
-        };
-
-        // -- Initialization --
-
-        result = factory(target, self, options.handlers, options.handler);
-
-        element
-            .attr(_attrAriaHidden, 'false')
-            .addClass('lity-loading lity-opened lity-' + result.handler)
-            .appendTo('body')
-            .focus()
-            .on('click', '[data-lity-close]', function(e) {
-                if ($(e.target).is('[data-lity-close]')) {
-                    self.close();
-                }
-            })
-            .trigger('lity:open', [self])
-        ;
-
-        registerInstance(self);
-
-        $.when(result.content)
-            .always(ready)
-        ;
-
-        function ready(result) {
-            content = $(result)
-                .css('max-height', winHeight() + 'px')
-            ;
-
-            element
-                .find('.lity-loader')
-                .each(function() {
-                    var loader = $(this);
-
-                    transitionEnd(loader)
-                        .always(function() {
-                            loader.remove();
-                        })
-                    ;
-                })
-            ;
-
-            element
-                .removeClass('lity-loading')
-                .find('.lity-content')
-                .empty()
-                .append(content)
-            ;
-
-            isReady = true;
-
-            content
-                .trigger('lity:ready', [self])
-            ;
-        }
-    }
-
-    function lity(target, options, opener) {
-        if (!target.preventDefault) {
-            opener = $(opener);
-        } else {
-            target.preventDefault();
-            opener = $(this);
-            target = opener.data('lity-target') || opener.attr('href') || opener.attr('src');
-        }
-
-        var instance = new Lity(
-            target,
-            $.extend(
-                {},
-                opener.data('lity-options') || opener.data('lity'),
-                options
-            ),
-            opener,
-            document.activeElement
-        );
-
-        if (!target.preventDefault) {
-            return instance;
-        }
-    }
-
-    lity.version  = '2.3.1';
-    lity.options  = $.proxy(settings, lity, _defaultOptions);
-    lity.handlers = $.proxy(settings, lity, _defaultOptions.handlers);
-    lity.current  = currentInstance;
-
-    $(document).on('click.lity', '[data-lity]', lity);
-
-    return lity;
-}));
-
-
-/***/ }),
-/* 58 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Load required plugin.
- */
-__webpack_require__(59);
-
-/**
- * Configure the plugin.
- */
-
-+(function($) {
-  page.registerVendor('PhotoSwipe');
-
-  page.initPhotoSwipe = function() {
-    $('[data-provide="photoswipe"]').each(function() {
-      var tag = $(this),
-        selector = tag.dataAttr('photoswipe-selector', '.gallery-item');
-
-      var options = {
-        closeEl: true,
-      };
-      options = $.extend(options, page.getDataOptions(tag));
-
-      $(tag).photoSwipe(selector, options);
-    });
-  };
-})(jQuery);
-
-
-/***/ }),
-/* 59 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var require;var require;var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return require(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-/*! PhotoSwipe - v4.1.1 - 2015-12-24
-* http://photoswipe.com
-* Copyright (c) 2015 Dmitry Semenov; */
-(function (root, factory) { 
-	if (true) {
-		!(__WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
-				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
-				(__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) :
-				__WEBPACK_AMD_DEFINE_FACTORY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	} else {}
-})(this, function () {
-
-	'use strict';
-	var PhotoSwipe = function(template, UiClass, items, options){
-
-/*>>framework-bridge*/
-/**
- *
- * Set of generic functions used by gallery.
- * 
- * You're free to modify anything here as long as functionality is kept.
- * 
- */
-var framework = {
-	features: null,
-	bind: function(target, type, listener, unbind) {
-		var methodName = (unbind ? 'remove' : 'add') + 'EventListener';
-		type = type.split(' ');
-		for(var i = 0; i < type.length; i++) {
-			if(type[i]) {
-				target[methodName]( type[i], listener, false);
-			}
-		}
-	},
-	isArray: function(obj) {
-		return (obj instanceof Array);
-	},
-	createEl: function(classes, tag) {
-		var el = document.createElement(tag || 'div');
-		if(classes) {
-			el.className = classes;
-		}
-		return el;
-	},
-	getScrollY: function() {
-		var yOffset = window.pageYOffset;
-		return yOffset !== undefined ? yOffset : document.documentElement.scrollTop;
-	},
-	unbind: function(target, type, listener) {
-		framework.bind(target,type,listener,true);
-	},
-	removeClass: function(el, className) {
-		var reg = new RegExp('(\\s|^)' + className + '(\\s|$)');
-		el.className = el.className.replace(reg, ' ').replace(/^\s\s*/, '').replace(/\s\s*$/, ''); 
-	},
-	addClass: function(el, className) {
-		if( !framework.hasClass(el,className) ) {
-			el.className += (el.className ? ' ' : '') + className;
-		}
-	},
-	hasClass: function(el, className) {
-		return el.className && new RegExp('(^|\\s)' + className + '(\\s|$)').test(el.className);
-	},
-	getChildByClass: function(parentEl, childClassName) {
-		var node = parentEl.firstChild;
-		while(node) {
-			if( framework.hasClass(node, childClassName) ) {
-				return node;
-			}
-			node = node.nextSibling;
-		}
-	},
-	arraySearch: function(array, value, key) {
-		var i = array.length;
-		while(i--) {
-			if(array[i][key] === value) {
-				return i;
-			} 
-		}
-		return -1;
-	},
-	extend: function(o1, o2, preventOverwrite) {
-		for (var prop in o2) {
-			if (o2.hasOwnProperty(prop)) {
-				if(preventOverwrite && o1.hasOwnProperty(prop)) {
-					continue;
-				}
-				o1[prop] = o2[prop];
-			}
-		}
-	},
-	easing: {
-		sine: {
-			out: function(k) {
-				return Math.sin(k * (Math.PI / 2));
-			},
-			inOut: function(k) {
-				return - (Math.cos(Math.PI * k) - 1) / 2;
-			}
-		},
-		cubic: {
-			out: function(k) {
-				return --k * k * k + 1;
-			}
-		}
-		/*
-			elastic: {
-				out: function ( k ) {
-
-					var s, a = 0.1, p = 0.4;
-					if ( k === 0 ) return 0;
-					if ( k === 1 ) return 1;
-					if ( !a || a < 1 ) { a = 1; s = p / 4; }
-					else s = p * Math.asin( 1 / a ) / ( 2 * Math.PI );
-					return ( a * Math.pow( 2, - 10 * k) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) + 1 );
-
-				},
-			},
-			back: {
-				out: function ( k ) {
-					var s = 1.70158;
-					return --k * k * ( ( s + 1 ) * k + s ) + 1;
-				}
-			}
-		*/
-	},
-
-	/**
-	 * 
-	 * @return {object}
-	 * 
-	 * {
-	 *  raf : request animation frame function
-	 *  caf : cancel animation frame function
-	 *  transfrom : transform property key (with vendor), or null if not supported
-	 *  oldIE : IE8 or below
-	 * }
-	 * 
-	 */
-	detectFeatures: function() {
-		if(framework.features) {
-			return framework.features;
-		}
-		var helperEl = framework.createEl(),
-			helperStyle = helperEl.style,
-			vendor = '',
-			features = {};
-
-		// IE8 and below
-		features.oldIE = document.all && !document.addEventListener;
-
-		features.touch = 'ontouchstart' in window;
-
-		if(window.requestAnimationFrame) {
-			features.raf = window.requestAnimationFrame;
-			features.caf = window.cancelAnimationFrame;
-		}
-
-		features.pointerEvent = navigator.pointerEnabled || navigator.msPointerEnabled;
-
-		// fix false-positive detection of old Android in new IE
-		// (IE11 ua string contains "Android 4.0")
-		
-		if(!features.pointerEvent) { 
-
-			var ua = navigator.userAgent;
-
-			// Detect if device is iPhone or iPod and if it's older than iOS 8
-			// http://stackoverflow.com/a/14223920
-			// 
-			// This detection is made because of buggy top/bottom toolbars
-			// that don't trigger window.resize event.
-			// For more info refer to _isFixedPosition variable in core.js
-
-			if (/iP(hone|od)/.test(navigator.platform)) {
-				var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
-				if(v && v.length > 0) {
-					v = parseInt(v[1], 10);
-					if(v >= 1 && v < 8 ) {
-						features.isOldIOSPhone = true;
-					}
-				}
-			}
-
-			// Detect old Android (before KitKat)
-			// due to bugs related to position:fixed
-			// http://stackoverflow.com/questions/7184573/pick-up-the-android-version-in-the-browser-by-javascript
-			
-			var match = ua.match(/Android\s([0-9\.]*)/);
-			var androidversion =  match ? match[1] : 0;
-			androidversion = parseFloat(androidversion);
-			if(androidversion >= 1 ) {
-				if(androidversion < 4.4) {
-					features.isOldAndroid = true; // for fixed position bug & performance
-				}
-				features.androidVersion = androidversion; // for touchend bug
-			}	
-			features.isMobileOpera = /opera mini|opera mobi/i.test(ua);
-
-			// p.s. yes, yes, UA sniffing is bad, propose your solution for above bugs.
-		}
-		
-		var styleChecks = ['transform', 'perspective', 'animationName'],
-			vendors = ['', 'webkit','Moz','ms','O'],
-			styleCheckItem,
-			styleName;
-
-		for(var i = 0; i < 4; i++) {
-			vendor = vendors[i];
-
-			for(var a = 0; a < 3; a++) {
-				styleCheckItem = styleChecks[a];
-
-				// uppercase first letter of property name, if vendor is present
-				styleName = vendor + (vendor ? 
-										styleCheckItem.charAt(0).toUpperCase() + styleCheckItem.slice(1) : 
-										styleCheckItem);
-			
-				if(!features[styleCheckItem] && styleName in helperStyle ) {
-					features[styleCheckItem] = styleName;
-				}
-			}
-
-			if(vendor && !features.raf) {
-				vendor = vendor.toLowerCase();
-				features.raf = window[vendor+'RequestAnimationFrame'];
-				if(features.raf) {
-					features.caf = window[vendor+'CancelAnimationFrame'] || 
-									window[vendor+'CancelRequestAnimationFrame'];
-				}
-			}
-		}
-			
-		if(!features.raf) {
-			var lastTime = 0;
-			features.raf = function(fn) {
-				var currTime = new Date().getTime();
-				var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-				var id = window.setTimeout(function() { fn(currTime + timeToCall); }, timeToCall);
-				lastTime = currTime + timeToCall;
-				return id;
-			};
-			features.caf = function(id) { clearTimeout(id); };
-		}
-
-		// Detect SVG support
-		features.svg = !!document.createElementNS && 
-						!!document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGRect;
-
-		framework.features = features;
-
-		return features;
-	}
-};
-
-framework.detectFeatures();
-
-// Override addEventListener for old versions of IE
-if(framework.features.oldIE) {
-
-	framework.bind = function(target, type, listener, unbind) {
-		
-		type = type.split(' ');
-
-		var methodName = (unbind ? 'detach' : 'attach') + 'Event',
-			evName,
-			_handleEv = function() {
-				listener.handleEvent.call(listener);
-			};
-
-		for(var i = 0; i < type.length; i++) {
-			evName = type[i];
-			if(evName) {
-
-				if(typeof listener === 'object' && listener.handleEvent) {
-					if(!unbind) {
-						listener['oldIE' + evName] = _handleEv;
-					} else {
-						if(!listener['oldIE' + evName]) {
-							return false;
-						}
-					}
-
-					target[methodName]( 'on' + evName, listener['oldIE' + evName]);
-				} else {
-					target[methodName]( 'on' + evName, listener);
-				}
-
-			}
-		}
-	};
-	
-}
-
-/*>>framework-bridge*/
-
-/*>>core*/
-//function(template, UiClass, items, options)
-
-var self = this;
-
-/**
- * Static vars, don't change unless you know what you're doing.
- */
-var DOUBLE_TAP_RADIUS = 25, 
-	NUM_HOLDERS = 3;
-
-/**
- * Options
- */
-var _options = {
-	allowPanToNext:true,
-	spacing: 0.12,
-	bgOpacity: 1,
-	mouseUsed: false,
-	loop: true,
-	pinchToClose: true,
-	closeOnScroll: true,
-	closeOnVerticalDrag: true,
-	verticalDragRange: 0.75,
-	hideAnimationDuration: 333,
-	showAnimationDuration: 333,
-	showHideOpacity: false,
-	focus: true,
-	escKey: true,
-	arrowKeys: true,
-	mainScrollEndFriction: 0.35,
-	panEndFriction: 0.35,
-	isClickableElement: function(el) {
-        return el.tagName === 'A';
-    },
-    getDoubleTapZoom: function(isMouseClick, item) {
-    	if(isMouseClick) {
-    		return 1;
-    	} else {
-    		return item.initialZoomLevel < 0.7 ? 1 : 1.33;
-    	}
-    },
-    maxSpreadZoom: 1.33,
-	modal: true,
-
-	// not fully implemented yet
-	scaleMode: 'fit' // TODO
-};
-framework.extend(_options, options);
-
-
-/**
- * Private helper variables & functions
- */
-
-var _getEmptyPoint = function() { 
-		return {x:0,y:0}; 
-	};
-
-var _isOpen,
-	_isDestroying,
-	_closedByScroll,
-	_currentItemIndex,
-	_containerStyle,
-	_containerShiftIndex,
-	_currPanDist = _getEmptyPoint(),
-	_startPanOffset = _getEmptyPoint(),
-	_panOffset = _getEmptyPoint(),
-	_upMoveEvents, // drag move, drag end & drag cancel events array
-	_downEvents, // drag start events array
-	_globalEventHandlers,
-	_viewportSize = {},
-	_currZoomLevel,
-	_startZoomLevel,
-	_translatePrefix,
-	_translateSufix,
-	_updateSizeInterval,
-	_itemsNeedUpdate,
-	_currPositionIndex = 0,
-	_offset = {},
-	_slideSize = _getEmptyPoint(), // size of slide area, including spacing
-	_itemHolders,
-	_prevItemIndex,
-	_indexDiff = 0, // difference of indexes since last content update
-	_dragStartEvent,
-	_dragMoveEvent,
-	_dragEndEvent,
-	_dragCancelEvent,
-	_transformKey,
-	_pointerEventEnabled,
-	_isFixedPosition = true,
-	_likelyTouchDevice,
-	_modules = [],
-	_requestAF,
-	_cancelAF,
-	_initalClassName,
-	_initalWindowScrollY,
-	_oldIE,
-	_currentWindowScrollY,
-	_features,
-	_windowVisibleSize = {},
-	_renderMaxResolution = false,
-
-	// Registers PhotoSWipe module (History, Controller ...)
-	_registerModule = function(name, module) {
-		framework.extend(self, module.publicMethods);
-		_modules.push(name);
-	},
-
-	_getLoopedId = function(index) {
-		var numSlides = _getNumItems();
-		if(index > numSlides - 1) {
-			return index - numSlides;
-		} else  if(index < 0) {
-			return numSlides + index;
-		}
-		return index;
-	},
-	
-	// Micro bind/trigger
-	_listeners = {},
-	_listen = function(name, fn) {
-		if(!_listeners[name]) {
-			_listeners[name] = [];
-		}
-		return _listeners[name].push(fn);
-	},
-	_shout = function(name) {
-		var listeners = _listeners[name];
-
-		if(listeners) {
-			var args = Array.prototype.slice.call(arguments);
-			args.shift();
-
-			for(var i = 0; i < listeners.length; i++) {
-				listeners[i].apply(self, args);
-			}
-		}
-	},
-
-	_getCurrentTime = function() {
-		return new Date().getTime();
-	},
-	_applyBgOpacity = function(opacity) {
-		_bgOpacity = opacity;
-		self.bg.style.opacity = opacity * _options.bgOpacity;
-	},
-
-	_applyZoomTransform = function(styleObj,x,y,zoom,item) {
-		if(!_renderMaxResolution || (item && item !== self.currItem) ) {
-			zoom = zoom / (item ? item.fitRatio : self.currItem.fitRatio);	
-		}
-			
-		styleObj[_transformKey] = _translatePrefix + x + 'px, ' + y + 'px' + _translateSufix + ' scale(' + zoom + ')';
-	},
-	_applyCurrentZoomPan = function( allowRenderResolution ) {
-		if(_currZoomElementStyle) {
-
-			if(allowRenderResolution) {
-				if(_currZoomLevel > self.currItem.fitRatio) {
-					if(!_renderMaxResolution) {
-						_setImageSize(self.currItem, false, true);
-						_renderMaxResolution = true;
-					}
-				} else {
-					if(_renderMaxResolution) {
-						_setImageSize(self.currItem);
-						_renderMaxResolution = false;
-					}
-				}
-			}
-			
-
-			_applyZoomTransform(_currZoomElementStyle, _panOffset.x, _panOffset.y, _currZoomLevel);
-		}
-	},
-	_applyZoomPanToItem = function(item) {
-		if(item.container) {
-
-			_applyZoomTransform(item.container.style, 
-								item.initialPosition.x, 
-								item.initialPosition.y, 
-								item.initialZoomLevel,
-								item);
-		}
-	},
-	_setTranslateX = function(x, elStyle) {
-		elStyle[_transformKey] = _translatePrefix + x + 'px, 0px' + _translateSufix;
-	},
-	_moveMainScroll = function(x, dragging) {
-
-		if(!_options.loop && dragging) {
-			var newSlideIndexOffset = _currentItemIndex + (_slideSize.x * _currPositionIndex - x) / _slideSize.x,
-				delta = Math.round(x - _mainScrollPos.x);
-
-			if( (newSlideIndexOffset < 0 && delta > 0) || 
-				(newSlideIndexOffset >= _getNumItems() - 1 && delta < 0) ) {
-				x = _mainScrollPos.x + delta * _options.mainScrollEndFriction;
-			} 
-		}
-		
-		_mainScrollPos.x = x;
-		_setTranslateX(x, _containerStyle);
-	},
-	_calculatePanOffset = function(axis, zoomLevel) {
-		var m = _midZoomPoint[axis] - _offset[axis];
-		return _startPanOffset[axis] + _currPanDist[axis] + m - m * ( zoomLevel / _startZoomLevel );
-	},
-	
-	_equalizePoints = function(p1, p2) {
-		p1.x = p2.x;
-		p1.y = p2.y;
-		if(p2.id) {
-			p1.id = p2.id;
-		}
-	},
-	_roundPoint = function(p) {
-		p.x = Math.round(p.x);
-		p.y = Math.round(p.y);
-	},
-
-	_mouseMoveTimeout = null,
-	_onFirstMouseMove = function() {
-		// Wait until mouse move event is fired at least twice during 100ms
-		// We do this, because some mobile browsers trigger it on touchstart
-		if(_mouseMoveTimeout ) { 
-			framework.unbind(document, 'mousemove', _onFirstMouseMove);
-			framework.addClass(template, 'pswp--has_mouse');
-			_options.mouseUsed = true;
-			_shout('mouseUsed');
-		}
-		_mouseMoveTimeout = setTimeout(function() {
-			_mouseMoveTimeout = null;
-		}, 100);
-	},
-
-	_bindEvents = function() {
-		framework.bind(document, 'keydown', self);
-
-		if(_features.transform) {
-			// don't bind click event in browsers that don't support transform (mostly IE8)
-			framework.bind(self.scrollWrap, 'click', self);
-		}
-		
-
-		if(!_options.mouseUsed) {
-			framework.bind(document, 'mousemove', _onFirstMouseMove);
-		}
-
-		framework.bind(window, 'resize scroll', self);
-
-		_shout('bindEvents');
-	},
-
-	_unbindEvents = function() {
-		framework.unbind(window, 'resize', self);
-		framework.unbind(window, 'scroll', _globalEventHandlers.scroll);
-		framework.unbind(document, 'keydown', self);
-		framework.unbind(document, 'mousemove', _onFirstMouseMove);
-
-		if(_features.transform) {
-			framework.unbind(self.scrollWrap, 'click', self);
-		}
-
-		if(_isDragging) {
-			framework.unbind(window, _upMoveEvents, self);
-		}
-
-		_shout('unbindEvents');
-	},
-	
-	_calculatePanBounds = function(zoomLevel, update) {
-		var bounds = _calculateItemSize( self.currItem, _viewportSize, zoomLevel );
-		if(update) {
-			_currPanBounds = bounds;
-		}
-		return bounds;
-	},
-	
-	_getMinZoomLevel = function(item) {
-		if(!item) {
-			item = self.currItem;
-		}
-		return item.initialZoomLevel;
-	},
-	_getMaxZoomLevel = function(item) {
-		if(!item) {
-			item = self.currItem;
-		}
-		return item.w > 0 ? _options.maxSpreadZoom : 1;
-	},
-
-	// Return true if offset is out of the bounds
-	_modifyDestPanOffset = function(axis, destPanBounds, destPanOffset, destZoomLevel) {
-		if(destZoomLevel === self.currItem.initialZoomLevel) {
-			destPanOffset[axis] = self.currItem.initialPosition[axis];
-			return true;
-		} else {
-			destPanOffset[axis] = _calculatePanOffset(axis, destZoomLevel); 
-
-			if(destPanOffset[axis] > destPanBounds.min[axis]) {
-				destPanOffset[axis] = destPanBounds.min[axis];
-				return true;
-			} else if(destPanOffset[axis] < destPanBounds.max[axis] ) {
-				destPanOffset[axis] = destPanBounds.max[axis];
-				return true;
-			}
-		}
-		return false;
-	},
-
-	_setupTransforms = function() {
-
-		if(_transformKey) {
-			// setup 3d transforms
-			var allow3dTransform = _features.perspective && !_likelyTouchDevice;
-			_translatePrefix = 'translate' + (allow3dTransform ? '3d(' : '(');
-			_translateSufix = _features.perspective ? ', 0px)' : ')';	
-			return;
-		}
-
-		// Override zoom/pan/move functions in case old browser is used (most likely IE)
-		// (so they use left/top/width/height, instead of CSS transform)
-	
-		_transformKey = 'left';
-		framework.addClass(template, 'pswp--ie');
-
-		_setTranslateX = function(x, elStyle) {
-			elStyle.left = x + 'px';
-		};
-		_applyZoomPanToItem = function(item) {
-
-			var zoomRatio = item.fitRatio > 1 ? 1 : item.fitRatio,
-				s = item.container.style,
-				w = zoomRatio * item.w,
-				h = zoomRatio * item.h;
-
-			s.width = w + 'px';
-			s.height = h + 'px';
-			s.left = item.initialPosition.x + 'px';
-			s.top = item.initialPosition.y + 'px';
-
-		};
-		_applyCurrentZoomPan = function() {
-			if(_currZoomElementStyle) {
-
-				var s = _currZoomElementStyle,
-					item = self.currItem,
-					zoomRatio = item.fitRatio > 1 ? 1 : item.fitRatio,
-					w = zoomRatio * item.w,
-					h = zoomRatio * item.h;
-
-				s.width = w + 'px';
-				s.height = h + 'px';
-
-
-				s.left = _panOffset.x + 'px';
-				s.top = _panOffset.y + 'px';
-			}
-			
-		};
-	},
-
-	_onKeyDown = function(e) {
-		var keydownAction = '';
-		if(_options.escKey && e.keyCode === 27) { 
-			keydownAction = 'close';
-		} else if(_options.arrowKeys) {
-			if(e.keyCode === 37) {
-				keydownAction = 'prev';
-			} else if(e.keyCode === 39) { 
-				keydownAction = 'next';
-			}
-		}
-
-		if(keydownAction) {
-			// don't do anything if special key pressed to prevent from overriding default browser actions
-			// e.g. in Chrome on Mac cmd+arrow-left returns to previous page
-			if( !e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey ) {
-				if(e.preventDefault) {
-					e.preventDefault();
-				} else {
-					e.returnValue = false;
-				} 
-				self[keydownAction]();
-			}
-		}
-	},
-
-	_onGlobalClick = function(e) {
-		if(!e) {
-			return;
-		}
-
-		// don't allow click event to pass through when triggering after drag or some other gesture
-		if(_moved || _zoomStarted || _mainScrollAnimating || _verticalDragInitiated) {
-			e.preventDefault();
-			e.stopPropagation();
-		}
-	},
-
-	_updatePageScrollOffset = function() {
-		self.setScrollOffset(0, framework.getScrollY());		
-	};
-	
-
-
-	
-
-
-
-// Micro animation engine
-var _animations = {},
-	_numAnimations = 0,
-	_stopAnimation = function(name) {
-		if(_animations[name]) {
-			if(_animations[name].raf) {
-				_cancelAF( _animations[name].raf );
-			}
-			_numAnimations--;
-			delete _animations[name];
-		}
-	},
-	_registerStartAnimation = function(name) {
-		if(_animations[name]) {
-			_stopAnimation(name);
-		}
-		if(!_animations[name]) {
-			_numAnimations++;
-			_animations[name] = {};
-		}
-	},
-	_stopAllAnimations = function() {
-		for (var prop in _animations) {
-
-			if( _animations.hasOwnProperty( prop ) ) {
-				_stopAnimation(prop);
-			} 
-			
-		}
-	},
-	_animateProp = function(name, b, endProp, d, easingFn, onUpdate, onComplete) {
-		var startAnimTime = _getCurrentTime(), t;
-		_registerStartAnimation(name);
-
-		var animloop = function(){
-			if ( _animations[name] ) {
-				
-				t = _getCurrentTime() - startAnimTime; // time diff
-				//b - beginning (start prop)
-				//d - anim duration
-
-				if ( t >= d ) {
-					_stopAnimation(name);
-					onUpdate(endProp);
-					if(onComplete) {
-						onComplete();
-					}
-					return;
-				}
-				onUpdate( (endProp - b) * easingFn(t/d) + b );
-
-				_animations[name].raf = _requestAF(animloop);
-			}
-		};
-		animloop();
-	};
-	
-
-
-var publicMethods = {
-
-	// make a few local variables and functions public
-	shout: _shout,
-	listen: _listen,
-	viewportSize: _viewportSize,
-	options: _options,
-
-	isMainScrollAnimating: function() {
-		return _mainScrollAnimating;
-	},
-	getZoomLevel: function() {
-		return _currZoomLevel;
-	},
-	getCurrentIndex: function() {
-		return _currentItemIndex;
-	},
-	isDragging: function() {
-		return _isDragging;
-	},	
-	isZooming: function() {
-		return _isZooming;
-	},
-	setScrollOffset: function(x,y) {
-		_offset.x = x;
-		_currentWindowScrollY = _offset.y = y;
-		_shout('updateScrollOffset', _offset);
-	},
-	applyZoomPan: function(zoomLevel,panX,panY,allowRenderResolution) {
-		_panOffset.x = panX;
-		_panOffset.y = panY;
-		_currZoomLevel = zoomLevel;
-		_applyCurrentZoomPan( allowRenderResolution );
-	},
-
-	init: function() {
-
-		if(_isOpen || _isDestroying) {
-			return;
-		}
-
-		var i;
-
-		self.framework = framework; // basic functionality
-		self.template = template; // root DOM element of PhotoSwipe
-		self.bg = framework.getChildByClass(template, 'pswp__bg');
-
-		_initalClassName = template.className;
-		_isOpen = true;
-				
-		_features = framework.detectFeatures();
-		_requestAF = _features.raf;
-		_cancelAF = _features.caf;
-		_transformKey = _features.transform;
-		_oldIE = _features.oldIE;
-		
-		self.scrollWrap = framework.getChildByClass(template, 'pswp__scroll-wrap');
-		self.container = framework.getChildByClass(self.scrollWrap, 'pswp__container');
-
-		_containerStyle = self.container.style; // for fast access
-
-		// Objects that hold slides (there are only 3 in DOM)
-		self.itemHolders = _itemHolders = [
-			{el:self.container.children[0] , wrap:0, index: -1},
-			{el:self.container.children[1] , wrap:0, index: -1},
-			{el:self.container.children[2] , wrap:0, index: -1}
-		];
-
-		// hide nearby item holders until initial zoom animation finishes (to avoid extra Paints)
-		_itemHolders[0].el.style.display = _itemHolders[2].el.style.display = 'none';
-
-		_setupTransforms();
-
-		// Setup global events
-		_globalEventHandlers = {
-			resize: self.updateSize,
-			scroll: _updatePageScrollOffset,
-			keydown: _onKeyDown,
-			click: _onGlobalClick
-		};
-
-		// disable show/hide effects on old browsers that don't support CSS animations or transforms, 
-		// old IOS, Android and Opera mobile. Blackberry seems to work fine, even older models.
-		var oldPhone = _features.isOldIOSPhone || _features.isOldAndroid || _features.isMobileOpera;
-		if(!_features.animationName || !_features.transform || oldPhone) {
-			_options.showAnimationDuration = _options.hideAnimationDuration = 0;
-		}
-
-		// init modules
-		for(i = 0; i < _modules.length; i++) {
-			self['init' + _modules[i]]();
-		}
-		
-		// init
-		if(UiClass) {
-			var ui = self.ui = new UiClass(self, framework);
-			ui.init();
-		}
-
-		_shout('firstUpdate');
-		_currentItemIndex = _currentItemIndex || _options.index || 0;
-		// validate index
-		if( isNaN(_currentItemIndex) || _currentItemIndex < 0 || _currentItemIndex >= _getNumItems() ) {
-			_currentItemIndex = 0;
-		}
-		self.currItem = _getItemAt( _currentItemIndex );
-
-		
-		if(_features.isOldIOSPhone || _features.isOldAndroid) {
-			_isFixedPosition = false;
-		}
-		
-		template.setAttribute('aria-hidden', 'false');
-		if(_options.modal) {
-			if(!_isFixedPosition) {
-				template.style.position = 'absolute';
-				template.style.top = framework.getScrollY() + 'px';
-			} else {
-				template.style.position = 'fixed';
-			}
-		}
-
-		if(_currentWindowScrollY === undefined) {
-			_shout('initialLayout');
-			_currentWindowScrollY = _initalWindowScrollY = framework.getScrollY();
-		}
-		
-		// add classes to root element of PhotoSwipe
-		var rootClasses = 'pswp--open ';
-		if(_options.mainClass) {
-			rootClasses += _options.mainClass + ' ';
-		}
-		if(_options.showHideOpacity) {
-			rootClasses += 'pswp--animate_opacity ';
-		}
-		rootClasses += _likelyTouchDevice ? 'pswp--touch' : 'pswp--notouch';
-		rootClasses += _features.animationName ? ' pswp--css_animation' : '';
-		rootClasses += _features.svg ? ' pswp--svg' : '';
-		framework.addClass(template, rootClasses);
-
-		self.updateSize();
-
-		// initial update
-		_containerShiftIndex = -1;
-		_indexDiff = null;
-		for(i = 0; i < NUM_HOLDERS; i++) {
-			_setTranslateX( (i+_containerShiftIndex) * _slideSize.x, _itemHolders[i].el.style);
-		}
-
-		if(!_oldIE) {
-			framework.bind(self.scrollWrap, _downEvents, self); // no dragging for old IE
-		}	
-
-		_listen('initialZoomInEnd', function() {
-			self.setContent(_itemHolders[0], _currentItemIndex-1);
-			self.setContent(_itemHolders[2], _currentItemIndex+1);
-
-			_itemHolders[0].el.style.display = _itemHolders[2].el.style.display = 'block';
-
-			if(_options.focus) {
-				// focus causes layout, 
-				// which causes lag during the animation, 
-				// that's why we delay it untill the initial zoom transition ends
-				template.focus();
-			}
-			 
-
-			_bindEvents();
-		});
-
-		// set content for center slide (first time)
-		self.setContent(_itemHolders[1], _currentItemIndex);
-		
-		self.updateCurrItem();
-
-		_shout('afterInit');
-
-		if(!_isFixedPosition) {
-
-			// On all versions of iOS lower than 8.0, we check size of viewport every second.
-			// 
-			// This is done to detect when Safari top & bottom bars appear, 
-			// as this action doesn't trigger any events (like resize). 
-			// 
-			// On iOS8 they fixed this.
-			// 
-			// 10 Nov 2014: iOS 7 usage ~40%. iOS 8 usage 56%.
-			
-			_updateSizeInterval = setInterval(function() {
-				if(!_numAnimations && !_isDragging && !_isZooming && (_currZoomLevel === self.currItem.initialZoomLevel)  ) {
-					self.updateSize();
-				}
-			}, 1000);
-		}
-
-		framework.addClass(template, 'pswp--visible');
-	},
-
-	// Close the gallery, then destroy it
-	close: function() {
-		if(!_isOpen) {
-			return;
-		}
-
-		_isOpen = false;
-		_isDestroying = true;
-		_shout('close');
-		_unbindEvents();
-
-		_showOrHide(self.currItem, null, true, self.destroy);
-	},
-
-	// destroys the gallery (unbinds events, cleans up intervals and timeouts to avoid memory leaks)
-	destroy: function() {
-		_shout('destroy');
-
-		if(_showOrHideTimeout) {
-			clearTimeout(_showOrHideTimeout);
-		}
-		
-		template.setAttribute('aria-hidden', 'true');
-		template.className = _initalClassName;
-
-		if(_updateSizeInterval) {
-			clearInterval(_updateSizeInterval);
-		}
-
-		framework.unbind(self.scrollWrap, _downEvents, self);
-
-		// we unbind scroll event at the end, as closing animation may depend on it
-		framework.unbind(window, 'scroll', self);
-
-		_stopDragUpdateLoop();
-
-		_stopAllAnimations();
-
-		_listeners = null;
-	},
-
-	/**
-	 * Pan image to position
-	 * @param {Number} x     
-	 * @param {Number} y     
-	 * @param {Boolean} force Will ignore bounds if set to true.
-	 */
-	panTo: function(x,y,force) {
-		if(!force) {
-			if(x > _currPanBounds.min.x) {
-				x = _currPanBounds.min.x;
-			} else if(x < _currPanBounds.max.x) {
-				x = _currPanBounds.max.x;
-			}
-
-			if(y > _currPanBounds.min.y) {
-				y = _currPanBounds.min.y;
-			} else if(y < _currPanBounds.max.y) {
-				y = _currPanBounds.max.y;
-			}
-		}
-		
-		_panOffset.x = x;
-		_panOffset.y = y;
-		_applyCurrentZoomPan();
-	},
-	
-	handleEvent: function (e) {
-		e = e || window.event;
-		if(_globalEventHandlers[e.type]) {
-			_globalEventHandlers[e.type](e);
-		}
-	},
-
-
-	goTo: function(index) {
-
-		index = _getLoopedId(index);
-
-		var diff = index - _currentItemIndex;
-		_indexDiff = diff;
-
-		_currentItemIndex = index;
-		self.currItem = _getItemAt( _currentItemIndex );
-		_currPositionIndex -= diff;
-		
-		_moveMainScroll(_slideSize.x * _currPositionIndex);
-		
-
-		_stopAllAnimations();
-		_mainScrollAnimating = false;
-
-		self.updateCurrItem();
-	},
-	next: function() {
-		self.goTo( _currentItemIndex + 1);
-	},
-	prev: function() {
-		self.goTo( _currentItemIndex - 1);
-	},
-
-	// update current zoom/pan objects
-	updateCurrZoomItem: function(emulateSetContent) {
-		if(emulateSetContent) {
-			_shout('beforeChange', 0);
-		}
-
-		// itemHolder[1] is middle (current) item
-		if(_itemHolders[1].el.children.length) {
-			var zoomElement = _itemHolders[1].el.children[0];
-			if( framework.hasClass(zoomElement, 'pswp__zoom-wrap') ) {
-				_currZoomElementStyle = zoomElement.style;
-			} else {
-				_currZoomElementStyle = null;
-			}
-		} else {
-			_currZoomElementStyle = null;
-		}
-		
-		_currPanBounds = self.currItem.bounds;	
-		_startZoomLevel = _currZoomLevel = self.currItem.initialZoomLevel;
-
-		_panOffset.x = _currPanBounds.center.x;
-		_panOffset.y = _currPanBounds.center.y;
-
-		if(emulateSetContent) {
-			_shout('afterChange');
-		}
-	},
-
-
-	invalidateCurrItems: function() {
-		_itemsNeedUpdate = true;
-		for(var i = 0; i < NUM_HOLDERS; i++) {
-			if( _itemHolders[i].item ) {
-				_itemHolders[i].item.needsUpdate = true;
-			}
-		}
-	},
-
-	updateCurrItem: function(beforeAnimation) {
-
-		if(_indexDiff === 0) {
-			return;
-		}
-
-		var diffAbs = Math.abs(_indexDiff),
-			tempHolder;
-
-		if(beforeAnimation && diffAbs < 2) {
-			return;
-		}
-
-
-		self.currItem = _getItemAt( _currentItemIndex );
-		_renderMaxResolution = false;
-		
-		_shout('beforeChange', _indexDiff);
-
-		if(diffAbs >= NUM_HOLDERS) {
-			_containerShiftIndex += _indexDiff + (_indexDiff > 0 ? -NUM_HOLDERS : NUM_HOLDERS);
-			diffAbs = NUM_HOLDERS;
-		}
-		for(var i = 0; i < diffAbs; i++) {
-			if(_indexDiff > 0) {
-				tempHolder = _itemHolders.shift();
-				_itemHolders[NUM_HOLDERS-1] = tempHolder; // move first to last
-
-				_containerShiftIndex++;
-				_setTranslateX( (_containerShiftIndex+2) * _slideSize.x, tempHolder.el.style);
-				self.setContent(tempHolder, _currentItemIndex - diffAbs + i + 1 + 1);
-			} else {
-				tempHolder = _itemHolders.pop();
-				_itemHolders.unshift( tempHolder ); // move last to first
-
-				_containerShiftIndex--;
-				_setTranslateX( _containerShiftIndex * _slideSize.x, tempHolder.el.style);
-				self.setContent(tempHolder, _currentItemIndex + diffAbs - i - 1 - 1);
-			}
-			
-		}
-
-		// reset zoom/pan on previous item
-		if(_currZoomElementStyle && Math.abs(_indexDiff) === 1) {
-
-			var prevItem = _getItemAt(_prevItemIndex);
-			if(prevItem.initialZoomLevel !== _currZoomLevel) {
-				_calculateItemSize(prevItem , _viewportSize );
-				_setImageSize(prevItem);
-				_applyZoomPanToItem( prevItem ); 				
-			}
-
-		}
-
-		// reset diff after update
-		_indexDiff = 0;
-
-		self.updateCurrZoomItem();
-
-		_prevItemIndex = _currentItemIndex;
-
-		_shout('afterChange');
-		
-	},
-
-
-
-	updateSize: function(force) {
-		
-		if(!_isFixedPosition && _options.modal) {
-			var windowScrollY = framework.getScrollY();
-			if(_currentWindowScrollY !== windowScrollY) {
-				template.style.top = windowScrollY + 'px';
-				_currentWindowScrollY = windowScrollY;
-			}
-			if(!force && _windowVisibleSize.x === window.innerWidth && _windowVisibleSize.y === window.innerHeight) {
-				return;
-			}
-			_windowVisibleSize.x = window.innerWidth;
-			_windowVisibleSize.y = window.innerHeight;
-
-			//template.style.width = _windowVisibleSize.x + 'px';
-			template.style.height = _windowVisibleSize.y + 'px';
-		}
-
-
-
-		_viewportSize.x = self.scrollWrap.clientWidth;
-		_viewportSize.y = self.scrollWrap.clientHeight;
-
-		_updatePageScrollOffset();
-
-		_slideSize.x = _viewportSize.x + Math.round(_viewportSize.x * _options.spacing);
-		_slideSize.y = _viewportSize.y;
-
-		_moveMainScroll(_slideSize.x * _currPositionIndex);
-
-		_shout('beforeResize'); // even may be used for example to switch image sources
-
-
-		// don't re-calculate size on inital size update
-		if(_containerShiftIndex !== undefined) {
-
-			var holder,
-				item,
-				hIndex;
-
-			for(var i = 0; i < NUM_HOLDERS; i++) {
-				holder = _itemHolders[i];
-				_setTranslateX( (i+_containerShiftIndex) * _slideSize.x, holder.el.style);
-
-				hIndex = _currentItemIndex+i-1;
-
-				if(_options.loop && _getNumItems() > 2) {
-					hIndex = _getLoopedId(hIndex);
-				}
-
-				// update zoom level on items and refresh source (if needsUpdate)
-				item = _getItemAt( hIndex );
-
-				// re-render gallery item if `needsUpdate`,
-				// or doesn't have `bounds` (entirely new slide object)
-				if( item && (_itemsNeedUpdate || item.needsUpdate || !item.bounds) ) {
-
-					self.cleanSlide( item );
-					
-					self.setContent( holder, hIndex );
-
-					// if "center" slide
-					if(i === 1) {
-						self.currItem = item;
-						self.updateCurrZoomItem(true);
-					}
-
-					item.needsUpdate = false;
-
-				} else if(holder.index === -1 && hIndex >= 0) {
-					// add content first time
-					self.setContent( holder, hIndex );
-				}
-				if(item && item.container) {
-					_calculateItemSize(item, _viewportSize);
-					_setImageSize(item);
-					_applyZoomPanToItem( item );
-				}
-				
-			}
-			_itemsNeedUpdate = false;
-		}	
-
-		_startZoomLevel = _currZoomLevel = self.currItem.initialZoomLevel;
-		_currPanBounds = self.currItem.bounds;
-
-		if(_currPanBounds) {
-			_panOffset.x = _currPanBounds.center.x;
-			_panOffset.y = _currPanBounds.center.y;
-			_applyCurrentZoomPan( true );
-		}
-		
-		_shout('resize');
-	},
-	
-	// Zoom current item to
-	zoomTo: function(destZoomLevel, centerPoint, speed, easingFn, updateFn) {
-		/*
-			if(destZoomLevel === 'fit') {
-				destZoomLevel = self.currItem.fitRatio;
-			} else if(destZoomLevel === 'fill') {
-				destZoomLevel = self.currItem.fillRatio;
-			}
-		*/
-
-		if(centerPoint) {
-			_startZoomLevel = _currZoomLevel;
-			_midZoomPoint.x = Math.abs(centerPoint.x) - _panOffset.x ;
-			_midZoomPoint.y = Math.abs(centerPoint.y) - _panOffset.y ;
-			_equalizePoints(_startPanOffset, _panOffset);
-		}
-
-		var destPanBounds = _calculatePanBounds(destZoomLevel, false),
-			destPanOffset = {};
-
-		_modifyDestPanOffset('x', destPanBounds, destPanOffset, destZoomLevel);
-		_modifyDestPanOffset('y', destPanBounds, destPanOffset, destZoomLevel);
-
-		var initialZoomLevel = _currZoomLevel;
-		var initialPanOffset = {
-			x: _panOffset.x,
-			y: _panOffset.y
-		};
-
-		_roundPoint(destPanOffset);
-
-		var onUpdate = function(now) {
-			if(now === 1) {
-				_currZoomLevel = destZoomLevel;
-				_panOffset.x = destPanOffset.x;
-				_panOffset.y = destPanOffset.y;
-			} else {
-				_currZoomLevel = (destZoomLevel - initialZoomLevel) * now + initialZoomLevel;
-				_panOffset.x = (destPanOffset.x - initialPanOffset.x) * now + initialPanOffset.x;
-				_panOffset.y = (destPanOffset.y - initialPanOffset.y) * now + initialPanOffset.y;
-			}
-
-			if(updateFn) {
-				updateFn(now);
-			}
-
-			_applyCurrentZoomPan( now === 1 );
-		};
-
-		if(speed) {
-			_animateProp('customZoomTo', 0, 1, speed, easingFn || framework.easing.sine.inOut, onUpdate);
-		} else {
-			onUpdate(1);
-		}
-	}
-
-
-};
-
-
-/*>>core*/
-
-/*>>gestures*/
-/**
- * Mouse/touch/pointer event handlers.
- * 
- * separated from @core.js for readability
- */
-
-var MIN_SWIPE_DISTANCE = 30,
-	DIRECTION_CHECK_OFFSET = 10; // amount of pixels to drag to determine direction of swipe
-
-var _gestureStartTime,
-	_gestureCheckSpeedTime,
-
-	// pool of objects that are used during dragging of zooming
-	p = {}, // first point
-	p2 = {}, // second point (for zoom gesture)
-	delta = {},
-	_currPoint = {},
-	_startPoint = {},
-	_currPointers = [],
-	_startMainScrollPos = {},
-	_releaseAnimData,
-	_posPoints = [], // array of points during dragging, used to determine type of gesture
-	_tempPoint = {},
-
-	_isZoomingIn,
-	_verticalDragInitiated,
-	_oldAndroidTouchEndTimeout,
-	_currZoomedItemIndex = 0,
-	_centerPoint = _getEmptyPoint(),
-	_lastReleaseTime = 0,
-	_isDragging, // at least one pointer is down
-	_isMultitouch, // at least two _pointers are down
-	_zoomStarted, // zoom level changed during zoom gesture
-	_moved,
-	_dragAnimFrame,
-	_mainScrollShifted,
-	_currentPoints, // array of current touch points
-	_isZooming,
-	_currPointsDistance,
-	_startPointsDistance,
-	_currPanBounds,
-	_mainScrollPos = _getEmptyPoint(),
-	_currZoomElementStyle,
-	_mainScrollAnimating, // true, if animation after swipe gesture is running
-	_midZoomPoint = _getEmptyPoint(),
-	_currCenterPoint = _getEmptyPoint(),
-	_direction,
-	_isFirstMove,
-	_opacityChanged,
-	_bgOpacity,
-	_wasOverInitialZoom,
-
-	_isEqualPoints = function(p1, p2) {
-		return p1.x === p2.x && p1.y === p2.y;
-	},
-	_isNearbyPoints = function(touch0, touch1) {
-		return Math.abs(touch0.x - touch1.x) < DOUBLE_TAP_RADIUS && Math.abs(touch0.y - touch1.y) < DOUBLE_TAP_RADIUS;
-	},
-	_calculatePointsDistance = function(p1, p2) {
-		_tempPoint.x = Math.abs( p1.x - p2.x );
-		_tempPoint.y = Math.abs( p1.y - p2.y );
-		return Math.sqrt(_tempPoint.x * _tempPoint.x + _tempPoint.y * _tempPoint.y);
-	},
-	_stopDragUpdateLoop = function() {
-		if(_dragAnimFrame) {
-			_cancelAF(_dragAnimFrame);
-			_dragAnimFrame = null;
-		}
-	},
-	_dragUpdateLoop = function() {
-		if(_isDragging) {
-			_dragAnimFrame = _requestAF(_dragUpdateLoop);
-			_renderMovement();
-		}
-	},
-	_canPan = function() {
-		return !(_options.scaleMode === 'fit' && _currZoomLevel ===  self.currItem.initialZoomLevel);
-	},
-	
-	// find the closest parent DOM element
-	_closestElement = function(el, fn) {
-	  	if(!el || el === document) {
-	  		return false;
-	  	}
-
-	  	// don't search elements above pswp__scroll-wrap
-	  	if(el.getAttribute('class') && el.getAttribute('class').indexOf('pswp__scroll-wrap') > -1 ) {
-	  		return false;
-	  	}
-
-	  	if( fn(el) ) {
-	  		return el;
-	  	}
-
-	  	return _closestElement(el.parentNode, fn);
-	},
-
-	_preventObj = {},
-	_preventDefaultEventBehaviour = function(e, isDown) {
-	    _preventObj.prevent = !_closestElement(e.target, _options.isClickableElement);
-
-		_shout('preventDragEvent', e, isDown, _preventObj);
-		return _preventObj.prevent;
-
-	},
-	_convertTouchToPoint = function(touch, p) {
-		p.x = touch.pageX;
-		p.y = touch.pageY;
-		p.id = touch.identifier;
-		return p;
-	},
-	_findCenterOfPoints = function(p1, p2, pCenter) {
-		pCenter.x = (p1.x + p2.x) * 0.5;
-		pCenter.y = (p1.y + p2.y) * 0.5;
-	},
-	_pushPosPoint = function(time, x, y) {
-		if(time - _gestureCheckSpeedTime > 50) {
-			var o = _posPoints.length > 2 ? _posPoints.shift() : {};
-			o.x = x;
-			o.y = y; 
-			_posPoints.push(o);
-			_gestureCheckSpeedTime = time;
-		}
-	},
-
-	_calculateVerticalDragOpacityRatio = function() {
-		var yOffset = _panOffset.y - self.currItem.initialPosition.y; // difference between initial and current position
-		return 1 -  Math.abs( yOffset / (_viewportSize.y / 2)  );
-	},
-
-	
-	// points pool, reused during touch events
-	_ePoint1 = {},
-	_ePoint2 = {},
-	_tempPointsArr = [],
-	_tempCounter,
-	_getTouchPoints = function(e) {
-		// clean up previous points, without recreating array
-		while(_tempPointsArr.length > 0) {
-			_tempPointsArr.pop();
-		}
-
-		if(!_pointerEventEnabled) {
-			if(e.type.indexOf('touch') > -1) {
-
-				if(e.touches && e.touches.length > 0) {
-					_tempPointsArr[0] = _convertTouchToPoint(e.touches[0], _ePoint1);
-					if(e.touches.length > 1) {
-						_tempPointsArr[1] = _convertTouchToPoint(e.touches[1], _ePoint2);
-					}
-				}
-				
-			} else {
-				_ePoint1.x = e.pageX;
-				_ePoint1.y = e.pageY;
-				_ePoint1.id = '';
-				_tempPointsArr[0] = _ePoint1;//_ePoint1;
-			}
-		} else {
-			_tempCounter = 0;
-			// we can use forEach, as pointer events are supported only in modern browsers
-			_currPointers.forEach(function(p) {
-				if(_tempCounter === 0) {
-					_tempPointsArr[0] = p;
-				} else if(_tempCounter === 1) {
-					_tempPointsArr[1] = p;
-				}
-				_tempCounter++;
-
-			});
-		}
-		return _tempPointsArr;
-	},
-
-	_panOrMoveMainScroll = function(axis, delta) {
-
-		var panFriction,
-			overDiff = 0,
-			newOffset = _panOffset[axis] + delta[axis],
-			startOverDiff,
-			dir = delta[axis] > 0,
-			newMainScrollPosition = _mainScrollPos.x + delta.x,
-			mainScrollDiff = _mainScrollPos.x - _startMainScrollPos.x,
-			newPanPos,
-			newMainScrollPos;
-
-		// calculate fdistance over the bounds and friction
-		if(newOffset > _currPanBounds.min[axis] || newOffset < _currPanBounds.max[axis]) {
-			panFriction = _options.panEndFriction;
-			// Linear increasing of friction, so at 1/4 of viewport it's at max value. 
-			// Looks not as nice as was expected. Left for history.
-			// panFriction = (1 - (_panOffset[axis] + delta[axis] + panBounds.min[axis]) / (_viewportSize[axis] / 4) );
-		} else {
-			panFriction = 1;
-		}
-		
-		newOffset = _panOffset[axis] + delta[axis] * panFriction;
-
-		// move main scroll or start panning
-		if(_options.allowPanToNext || _currZoomLevel === self.currItem.initialZoomLevel) {
-
-
-			if(!_currZoomElementStyle) {
-				
-				newMainScrollPos = newMainScrollPosition;
-
-			} else if(_direction === 'h' && axis === 'x' && !_zoomStarted ) {
-				
-				if(dir) {
-					if(newOffset > _currPanBounds.min[axis]) {
-						panFriction = _options.panEndFriction;
-						overDiff = _currPanBounds.min[axis] - newOffset;
-						startOverDiff = _currPanBounds.min[axis] - _startPanOffset[axis];
-					}
-					
-					// drag right
-					if( (startOverDiff <= 0 || mainScrollDiff < 0) && _getNumItems() > 1 ) {
-						newMainScrollPos = newMainScrollPosition;
-						if(mainScrollDiff < 0 && newMainScrollPosition > _startMainScrollPos.x) {
-							newMainScrollPos = _startMainScrollPos.x;
-						}
-					} else {
-						if(_currPanBounds.min.x !== _currPanBounds.max.x) {
-							newPanPos = newOffset;
-						}
-						
-					}
-
-				} else {
-
-					if(newOffset < _currPanBounds.max[axis] ) {
-						panFriction =_options.panEndFriction;
-						overDiff = newOffset - _currPanBounds.max[axis];
-						startOverDiff = _startPanOffset[axis] - _currPanBounds.max[axis];
-					}
-
-					if( (startOverDiff <= 0 || mainScrollDiff > 0) && _getNumItems() > 1 ) {
-						newMainScrollPos = newMainScrollPosition;
-
-						if(mainScrollDiff > 0 && newMainScrollPosition < _startMainScrollPos.x) {
-							newMainScrollPos = _startMainScrollPos.x;
-						}
-
-					} else {
-						if(_currPanBounds.min.x !== _currPanBounds.max.x) {
-							newPanPos = newOffset;
-						}
-					}
-
-				}
-
-
-				//
-			}
-
-			if(axis === 'x') {
-
-				if(newMainScrollPos !== undefined) {
-					_moveMainScroll(newMainScrollPos, true);
-					if(newMainScrollPos === _startMainScrollPos.x) {
-						_mainScrollShifted = false;
-					} else {
-						_mainScrollShifted = true;
-					}
-				}
-
-				if(_currPanBounds.min.x !== _currPanBounds.max.x) {
-					if(newPanPos !== undefined) {
-						_panOffset.x = newPanPos;
-					} else if(!_mainScrollShifted) {
-						_panOffset.x += delta.x * panFriction;
-					}
-				}
-
-				return newMainScrollPos !== undefined;
-			}
-
-		}
-
-		if(!_mainScrollAnimating) {
-			
-			if(!_mainScrollShifted) {
-				if(_currZoomLevel > self.currItem.fitRatio) {
-					_panOffset[axis] += delta[axis] * panFriction;
-				
-				}
-			}
-
-			
-		}
-		
-	},
-
-	// Pointerdown/touchstart/mousedown handler
-	_onDragStart = function(e) {
-
-		// Allow dragging only via left mouse button.
-		// As this handler is not added in IE8 - we ignore e.which
-		// 
-		// http://www.quirksmode.org/js/events_properties.html
-		// https://developer.mozilla.org/en-US/docs/Web/API/event.button
-		if(e.type === 'mousedown' && e.button > 0  ) {
-			return;
-		}
-
-		if(_initialZoomRunning) {
-			e.preventDefault();
-			return;
-		}
-
-		if(_oldAndroidTouchEndTimeout && e.type === 'mousedown') {
-			return;
-		}
-
-		if(_preventDefaultEventBehaviour(e, true)) {
-			e.preventDefault();
-		}
-
-
-
-		_shout('pointerDown');
-
-		if(_pointerEventEnabled) {
-			var pointerIndex = framework.arraySearch(_currPointers, e.pointerId, 'id');
-			if(pointerIndex < 0) {
-				pointerIndex = _currPointers.length;
-			}
-			_currPointers[pointerIndex] = {x:e.pageX, y:e.pageY, id: e.pointerId};
-		}
-		
-
-
-		var startPointsList = _getTouchPoints(e),
-			numPoints = startPointsList.length;
-
-		_currentPoints = null;
-
-		_stopAllAnimations();
-
-		// init drag
-		if(!_isDragging || numPoints === 1) {
-
-			
-
-			_isDragging = _isFirstMove = true;
-			framework.bind(window, _upMoveEvents, self);
-
-			_isZoomingIn = 
-				_wasOverInitialZoom = 
-				_opacityChanged = 
-				_verticalDragInitiated = 
-				_mainScrollShifted = 
-				_moved = 
-				_isMultitouch = 
-				_zoomStarted = false;
-
-			_direction = null;
-
-			_shout('firstTouchStart', startPointsList);
-
-			_equalizePoints(_startPanOffset, _panOffset);
-
-			_currPanDist.x = _currPanDist.y = 0;
-			_equalizePoints(_currPoint, startPointsList[0]);
-			_equalizePoints(_startPoint, _currPoint);
-
-			//_equalizePoints(_startMainScrollPos, _mainScrollPos);
-			_startMainScrollPos.x = _slideSize.x * _currPositionIndex;
-
-			_posPoints = [{
-				x: _currPoint.x,
-				y: _currPoint.y
-			}];
-
-			_gestureCheckSpeedTime = _gestureStartTime = _getCurrentTime();
-
-			//_mainScrollAnimationEnd(true);
-			_calculatePanBounds( _currZoomLevel, true );
-			
-			// Start rendering
-			_stopDragUpdateLoop();
-			_dragUpdateLoop();
-			
-		}
-
-		// init zoom
-		if(!_isZooming && numPoints > 1 && !_mainScrollAnimating && !_mainScrollShifted) {
-			_startZoomLevel = _currZoomLevel;
-			_zoomStarted = false; // true if zoom changed at least once
-
-			_isZooming = _isMultitouch = true;
-			_currPanDist.y = _currPanDist.x = 0;
-
-			_equalizePoints(_startPanOffset, _panOffset);
-
-			_equalizePoints(p, startPointsList[0]);
-			_equalizePoints(p2, startPointsList[1]);
-
-			_findCenterOfPoints(p, p2, _currCenterPoint);
-
-			_midZoomPoint.x = Math.abs(_currCenterPoint.x) - _panOffset.x;
-			_midZoomPoint.y = Math.abs(_currCenterPoint.y) - _panOffset.y;
-			_currPointsDistance = _startPointsDistance = _calculatePointsDistance(p, p2);
-		}
-
-
-	},
-
-	// Pointermove/touchmove/mousemove handler
-	_onDragMove = function(e) {
-
-		e.preventDefault();
-
-		if(_pointerEventEnabled) {
-			var pointerIndex = framework.arraySearch(_currPointers, e.pointerId, 'id');
-			if(pointerIndex > -1) {
-				var p = _currPointers[pointerIndex];
-				p.x = e.pageX;
-				p.y = e.pageY; 
-			}
-		}
-
-		if(_isDragging) {
-			var touchesList = _getTouchPoints(e);
-			if(!_direction && !_moved && !_isZooming) {
-
-				if(_mainScrollPos.x !== _slideSize.x * _currPositionIndex) {
-					// if main scroll position is shifted – direction is always horizontal
-					_direction = 'h';
-				} else {
-					var diff = Math.abs(touchesList[0].x - _currPoint.x) - Math.abs(touchesList[0].y - _currPoint.y);
-					// check the direction of movement
-					if(Math.abs(diff) >= DIRECTION_CHECK_OFFSET) {
-						_direction = diff > 0 ? 'h' : 'v';
-						_currentPoints = touchesList;
-					}
-				}
-				
-			} else {
-				_currentPoints = touchesList;
-			}
-		}	
-	},
-	// 
-	_renderMovement =  function() {
-
-		if(!_currentPoints) {
-			return;
-		}
-
-		var numPoints = _currentPoints.length;
-
-		if(numPoints === 0) {
-			return;
-		}
-
-		_equalizePoints(p, _currentPoints[0]);
-
-		delta.x = p.x - _currPoint.x;
-		delta.y = p.y - _currPoint.y;
-
-		if(_isZooming && numPoints > 1) {
-			// Handle behaviour for more than 1 point
-
-			_currPoint.x = p.x;
-			_currPoint.y = p.y;
-		
-			// check if one of two points changed
-			if( !delta.x && !delta.y && _isEqualPoints(_currentPoints[1], p2) ) {
-				return;
-			}
-
-			_equalizePoints(p2, _currentPoints[1]);
-
-
-			if(!_zoomStarted) {
-				_zoomStarted = true;
-				_shout('zoomGestureStarted');
-			}
-			
-			// Distance between two points
-			var pointsDistance = _calculatePointsDistance(p,p2);
-
-			var zoomLevel = _calculateZoomLevel(pointsDistance);
-
-			// slightly over the of initial zoom level
-			if(zoomLevel > self.currItem.initialZoomLevel + self.currItem.initialZoomLevel / 15) {
-				_wasOverInitialZoom = true;
-			}
-
-			// Apply the friction if zoom level is out of the bounds
-			var zoomFriction = 1,
-				minZoomLevel = _getMinZoomLevel(),
-				maxZoomLevel = _getMaxZoomLevel();
-
-			if ( zoomLevel < minZoomLevel ) {
-				
-				if(_options.pinchToClose && !_wasOverInitialZoom && _startZoomLevel <= self.currItem.initialZoomLevel) {
-					// fade out background if zooming out
-					var minusDiff = minZoomLevel - zoomLevel;
-					var percent = 1 - minusDiff / (minZoomLevel / 1.2);
-
-					_applyBgOpacity(percent);
-					_shout('onPinchClose', percent);
-					_opacityChanged = true;
-				} else {
-					zoomFriction = (minZoomLevel - zoomLevel) / minZoomLevel;
-					if(zoomFriction > 1) {
-						zoomFriction = 1;
-					}
-					zoomLevel = minZoomLevel - zoomFriction * (minZoomLevel / 3);
-				}
-				
-			} else if ( zoomLevel > maxZoomLevel ) {
-				// 1.5 - extra zoom level above the max. E.g. if max is x6, real max 6 + 1.5 = 7.5
-				zoomFriction = (zoomLevel - maxZoomLevel) / ( minZoomLevel * 6 );
-				if(zoomFriction > 1) {
-					zoomFriction = 1;
-				}
-				zoomLevel = maxZoomLevel + zoomFriction * minZoomLevel;
-			}
-
-			if(zoomFriction < 0) {
-				zoomFriction = 0;
-			}
-
-			// distance between touch points after friction is applied
-			_currPointsDistance = pointsDistance;
-
-			// _centerPoint - The point in the middle of two pointers
-			_findCenterOfPoints(p, p2, _centerPoint);
-		
-			// paning with two pointers pressed
-			_currPanDist.x += _centerPoint.x - _currCenterPoint.x;
-			_currPanDist.y += _centerPoint.y - _currCenterPoint.y;
-			_equalizePoints(_currCenterPoint, _centerPoint);
-
-			_panOffset.x = _calculatePanOffset('x', zoomLevel);
-			_panOffset.y = _calculatePanOffset('y', zoomLevel);
-
-			_isZoomingIn = zoomLevel > _currZoomLevel;
-			_currZoomLevel = zoomLevel;
-			_applyCurrentZoomPan();
-
-		} else {
-
-			// handle behaviour for one point (dragging or panning)
-
-			if(!_direction) {
-				return;
-			}
-
-			if(_isFirstMove) {
-				_isFirstMove = false;
-
-				// subtract drag distance that was used during the detection direction  
-
-				if( Math.abs(delta.x) >= DIRECTION_CHECK_OFFSET) {
-					delta.x -= _currentPoints[0].x - _startPoint.x;
-				}
-				
-				if( Math.abs(delta.y) >= DIRECTION_CHECK_OFFSET) {
-					delta.y -= _currentPoints[0].y - _startPoint.y;
-				}
-			}
-
-			_currPoint.x = p.x;
-			_currPoint.y = p.y;
-
-			// do nothing if pointers position hasn't changed
-			if(delta.x === 0 && delta.y === 0) {
-				return;
-			}
-
-			if(_direction === 'v' && _options.closeOnVerticalDrag) {
-				if(!_canPan()) {
-					_currPanDist.y += delta.y;
-					_panOffset.y += delta.y;
-
-					var opacityRatio = _calculateVerticalDragOpacityRatio();
-
-					_verticalDragInitiated = true;
-					_shout('onVerticalDrag', opacityRatio);
-
-					_applyBgOpacity(opacityRatio);
-					_applyCurrentZoomPan();
-					return ;
-				}
-			}
-
-			_pushPosPoint(_getCurrentTime(), p.x, p.y);
-
-			_moved = true;
-			_currPanBounds = self.currItem.bounds;
-			
-			var mainScrollChanged = _panOrMoveMainScroll('x', delta);
-			if(!mainScrollChanged) {
-				_panOrMoveMainScroll('y', delta);
-
-				_roundPoint(_panOffset);
-				_applyCurrentZoomPan();
-			}
-
-		}
-
-	},
-	
-	// Pointerup/pointercancel/touchend/touchcancel/mouseup event handler
-	_onDragRelease = function(e) {
-
-		if(_features.isOldAndroid ) {
-
-			if(_oldAndroidTouchEndTimeout && e.type === 'mouseup') {
-				return;
-			}
-
-			// on Android (v4.1, 4.2, 4.3 & possibly older) 
-			// ghost mousedown/up event isn't preventable via e.preventDefault,
-			// which causes fake mousedown event
-			// so we block mousedown/up for 600ms
-			if( e.type.indexOf('touch') > -1 ) {
-				clearTimeout(_oldAndroidTouchEndTimeout);
-				_oldAndroidTouchEndTimeout = setTimeout(function() {
-					_oldAndroidTouchEndTimeout = 0;
-				}, 600);
-			}
-			
-		}
-
-		_shout('pointerUp');
-
-		if(_preventDefaultEventBehaviour(e, false)) {
-			e.preventDefault();
-		}
-
-		var releasePoint;
-
-		if(_pointerEventEnabled) {
-			var pointerIndex = framework.arraySearch(_currPointers, e.pointerId, 'id');
-			
-			if(pointerIndex > -1) {
-				releasePoint = _currPointers.splice(pointerIndex, 1)[0];
-
-				if(navigator.pointerEnabled) {
-					releasePoint.type = e.pointerType || 'mouse';
-				} else {
-					var MSPOINTER_TYPES = {
-						4: 'mouse', // event.MSPOINTER_TYPE_MOUSE
-						2: 'touch', // event.MSPOINTER_TYPE_TOUCH 
-						3: 'pen' // event.MSPOINTER_TYPE_PEN
-					};
-					releasePoint.type = MSPOINTER_TYPES[e.pointerType];
-
-					if(!releasePoint.type) {
-						releasePoint.type = e.pointerType || 'mouse';
-					}
-				}
-
-			}
-		}
-
-		var touchList = _getTouchPoints(e),
-			gestureType,
-			numPoints = touchList.length;
-
-		if(e.type === 'mouseup') {
-			numPoints = 0;
-		}
-
-		// Do nothing if there were 3 touch points or more
-		if(numPoints === 2) {
-			_currentPoints = null;
-			return true;
-		}
-
-		// if second pointer released
-		if(numPoints === 1) {
-			_equalizePoints(_startPoint, touchList[0]);
-		}				
-
-
-		// pointer hasn't moved, send "tap release" point
-		if(numPoints === 0 && !_direction && !_mainScrollAnimating) {
-			if(!releasePoint) {
-				if(e.type === 'mouseup') {
-					releasePoint = {x: e.pageX, y: e.pageY, type:'mouse'};
-				} else if(e.changedTouches && e.changedTouches[0]) {
-					releasePoint = {x: e.changedTouches[0].pageX, y: e.changedTouches[0].pageY, type:'touch'};
-				}		
-			}
-
-			_shout('touchRelease', e, releasePoint);
-		}
-
-		// Difference in time between releasing of two last touch points (zoom gesture)
-		var releaseTimeDiff = -1;
-
-		// Gesture completed, no pointers left
-		if(numPoints === 0) {
-			_isDragging = false;
-			framework.unbind(window, _upMoveEvents, self);
-
-			_stopDragUpdateLoop();
-
-			if(_isZooming) {
-				// Two points released at the same time
-				releaseTimeDiff = 0;
-			} else if(_lastReleaseTime !== -1) {
-				releaseTimeDiff = _getCurrentTime() - _lastReleaseTime;
-			}
-		}
-		_lastReleaseTime = numPoints === 1 ? _getCurrentTime() : -1;
-		
-		if(releaseTimeDiff !== -1 && releaseTimeDiff < 150) {
-			gestureType = 'zoom';
-		} else {
-			gestureType = 'swipe';
-		}
-
-		if(_isZooming && numPoints < 2) {
-			_isZooming = false;
-
-			// Only second point released
-			if(numPoints === 1) {
-				gestureType = 'zoomPointerUp';
-			}
-			_shout('zoomGestureEnded');
-		}
-
-		_currentPoints = null;
-		if(!_moved && !_zoomStarted && !_mainScrollAnimating && !_verticalDragInitiated) {
-			// nothing to animate
-			return;
-		}
-	
-		_stopAllAnimations();
-
-		
-		if(!_releaseAnimData) {
-			_releaseAnimData = _initDragReleaseAnimationData();
-		}
-		
-		_releaseAnimData.calculateSwipeSpeed('x');
-
-
-		if(_verticalDragInitiated) {
-
-			var opacityRatio = _calculateVerticalDragOpacityRatio();
-
-			if(opacityRatio < _options.verticalDragRange) {
-				self.close();
-			} else {
-				var initalPanY = _panOffset.y,
-					initialBgOpacity = _bgOpacity;
-
-				_animateProp('verticalDrag', 0, 1, 300, framework.easing.cubic.out, function(now) {
-					
-					_panOffset.y = (self.currItem.initialPosition.y - initalPanY) * now + initalPanY;
-
-					_applyBgOpacity(  (1 - initialBgOpacity) * now + initialBgOpacity );
-					_applyCurrentZoomPan();
-				});
-
-				_shout('onVerticalDrag', 1);
-			}
-
-			return;
-		}
-
-
-		// main scroll 
-		if(  (_mainScrollShifted || _mainScrollAnimating) && numPoints === 0) {
-			var itemChanged = _finishSwipeMainScrollGesture(gestureType, _releaseAnimData);
-			if(itemChanged) {
-				return;
-			}
-			gestureType = 'zoomPointerUp';
-		}
-
-		// prevent zoom/pan animation when main scroll animation runs
-		if(_mainScrollAnimating) {
-			return;
-		}
-		
-		// Complete simple zoom gesture (reset zoom level if it's out of the bounds)  
-		if(gestureType !== 'swipe') {
-			_completeZoomGesture();
-			return;
-		}
-	
-		// Complete pan gesture if main scroll is not shifted, and it's possible to pan current image
-		if(!_mainScrollShifted && _currZoomLevel > self.currItem.fitRatio) {
-			_completePanGesture(_releaseAnimData);
-		}
-	},
-
-
-	// Returns object with data about gesture
-	// It's created only once and then reused
-	_initDragReleaseAnimationData  = function() {
-		// temp local vars
-		var lastFlickDuration,
-			tempReleasePos;
-
-		// s = this
-		var s = {
-			lastFlickOffset: {},
-			lastFlickDist: {},
-			lastFlickSpeed: {},
-			slowDownRatio:  {},
-			slowDownRatioReverse:  {},
-			speedDecelerationRatio:  {},
-			speedDecelerationRatioAbs:  {},
-			distanceOffset:  {},
-			backAnimDestination: {},
-			backAnimStarted: {},
-			calculateSwipeSpeed: function(axis) {
-				
-
-				if( _posPoints.length > 1) {
-					lastFlickDuration = _getCurrentTime() - _gestureCheckSpeedTime + 50;
-					tempReleasePos = _posPoints[_posPoints.length-2][axis];
-				} else {
-					lastFlickDuration = _getCurrentTime() - _gestureStartTime; // total gesture duration
-					tempReleasePos = _startPoint[axis];
-				}
-				s.lastFlickOffset[axis] = _currPoint[axis] - tempReleasePos;
-				s.lastFlickDist[axis] = Math.abs(s.lastFlickOffset[axis]);
-				if(s.lastFlickDist[axis] > 20) {
-					s.lastFlickSpeed[axis] = s.lastFlickOffset[axis] / lastFlickDuration;
-				} else {
-					s.lastFlickSpeed[axis] = 0;
-				}
-				if( Math.abs(s.lastFlickSpeed[axis]) < 0.1 ) {
-					s.lastFlickSpeed[axis] = 0;
-				}
-				
-				s.slowDownRatio[axis] = 0.95;
-				s.slowDownRatioReverse[axis] = 1 - s.slowDownRatio[axis];
-				s.speedDecelerationRatio[axis] = 1;
-			},
-
-			calculateOverBoundsAnimOffset: function(axis, speed) {
-				if(!s.backAnimStarted[axis]) {
-
-					if(_panOffset[axis] > _currPanBounds.min[axis]) {
-						s.backAnimDestination[axis] = _currPanBounds.min[axis];
-						
-					} else if(_panOffset[axis] < _currPanBounds.max[axis]) {
-						s.backAnimDestination[axis] = _currPanBounds.max[axis];
-					}
-
-					if(s.backAnimDestination[axis] !== undefined) {
-						s.slowDownRatio[axis] = 0.7;
-						s.slowDownRatioReverse[axis] = 1 - s.slowDownRatio[axis];
-						if(s.speedDecelerationRatioAbs[axis] < 0.05) {
-
-							s.lastFlickSpeed[axis] = 0;
-							s.backAnimStarted[axis] = true;
-
-							_animateProp('bounceZoomPan'+axis,_panOffset[axis], 
-								s.backAnimDestination[axis], 
-								speed || 300, 
-								framework.easing.sine.out, 
-								function(pos) {
-									_panOffset[axis] = pos;
-									_applyCurrentZoomPan();
-								}
-							);
-
-						}
-					}
-				}
-			},
-
-			// Reduces the speed by slowDownRatio (per 10ms)
-			calculateAnimOffset: function(axis) {
-				if(!s.backAnimStarted[axis]) {
-					s.speedDecelerationRatio[axis] = s.speedDecelerationRatio[axis] * (s.slowDownRatio[axis] + 
-												s.slowDownRatioReverse[axis] - 
-												s.slowDownRatioReverse[axis] * s.timeDiff / 10);
-
-					s.speedDecelerationRatioAbs[axis] = Math.abs(s.lastFlickSpeed[axis] * s.speedDecelerationRatio[axis]);
-					s.distanceOffset[axis] = s.lastFlickSpeed[axis] * s.speedDecelerationRatio[axis] * s.timeDiff;
-					_panOffset[axis] += s.distanceOffset[axis];
-
-				}
-			},
-
-			panAnimLoop: function() {
-				if ( _animations.zoomPan ) {
-					_animations.zoomPan.raf = _requestAF(s.panAnimLoop);
-
-					s.now = _getCurrentTime();
-					s.timeDiff = s.now - s.lastNow;
-					s.lastNow = s.now;
-					
-					s.calculateAnimOffset('x');
-					s.calculateAnimOffset('y');
-
-					_applyCurrentZoomPan();
-					
-					s.calculateOverBoundsAnimOffset('x');
-					s.calculateOverBoundsAnimOffset('y');
-
-
-					if (s.speedDecelerationRatioAbs.x < 0.05 && s.speedDecelerationRatioAbs.y < 0.05) {
-
-						// round pan position
-						_panOffset.x = Math.round(_panOffset.x);
-						_panOffset.y = Math.round(_panOffset.y);
-						_applyCurrentZoomPan();
-						
-						_stopAnimation('zoomPan');
-						return;
-					}
-				}
-
-			}
-		};
-		return s;
-	},
-
-	_completePanGesture = function(animData) {
-		// calculate swipe speed for Y axis (paanning)
-		animData.calculateSwipeSpeed('y');
-
-		_currPanBounds = self.currItem.bounds;
-		
-		animData.backAnimDestination = {};
-		animData.backAnimStarted = {};
-
-		// Avoid acceleration animation if speed is too low
-		if(Math.abs(animData.lastFlickSpeed.x) <= 0.05 && Math.abs(animData.lastFlickSpeed.y) <= 0.05 ) {
-			animData.speedDecelerationRatioAbs.x = animData.speedDecelerationRatioAbs.y = 0;
-
-			// Run pan drag release animation. E.g. if you drag image and release finger without momentum.
-			animData.calculateOverBoundsAnimOffset('x');
-			animData.calculateOverBoundsAnimOffset('y');
-			return true;
-		}
-
-		// Animation loop that controls the acceleration after pan gesture ends
-		_registerStartAnimation('zoomPan');
-		animData.lastNow = _getCurrentTime();
-		animData.panAnimLoop();
-	},
-
-
-	_finishSwipeMainScrollGesture = function(gestureType, _releaseAnimData) {
-		var itemChanged;
-		if(!_mainScrollAnimating) {
-			_currZoomedItemIndex = _currentItemIndex;
-		}
-
-
-		
-		var itemsDiff;
-
-		if(gestureType === 'swipe') {
-			var totalShiftDist = _currPoint.x - _startPoint.x,
-				isFastLastFlick = _releaseAnimData.lastFlickDist.x < 10;
-
-			// if container is shifted for more than MIN_SWIPE_DISTANCE, 
-			// and last flick gesture was in right direction
-			if(totalShiftDist > MIN_SWIPE_DISTANCE && 
-				(isFastLastFlick || _releaseAnimData.lastFlickOffset.x > 20) ) {
-				// go to prev item
-				itemsDiff = -1;
-			} else if(totalShiftDist < -MIN_SWIPE_DISTANCE && 
-				(isFastLastFlick || _releaseAnimData.lastFlickOffset.x < -20) ) {
-				// go to next item
-				itemsDiff = 1;
-			}
-		}
-
-		var nextCircle;
-
-		if(itemsDiff) {
-			
-			_currentItemIndex += itemsDiff;
-
-			if(_currentItemIndex < 0) {
-				_currentItemIndex = _options.loop ? _getNumItems()-1 : 0;
-				nextCircle = true;
-			} else if(_currentItemIndex >= _getNumItems()) {
-				_currentItemIndex = _options.loop ? 0 : _getNumItems()-1;
-				nextCircle = true;
-			}
-
-			if(!nextCircle || _options.loop) {
-				_indexDiff += itemsDiff;
-				_currPositionIndex -= itemsDiff;
-				itemChanged = true;
-			}
-			
-
-			
-		}
-
-		var animateToX = _slideSize.x * _currPositionIndex;
-		var animateToDist = Math.abs( animateToX - _mainScrollPos.x );
-		var finishAnimDuration;
-
-
-		if(!itemChanged && animateToX > _mainScrollPos.x !== _releaseAnimData.lastFlickSpeed.x > 0) {
-			// "return to current" duration, e.g. when dragging from slide 0 to -1
-			finishAnimDuration = 333; 
-		} else {
-			finishAnimDuration = Math.abs(_releaseAnimData.lastFlickSpeed.x) > 0 ? 
-									animateToDist / Math.abs(_releaseAnimData.lastFlickSpeed.x) : 
-									333;
-
-			finishAnimDuration = Math.min(finishAnimDuration, 400);
-			finishAnimDuration = Math.max(finishAnimDuration, 250);
-		}
-
-		if(_currZoomedItemIndex === _currentItemIndex) {
-			itemChanged = false;
-		}
-		
-		_mainScrollAnimating = true;
-		
-		_shout('mainScrollAnimStart');
-
-		_animateProp('mainScroll', _mainScrollPos.x, animateToX, finishAnimDuration, framework.easing.cubic.out, 
-			_moveMainScroll,
-			function() {
-				_stopAllAnimations();
-				_mainScrollAnimating = false;
-				_currZoomedItemIndex = -1;
-				
-				if(itemChanged || _currZoomedItemIndex !== _currentItemIndex) {
-					self.updateCurrItem();
-				}
-				
-				_shout('mainScrollAnimComplete');
-			}
-		);
-
-		if(itemChanged) {
-			self.updateCurrItem(true);
-		}
-
-		return itemChanged;
-	},
-
-	_calculateZoomLevel = function(touchesDistance) {
-		return  1 / _startPointsDistance * touchesDistance * _startZoomLevel;
-	},
-
-	// Resets zoom if it's out of bounds
-	_completeZoomGesture = function() {
-		var destZoomLevel = _currZoomLevel,
-			minZoomLevel = _getMinZoomLevel(),
-			maxZoomLevel = _getMaxZoomLevel();
-
-		if ( _currZoomLevel < minZoomLevel ) {
-			destZoomLevel = minZoomLevel;
-		} else if ( _currZoomLevel > maxZoomLevel ) {
-			destZoomLevel = maxZoomLevel;
-		}
-
-		var destOpacity = 1,
-			onUpdate,
-			initialOpacity = _bgOpacity;
-
-		if(_opacityChanged && !_isZoomingIn && !_wasOverInitialZoom && _currZoomLevel < minZoomLevel) {
-			//_closedByScroll = true;
-			self.close();
-			return true;
-		}
-
-		if(_opacityChanged) {
-			onUpdate = function(now) {
-				_applyBgOpacity(  (destOpacity - initialOpacity) * now + initialOpacity );
-			};
-		}
-
-		self.zoomTo(destZoomLevel, 0, 200,  framework.easing.cubic.out, onUpdate);
-		return true;
-	};
-
-
-_registerModule('Gestures', {
-	publicMethods: {
-
-		initGestures: function() {
-
-			// helper function that builds touch/pointer/mouse events
-			var addEventNames = function(pref, down, move, up, cancel) {
-				_dragStartEvent = pref + down;
-				_dragMoveEvent = pref + move;
-				_dragEndEvent = pref + up;
-				if(cancel) {
-					_dragCancelEvent = pref + cancel;
-				} else {
-					_dragCancelEvent = '';
-				}
-			};
-
-			_pointerEventEnabled = _features.pointerEvent;
-			if(_pointerEventEnabled && _features.touch) {
-				// we don't need touch events, if browser supports pointer events
-				_features.touch = false;
-			}
-
-			if(_pointerEventEnabled) {
-				if(navigator.pointerEnabled) {
-					addEventNames('pointer', 'down', 'move', 'up', 'cancel');
-				} else {
-					// IE10 pointer events are case-sensitive
-					addEventNames('MSPointer', 'Down', 'Move', 'Up', 'Cancel');
-				}
-			} else if(_features.touch) {
-				addEventNames('touch', 'start', 'move', 'end', 'cancel');
-				_likelyTouchDevice = true;
-			} else {
-				addEventNames('mouse', 'down', 'move', 'up');	
-			}
-
-			_upMoveEvents = _dragMoveEvent + ' ' + _dragEndEvent  + ' ' +  _dragCancelEvent;
-			_downEvents = _dragStartEvent;
-
-			if(_pointerEventEnabled && !_likelyTouchDevice) {
-				_likelyTouchDevice = (navigator.maxTouchPoints > 1) || (navigator.msMaxTouchPoints > 1);
-			}
-			// make variable public
-			self.likelyTouchDevice = _likelyTouchDevice; 
-			
-			_globalEventHandlers[_dragStartEvent] = _onDragStart;
-			_globalEventHandlers[_dragMoveEvent] = _onDragMove;
-			_globalEventHandlers[_dragEndEvent] = _onDragRelease; // the Kraken
-
-			if(_dragCancelEvent) {
-				_globalEventHandlers[_dragCancelEvent] = _globalEventHandlers[_dragEndEvent];
-			}
-
-			// Bind mouse events on device with detected hardware touch support, in case it supports multiple types of input.
-			if(_features.touch) {
-				_downEvents += ' mousedown';
-				_upMoveEvents += ' mousemove mouseup';
-				_globalEventHandlers.mousedown = _globalEventHandlers[_dragStartEvent];
-				_globalEventHandlers.mousemove = _globalEventHandlers[_dragMoveEvent];
-				_globalEventHandlers.mouseup = _globalEventHandlers[_dragEndEvent];
-			}
-
-			if(!_likelyTouchDevice) {
-				// don't allow pan to next slide from zoomed state on Desktop
-				_options.allowPanToNext = false;
-			}
-		}
-
-	}
-});
-
-
-/*>>gestures*/
-
-/*>>show-hide-transition*/
-/**
- * show-hide-transition.js:
- *
- * Manages initial opening or closing transition.
- *
- * If you're not planning to use transition for gallery at all,
- * you may set options hideAnimationDuration and showAnimationDuration to 0,
- * and just delete startAnimation function.
- * 
- */
-
-
-var _showOrHideTimeout,
-	_showOrHide = function(item, img, out, completeFn) {
-
-		if(_showOrHideTimeout) {
-			clearTimeout(_showOrHideTimeout);
-		}
-
-		_initialZoomRunning = true;
-		_initialContentSet = true;
-		
-		// dimensions of small thumbnail {x:,y:,w:}.
-		// Height is optional, as calculated based on large image.
-		var thumbBounds; 
-		if(item.initialLayout) {
-			thumbBounds = item.initialLayout;
-			item.initialLayout = null;
-		} else {
-			thumbBounds = _options.getThumbBoundsFn && _options.getThumbBoundsFn(_currentItemIndex);
-		}
-
-		var duration = out ? _options.hideAnimationDuration : _options.showAnimationDuration;
-
-		var onComplete = function() {
-			_stopAnimation('initialZoom');
-			if(!out) {
-				_applyBgOpacity(1);
-				if(img) {
-					img.style.display = 'block';
-				}
-				framework.addClass(template, 'pswp--animated-in');
-				_shout('initialZoom' + (out ? 'OutEnd' : 'InEnd'));
-			} else {
-				self.template.removeAttribute('style');
-				self.bg.removeAttribute('style');
-			}
-
-			if(completeFn) {
-				completeFn();
-			}
-			_initialZoomRunning = false;
-		};
-
-		// if bounds aren't provided, just open gallery without animation
-		if(!duration || !thumbBounds || thumbBounds.x === undefined) {
-
-			_shout('initialZoom' + (out ? 'Out' : 'In') );
-
-			_currZoomLevel = item.initialZoomLevel;
-			_equalizePoints(_panOffset,  item.initialPosition );
-			_applyCurrentZoomPan();
-
-			template.style.opacity = out ? 0 : 1;
-			_applyBgOpacity(1);
-
-			if(duration) {
-				setTimeout(function() {
-					onComplete();
-				}, duration);
-			} else {
-				onComplete();
-			}
-
-			return;
-		}
-
-		var startAnimation = function() {
-			var closeWithRaf = _closedByScroll,
-				fadeEverything = !self.currItem.src || self.currItem.loadError || _options.showHideOpacity;
-			
-			// apply hw-acceleration to image
-			if(item.miniImg) {
-				item.miniImg.style.webkitBackfaceVisibility = 'hidden';
-			}
-
-			if(!out) {
-				_currZoomLevel = thumbBounds.w / item.w;
-				_panOffset.x = thumbBounds.x;
-				_panOffset.y = thumbBounds.y - _initalWindowScrollY;
-
-				self[fadeEverything ? 'template' : 'bg'].style.opacity = 0.001;
-				_applyCurrentZoomPan();
-			}
-
-			_registerStartAnimation('initialZoom');
-			
-			if(out && !closeWithRaf) {
-				framework.removeClass(template, 'pswp--animated-in');
-			}
-
-			if(fadeEverything) {
-				if(out) {
-					framework[ (closeWithRaf ? 'remove' : 'add') + 'Class' ](template, 'pswp--animate_opacity');
-				} else {
-					setTimeout(function() {
-						framework.addClass(template, 'pswp--animate_opacity');
-					}, 30);
-				}
-			}
-
-			_showOrHideTimeout = setTimeout(function() {
-
-				_shout('initialZoom' + (out ? 'Out' : 'In') );
-				
-
-				if(!out) {
-
-					// "in" animation always uses CSS transitions (instead of rAF).
-					// CSS transition work faster here, 
-					// as developer may also want to animate other things, 
-					// like ui on top of sliding area, which can be animated just via CSS
-					
-					_currZoomLevel = item.initialZoomLevel;
-					_equalizePoints(_panOffset,  item.initialPosition );
-					_applyCurrentZoomPan();
-					_applyBgOpacity(1);
-
-					if(fadeEverything) {
-						template.style.opacity = 1;
-					} else {
-						_applyBgOpacity(1);
-					}
-
-					_showOrHideTimeout = setTimeout(onComplete, duration + 20);
-				} else {
-
-					// "out" animation uses rAF only when PhotoSwipe is closed by browser scroll, to recalculate position
-					var destZoomLevel = thumbBounds.w / item.w,
-						initialPanOffset = {
-							x: _panOffset.x,
-							y: _panOffset.y
-						},
-						initialZoomLevel = _currZoomLevel,
-						initalBgOpacity = _bgOpacity,
-						onUpdate = function(now) {
-							
-							if(now === 1) {
-								_currZoomLevel = destZoomLevel;
-								_panOffset.x = thumbBounds.x;
-								_panOffset.y = thumbBounds.y  - _currentWindowScrollY;
-							} else {
-								_currZoomLevel = (destZoomLevel - initialZoomLevel) * now + initialZoomLevel;
-								_panOffset.x = (thumbBounds.x - initialPanOffset.x) * now + initialPanOffset.x;
-								_panOffset.y = (thumbBounds.y - _currentWindowScrollY - initialPanOffset.y) * now + initialPanOffset.y;
-							}
-							
-							_applyCurrentZoomPan();
-							if(fadeEverything) {
-								template.style.opacity = 1 - now;
-							} else {
-								_applyBgOpacity( initalBgOpacity - now * initalBgOpacity );
-							}
-						};
-
-					if(closeWithRaf) {
-						_animateProp('initialZoom', 0, 1, duration, framework.easing.cubic.out, onUpdate, onComplete);
-					} else {
-						onUpdate(1);
-						_showOrHideTimeout = setTimeout(onComplete, duration + 20);
-					}
-				}
-			
-			}, out ? 25 : 90); // Main purpose of this delay is to give browser time to paint and
-					// create composite layers of PhotoSwipe UI parts (background, controls, caption, arrows).
-					// Which avoids lag at the beginning of scale transition.
-		};
-		startAnimation();
-
-		
-	};
-
-/*>>show-hide-transition*/
-
-/*>>items-controller*/
-/**
-*
-* Controller manages gallery items, their dimensions, and their content.
-* 
-*/
-
-var _items,
-	_tempPanAreaSize = {},
-	_imagesToAppendPool = [],
-	_initialContentSet,
-	_initialZoomRunning,
-	_controllerDefaultOptions = {
-		index: 0,
-		errorMsg: '<div class="pswp__error-msg"><a href="%url%" target="_blank">The image</a> could not be loaded.</div>',
-		forceProgressiveLoading: false, // TODO
-		preload: [1,1],
-		getNumItemsFn: function() {
-			return _items.length;
-		}
-	};
-
-
-var _getItemAt,
-	_getNumItems,
-	_initialIsLoop,
-	_getZeroBounds = function() {
-		return {
-			center:{x:0,y:0}, 
-			max:{x:0,y:0}, 
-			min:{x:0,y:0}
-		};
-	},
-	_calculateSingleItemPanBounds = function(item, realPanElementW, realPanElementH ) {
-		var bounds = item.bounds;
-
-		// position of element when it's centered
-		bounds.center.x = Math.round((_tempPanAreaSize.x - realPanElementW) / 2);
-		bounds.center.y = Math.round((_tempPanAreaSize.y - realPanElementH) / 2) + item.vGap.top;
-
-		// maximum pan position
-		bounds.max.x = (realPanElementW > _tempPanAreaSize.x) ? 
-							Math.round(_tempPanAreaSize.x - realPanElementW) : 
-							bounds.center.x;
-		
-		bounds.max.y = (realPanElementH > _tempPanAreaSize.y) ? 
-							Math.round(_tempPanAreaSize.y - realPanElementH) + item.vGap.top : 
-							bounds.center.y;
-		
-		// minimum pan position
-		bounds.min.x = (realPanElementW > _tempPanAreaSize.x) ? 0 : bounds.center.x;
-		bounds.min.y = (realPanElementH > _tempPanAreaSize.y) ? item.vGap.top : bounds.center.y;
-	},
-	_calculateItemSize = function(item, viewportSize, zoomLevel) {
-
-		if (item.src && !item.loadError) {
-			var isInitial = !zoomLevel;
-			
-			if(isInitial) {
-				if(!item.vGap) {
-					item.vGap = {top:0,bottom:0};
-				}
-				// allows overriding vertical margin for individual items
-				_shout('parseVerticalMargin', item);
-			}
-
-
-			_tempPanAreaSize.x = viewportSize.x;
-			_tempPanAreaSize.y = viewportSize.y - item.vGap.top - item.vGap.bottom;
-
-			if (isInitial) {
-				var hRatio = _tempPanAreaSize.x / item.w;
-				var vRatio = _tempPanAreaSize.y / item.h;
-
-				item.fitRatio = hRatio < vRatio ? hRatio : vRatio;
-				//item.fillRatio = hRatio > vRatio ? hRatio : vRatio;
-
-				var scaleMode = _options.scaleMode;
-
-				if (scaleMode === 'orig') {
-					zoomLevel = 1;
-				} else if (scaleMode === 'fit') {
-					zoomLevel = item.fitRatio;
-				}
-
-				if (zoomLevel > 1) {
-					zoomLevel = 1;
-				}
-
-				item.initialZoomLevel = zoomLevel;
-				
-				if(!item.bounds) {
-					// reuse bounds object
-					item.bounds = _getZeroBounds(); 
-				}
-			}
-
-			if(!zoomLevel) {
-				return;
-			}
-
-			_calculateSingleItemPanBounds(item, item.w * zoomLevel, item.h * zoomLevel);
-
-			if (isInitial && zoomLevel === item.initialZoomLevel) {
-				item.initialPosition = item.bounds.center;
-			}
-
-			return item.bounds;
-		} else {
-			item.w = item.h = 0;
-			item.initialZoomLevel = item.fitRatio = 1;
-			item.bounds = _getZeroBounds();
-			item.initialPosition = item.bounds.center;
-
-			// if it's not image, we return zero bounds (content is not zoomable)
-			return item.bounds;
-		}
-		
-	},
-
-	
-
-
-	_appendImage = function(index, item, baseDiv, img, preventAnimation, keepPlaceholder) {
-		
-
-		if(item.loadError) {
-			return;
-		}
-
-		if(img) {
-
-			item.imageAppended = true;
-			_setImageSize(item, img, (item === self.currItem && _renderMaxResolution) );
-			
-			baseDiv.appendChild(img);
-
-			if(keepPlaceholder) {
-				setTimeout(function() {
-					if(item && item.loaded && item.placeholder) {
-						item.placeholder.style.display = 'none';
-						item.placeholder = null;
-					}
-				}, 500);
-			}
-		}
-	},
-	
-
-
-	_preloadImage = function(item) {
-		item.loading = true;
-		item.loaded = false;
-		var img = item.img = framework.createEl('pswp__img', 'img');
-		var onComplete = function() {
-			item.loading = false;
-			item.loaded = true;
-
-			if(item.loadComplete) {
-				item.loadComplete(item);
-			} else {
-				item.img = null; // no need to store image object
-			}
-			img.onload = img.onerror = null;
-			img = null;
-		};
-		img.onload = onComplete;
-		img.onerror = function() {
-			item.loadError = true;
-			onComplete();
-		};		
-
-		img.src = item.src;// + '?a=' + Math.random();
-
-		return img;
-	},
-	_checkForError = function(item, cleanUp) {
-		if(item.src && item.loadError && item.container) {
-
-			if(cleanUp) {
-				item.container.innerHTML = '';
-			}
-
-			item.container.innerHTML = _options.errorMsg.replace('%url%',  item.src );
-			return true;
-			
-		}
-	},
-	_setImageSize = function(item, img, maxRes) {
-		if(!item.src) {
-			return;
-		}
-
-		if(!img) {
-			img = item.container.lastChild;
-		}
-
-		var w = maxRes ? item.w : Math.round(item.w * item.fitRatio),
-			h = maxRes ? item.h : Math.round(item.h * item.fitRatio);
-		
-		if(item.placeholder && !item.loaded) {
-			item.placeholder.style.width = w + 'px';
-			item.placeholder.style.height = h + 'px';
-		}
-
-		img.style.width = w + 'px';
-		img.style.height = h + 'px';
-	},
-	_appendImagesPool = function() {
-
-		if(_imagesToAppendPool.length) {
-			var poolItem;
-
-			for(var i = 0; i < _imagesToAppendPool.length; i++) {
-				poolItem = _imagesToAppendPool[i];
-				if( poolItem.holder.index === poolItem.index ) {
-					_appendImage(poolItem.index, poolItem.item, poolItem.baseDiv, poolItem.img, false, poolItem.clearPlaceholder);
-				}
-			}
-			_imagesToAppendPool = [];
-		}
-	};
-	
-
-
-_registerModule('Controller', {
-
-	publicMethods: {
-
-		lazyLoadItem: function(index) {
-			index = _getLoopedId(index);
-			var item = _getItemAt(index);
-
-			if(!item || ((item.loaded || item.loading) && !_itemsNeedUpdate)) {
-				return;
-			}
-
-			_shout('gettingData', index, item);
-
-			if (!item.src) {
-				return;
-			}
-
-			_preloadImage(item);
-		},
-		initController: function() {
-			framework.extend(_options, _controllerDefaultOptions, true);
-			self.items = _items = items;
-			_getItemAt = self.getItemAt;
-			_getNumItems = _options.getNumItemsFn; //self.getNumItems;
-
-
-
-			_initialIsLoop = _options.loop;
-			if(_getNumItems() < 3) {
-				_options.loop = false; // disable loop if less then 3 items
-			}
-
-			_listen('beforeChange', function(diff) {
-
-				var p = _options.preload,
-					isNext = diff === null ? true : (diff >= 0),
-					preloadBefore = Math.min(p[0], _getNumItems() ),
-					preloadAfter = Math.min(p[1], _getNumItems() ),
-					i;
-
-
-				for(i = 1; i <= (isNext ? preloadAfter : preloadBefore); i++) {
-					self.lazyLoadItem(_currentItemIndex+i);
-				}
-				for(i = 1; i <= (isNext ? preloadBefore : preloadAfter); i++) {
-					self.lazyLoadItem(_currentItemIndex-i);
-				}
-			});
-
-			_listen('initialLayout', function() {
-				self.currItem.initialLayout = _options.getThumbBoundsFn && _options.getThumbBoundsFn(_currentItemIndex);
-			});
-
-			_listen('mainScrollAnimComplete', _appendImagesPool);
-			_listen('initialZoomInEnd', _appendImagesPool);
-
-
-
-			_listen('destroy', function() {
-				var item;
-				for(var i = 0; i < _items.length; i++) {
-					item = _items[i];
-					// remove reference to DOM elements, for GC
-					if(item.container) {
-						item.container = null; 
-					}
-					if(item.placeholder) {
-						item.placeholder = null;
-					}
-					if(item.img) {
-						item.img = null;
-					}
-					if(item.preloader) {
-						item.preloader = null;
-					}
-					if(item.loadError) {
-						item.loaded = item.loadError = false;
-					}
-				}
-				_imagesToAppendPool = null;
-			});
-		},
-
-
-		getItemAt: function(index) {
-			if (index >= 0) {
-				return _items[index] !== undefined ? _items[index] : false;
-			}
-			return false;
-		},
-
-		allowProgressiveImg: function() {
-			// 1. Progressive image loading isn't working on webkit/blink 
-			//    when hw-acceleration (e.g. translateZ) is applied to IMG element.
-			//    That's why in PhotoSwipe parent element gets zoom transform, not image itself.
-			//    
-			// 2. Progressive image loading sometimes blinks in webkit/blink when applying animation to parent element.
-			//    That's why it's disabled on touch devices (mainly because of swipe transition)
-			//    
-			// 3. Progressive image loading sometimes doesn't work in IE (up to 11).
-
-			// Don't allow progressive loading on non-large touch devices
-			return _options.forceProgressiveLoading || !_likelyTouchDevice || _options.mouseUsed || screen.width > 1200; 
-			// 1200 - to eliminate touch devices with large screen (like Chromebook Pixel)
-		},
-
-		setContent: function(holder, index) {
-
-			if(_options.loop) {
-				index = _getLoopedId(index);
-			}
-
-			var prevItem = self.getItemAt(holder.index);
-			if(prevItem) {
-				prevItem.container = null;
-			}
-	
-			var item = self.getItemAt(index),
-				img;
-			
-			if(!item) {
-				holder.el.innerHTML = '';
-				return;
-			}
-
-			// allow to override data
-			_shout('gettingData', index, item);
-
-			holder.index = index;
-			holder.item = item;
-
-			// base container DIV is created only once for each of 3 holders
-			var baseDiv = item.container = framework.createEl('pswp__zoom-wrap'); 
-
-			
-
-			if(!item.src && item.html) {
-				if(item.html.tagName) {
-					baseDiv.appendChild(item.html);
-				} else {
-					baseDiv.innerHTML = item.html;
-				}
-			}
-
-			_checkForError(item);
-
-			_calculateItemSize(item, _viewportSize);
-			
-			if(item.src && !item.loadError && !item.loaded) {
-
-				item.loadComplete = function(item) {
-
-					// gallery closed before image finished loading
-					if(!_isOpen) {
-						return;
-					}
-
-					// check if holder hasn't changed while image was loading
-					if(holder && holder.index === index ) {
-						if( _checkForError(item, true) ) {
-							item.loadComplete = item.img = null;
-							_calculateItemSize(item, _viewportSize);
-							_applyZoomPanToItem(item);
-
-							if(holder.index === _currentItemIndex) {
-								// recalculate dimensions
-								self.updateCurrZoomItem();
-							}
-							return;
-						}
-						if( !item.imageAppended ) {
-							if(_features.transform && (_mainScrollAnimating || _initialZoomRunning) ) {
-								_imagesToAppendPool.push({
-									item:item,
-									baseDiv:baseDiv,
-									img:item.img,
-									index:index,
-									holder:holder,
-									clearPlaceholder:true
-								});
-							} else {
-								_appendImage(index, item, baseDiv, item.img, _mainScrollAnimating || _initialZoomRunning, true);
-							}
-						} else {
-							// remove preloader & mini-img
-							if(!_initialZoomRunning && item.placeholder) {
-								item.placeholder.style.display = 'none';
-								item.placeholder = null;
-							}
-						}
-					}
-
-					item.loadComplete = null;
-					item.img = null; // no need to store image element after it's added
-
-					_shout('imageLoadComplete', index, item);
-				};
-
-				if(framework.features.transform) {
-					
-					var placeholderClassName = 'pswp__img pswp__img--placeholder'; 
-					placeholderClassName += (item.msrc ? '' : ' pswp__img--placeholder--blank');
-
-					var placeholder = framework.createEl(placeholderClassName, item.msrc ? 'img' : '');
-					if(item.msrc) {
-						placeholder.src = item.msrc;
-					}
-					
-					_setImageSize(item, placeholder);
-
-					baseDiv.appendChild(placeholder);
-					item.placeholder = placeholder;
-
-				}
-				
-
-				
-
-				if(!item.loading) {
-					_preloadImage(item);
-				}
-
-
-				if( self.allowProgressiveImg() ) {
-					// just append image
-					if(!_initialContentSet && _features.transform) {
-						_imagesToAppendPool.push({
-							item:item, 
-							baseDiv:baseDiv, 
-							img:item.img, 
-							index:index, 
-							holder:holder
-						});
-					} else {
-						_appendImage(index, item, baseDiv, item.img, true, true);
-					}
-				}
-				
-			} else if(item.src && !item.loadError) {
-				// image object is created every time, due to bugs of image loading & delay when switching images
-				img = framework.createEl('pswp__img', 'img');
-				img.style.opacity = 1;
-				img.src = item.src;
-				_setImageSize(item, img);
-				_appendImage(index, item, baseDiv, img, true);
-			}
-			
-
-			if(!_initialContentSet && index === _currentItemIndex) {
-				_currZoomElementStyle = baseDiv.style;
-				_showOrHide(item, (img ||item.img) );
-			} else {
-				_applyZoomPanToItem(item);
-			}
-
-			holder.el.innerHTML = '';
-			holder.el.appendChild(baseDiv);
-		},
-
-		cleanSlide: function( item ) {
-			if(item.img ) {
-				item.img.onload = item.img.onerror = null;
-			}
-			item.loaded = item.loading = item.img = item.imageAppended = false;
-		}
-
-	}
-});
-
-/*>>items-controller*/
-
-/*>>tap*/
-/**
- * tap.js:
- *
- * Displatches tap and double-tap events.
- * 
- */
-
-var tapTimer,
-	tapReleasePoint = {},
-	_dispatchTapEvent = function(origEvent, releasePoint, pointerType) {		
-		var e = document.createEvent( 'CustomEvent' ),
-			eDetail = {
-				origEvent:origEvent, 
-				target:origEvent.target, 
-				releasePoint: releasePoint, 
-				pointerType:pointerType || 'touch'
-			};
-
-		e.initCustomEvent( 'pswpTap', true, true, eDetail );
-		origEvent.target.dispatchEvent(e);
-	};
-
-_registerModule('Tap', {
-	publicMethods: {
-		initTap: function() {
-			_listen('firstTouchStart', self.onTapStart);
-			_listen('touchRelease', self.onTapRelease);
-			_listen('destroy', function() {
-				tapReleasePoint = {};
-				tapTimer = null;
-			});
-		},
-		onTapStart: function(touchList) {
-			if(touchList.length > 1) {
-				clearTimeout(tapTimer);
-				tapTimer = null;
-			}
-		},
-		onTapRelease: function(e, releasePoint) {
-			if(!releasePoint) {
-				return;
-			}
-
-			if(!_moved && !_isMultitouch && !_numAnimations) {
-				var p0 = releasePoint;
-				if(tapTimer) {
-					clearTimeout(tapTimer);
-					tapTimer = null;
-
-					// Check if taped on the same place
-					if ( _isNearbyPoints(p0, tapReleasePoint) ) {
-						_shout('doubleTap', p0);
-						return;
-					}
-				}
-
-				if(releasePoint.type === 'mouse') {
-					_dispatchTapEvent(e, releasePoint, 'mouse');
-					return;
-				}
-
-				var clickedTagName = e.target.tagName.toUpperCase();
-				// avoid double tap delay on buttons and elements that have class pswp__single-tap
-				if(clickedTagName === 'BUTTON' || framework.hasClass(e.target, 'pswp__single-tap') ) {
-					_dispatchTapEvent(e, releasePoint);
-					return;
-				}
-
-				_equalizePoints(tapReleasePoint, p0);
-
-				tapTimer = setTimeout(function() {
-					_dispatchTapEvent(e, releasePoint);
-					tapTimer = null;
-				}, 300);
-			}
-		}
-	}
-});
-
-/*>>tap*/
-
-/*>>desktop-zoom*/
-/**
- *
- * desktop-zoom.js:
- *
- * - Binds mousewheel event for paning zoomed image.
- * - Manages "dragging", "zoomed-in", "zoom-out" classes.
- *   (which are used for cursors and zoom icon)
- * - Adds toggleDesktopZoom function.
- * 
- */
-
-var _wheelDelta;
-	
-_registerModule('DesktopZoom', {
-
-	publicMethods: {
-
-		initDesktopZoom: function() {
-
-			if(_oldIE) {
-				// no zoom for old IE (<=8)
-				return;
-			}
-
-			if(_likelyTouchDevice) {
-				// if detected hardware touch support, we wait until mouse is used,
-				// and only then apply desktop-zoom features
-				_listen('mouseUsed', function() {
-					self.setupDesktopZoom();
-				});
-			} else {
-				self.setupDesktopZoom(true);
-			}
-
-		},
-
-		setupDesktopZoom: function(onInit) {
-
-			_wheelDelta = {};
-
-			var events = 'wheel mousewheel DOMMouseScroll';
-			
-			_listen('bindEvents', function() {
-				framework.bind(template, events,  self.handleMouseWheel);
-			});
-
-			_listen('unbindEvents', function() {
-				if(_wheelDelta) {
-					framework.unbind(template, events, self.handleMouseWheel);
-				}
-			});
-
-			self.mouseZoomedIn = false;
-
-			var hasDraggingClass,
-				updateZoomable = function() {
-					if(self.mouseZoomedIn) {
-						framework.removeClass(template, 'pswp--zoomed-in');
-						self.mouseZoomedIn = false;
-					}
-					if(_currZoomLevel < 1) {
-						framework.addClass(template, 'pswp--zoom-allowed');
-					} else {
-						framework.removeClass(template, 'pswp--zoom-allowed');
-					}
-					removeDraggingClass();
-				},
-				removeDraggingClass = function() {
-					if(hasDraggingClass) {
-						framework.removeClass(template, 'pswp--dragging');
-						hasDraggingClass = false;
-					}
-				};
-
-			_listen('resize' , updateZoomable);
-			_listen('afterChange' , updateZoomable);
-			_listen('pointerDown', function() {
-				if(self.mouseZoomedIn) {
-					hasDraggingClass = true;
-					framework.addClass(template, 'pswp--dragging');
-				}
-			});
-			_listen('pointerUp', removeDraggingClass);
-
-			if(!onInit) {
-				updateZoomable();
-			}
-			
-		},
-
-		handleMouseWheel: function(e) {
-
-			if(_currZoomLevel <= self.currItem.fitRatio) {
-				if( _options.modal ) {
-
-					if (!_options.closeOnScroll || _numAnimations || _isDragging) {
-						e.preventDefault();
-					} else if(_transformKey && Math.abs(e.deltaY) > 2) {
-						// close PhotoSwipe
-						// if browser supports transforms & scroll changed enough
-						_closedByScroll = true;
-						self.close();
-					}
-
-				}
-				return true;
-			}
-
-			// allow just one event to fire
-			e.stopPropagation();
-
-			// https://developer.mozilla.org/en-US/docs/Web/Events/wheel
-			_wheelDelta.x = 0;
-
-			if('deltaX' in e) {
-				if(e.deltaMode === 1 /* DOM_DELTA_LINE */) {
-					// 18 - average line height
-					_wheelDelta.x = e.deltaX * 18;
-					_wheelDelta.y = e.deltaY * 18;
-				} else {
-					_wheelDelta.x = e.deltaX;
-					_wheelDelta.y = e.deltaY;
-				}
-			} else if('wheelDelta' in e) {
-				if(e.wheelDeltaX) {
-					_wheelDelta.x = -0.16 * e.wheelDeltaX;
-				}
-				if(e.wheelDeltaY) {
-					_wheelDelta.y = -0.16 * e.wheelDeltaY;
-				} else {
-					_wheelDelta.y = -0.16 * e.wheelDelta;
-				}
-			} else if('detail' in e) {
-				_wheelDelta.y = e.detail;
-			} else {
-				return;
-			}
-
-			_calculatePanBounds(_currZoomLevel, true);
-
-			var newPanX = _panOffset.x - _wheelDelta.x,
-				newPanY = _panOffset.y - _wheelDelta.y;
-
-			// only prevent scrolling in nonmodal mode when not at edges
-			if (_options.modal ||
-				(
-				newPanX <= _currPanBounds.min.x && newPanX >= _currPanBounds.max.x &&
-				newPanY <= _currPanBounds.min.y && newPanY >= _currPanBounds.max.y
-				) ) {
-				e.preventDefault();
-			}
-
-			// TODO: use rAF instead of mousewheel?
-			self.panTo(newPanX, newPanY);
-		},
-
-		toggleDesktopZoom: function(centerPoint) {
-			centerPoint = centerPoint || {x:_viewportSize.x/2 + _offset.x, y:_viewportSize.y/2 + _offset.y };
-
-			var doubleTapZoomLevel = _options.getDoubleTapZoom(true, self.currItem);
-			var zoomOut = _currZoomLevel === doubleTapZoomLevel;
-			
-			self.mouseZoomedIn = !zoomOut;
-
-			self.zoomTo(zoomOut ? self.currItem.initialZoomLevel : doubleTapZoomLevel, centerPoint, 333);
-			framework[ (!zoomOut ? 'add' : 'remove') + 'Class'](template, 'pswp--zoomed-in');
-		}
-
-	}
-});
-
-
-/*>>desktop-zoom*/
-
-/*>>history*/
-/**
- *
- * history.js:
- *
- * - Back button to close gallery.
- * 
- * - Unique URL for each slide: example.com/&pid=1&gid=3
- *   (where PID is picture index, and GID and gallery index)
- *   
- * - Switch URL when slides change.
- * 
- */
-
-
-var _historyDefaultOptions = {
-	history: true,
-	galleryUID: 1
-};
-
-var _historyUpdateTimeout,
-	_hashChangeTimeout,
-	_hashAnimCheckTimeout,
-	_hashChangedByScript,
-	_hashChangedByHistory,
-	_hashReseted,
-	_initialHash,
-	_historyChanged,
-	_closedFromURL,
-	_urlChangedOnce,
-	_windowLoc,
-
-	_supportsPushState,
-
-	_getHash = function() {
-		return _windowLoc.hash.substring(1);
-	},
-	_cleanHistoryTimeouts = function() {
-
-		if(_historyUpdateTimeout) {
-			clearTimeout(_historyUpdateTimeout);
-		}
-
-		if(_hashAnimCheckTimeout) {
-			clearTimeout(_hashAnimCheckTimeout);
-		}
-	},
-
-	// pid - Picture index
-	// gid - Gallery index
-	_parseItemIndexFromURL = function() {
-		var hash = _getHash(),
-			params = {};
-
-		if(hash.length < 5) { // pid=1
-			return params;
-		}
-
-		var i, vars = hash.split('&');
-		for (i = 0; i < vars.length; i++) {
-			if(!vars[i]) {
-				continue;
-			}
-			var pair = vars[i].split('=');	
-			if(pair.length < 2) {
-				continue;
-			}
-			params[pair[0]] = pair[1];
-		}
-		if(_options.galleryPIDs) {
-			// detect custom pid in hash and search for it among the items collection
-			var searchfor = params.pid;
-			params.pid = 0; // if custom pid cannot be found, fallback to the first item
-			for(i = 0; i < _items.length; i++) {
-				if(_items[i].pid === searchfor) {
-					params.pid = i;
-					break;
-				}
-			}
-		} else {
-			params.pid = parseInt(params.pid,10)-1;
-		}
-		if( params.pid < 0 ) {
-			params.pid = 0;
-		}
-		return params;
-	},
-	_updateHash = function() {
-
-		if(_hashAnimCheckTimeout) {
-			clearTimeout(_hashAnimCheckTimeout);
-		}
-
-
-		if(_numAnimations || _isDragging) {
-			// changing browser URL forces layout/paint in some browsers, which causes noticable lag during animation
-			// that's why we update hash only when no animations running
-			_hashAnimCheckTimeout = setTimeout(_updateHash, 500);
-			return;
-		}
-		
-		if(_hashChangedByScript) {
-			clearTimeout(_hashChangeTimeout);
-		} else {
-			_hashChangedByScript = true;
-		}
-
-
-		var pid = (_currentItemIndex + 1);
-		var item = _getItemAt( _currentItemIndex );
-		if(item.hasOwnProperty('pid')) {
-			// carry forward any custom pid assigned to the item
-			pid = item.pid;
-		}
-		var newHash = _initialHash + '&'  +  'gid=' + _options.galleryUID + '&' + 'pid=' + pid;
-
-		if(!_historyChanged) {
-			if(_windowLoc.hash.indexOf(newHash) === -1) {
-				_urlChangedOnce = true;
-			}
-			// first time - add new hisory record, then just replace
-		}
-
-		var newURL = _windowLoc.href.split('#')[0] + '#' +  newHash;
-
-		if( _supportsPushState ) {
-
-			if('#' + newHash !== window.location.hash) {
-				history[_historyChanged ? 'replaceState' : 'pushState']('', document.title, newURL);
-			}
-
-		} else {
-			if(_historyChanged) {
-				_windowLoc.replace( newURL );
-			} else {
-				_windowLoc.hash = newHash;
-			}
-		}
-		
-		
-
-		_historyChanged = true;
-		_hashChangeTimeout = setTimeout(function() {
-			_hashChangedByScript = false;
-		}, 60);
-	};
-
-
-
-	
-
-_registerModule('History', {
-
-	
-
-	publicMethods: {
-		initHistory: function() {
-
-			framework.extend(_options, _historyDefaultOptions, true);
-
-			if( !_options.history ) {
-				return;
-			}
-
-
-			_windowLoc = window.location;
-			_urlChangedOnce = false;
-			_closedFromURL = false;
-			_historyChanged = false;
-			_initialHash = _getHash();
-			_supportsPushState = ('pushState' in history);
-
-
-			if(_initialHash.indexOf('gid=') > -1) {
-				_initialHash = _initialHash.split('&gid=')[0];
-				_initialHash = _initialHash.split('?gid=')[0];
-			}
-			
-
-			_listen('afterChange', self.updateURL);
-			_listen('unbindEvents', function() {
-				framework.unbind(window, 'hashchange', self.onHashChange);
-			});
-
-
-			var returnToOriginal = function() {
-				_hashReseted = true;
-				if(!_closedFromURL) {
-
-					if(_urlChangedOnce) {
-						history.back();
-					} else {
-
-						if(_initialHash) {
-							_windowLoc.hash = _initialHash;
-						} else {
-							if (_supportsPushState) {
-
-								// remove hash from url without refreshing it or scrolling to top
-								history.pushState('', document.title,  _windowLoc.pathname + _windowLoc.search );
-							} else {
-								_windowLoc.hash = '';
-							}
-						}
-					}
-					
-				}
-
-				_cleanHistoryTimeouts();
-			};
-
-
-			_listen('unbindEvents', function() {
-				if(_closedByScroll) {
-					// if PhotoSwipe is closed by scroll, we go "back" before the closing animation starts
-					// this is done to keep the scroll position
-					returnToOriginal();
-				}
-			});
-			_listen('destroy', function() {
-				if(!_hashReseted) {
-					returnToOriginal();
-				}
-			});
-			_listen('firstUpdate', function() {
-				_currentItemIndex = _parseItemIndexFromURL().pid;
-			});
-
-			
-
-			
-			var index = _initialHash.indexOf('pid=');
-			if(index > -1) {
-				_initialHash = _initialHash.substring(0, index);
-				if(_initialHash.slice(-1) === '&') {
-					_initialHash = _initialHash.slice(0, -1);
-				}
-			}
-			
-
-			setTimeout(function() {
-				if(_isOpen) { // hasn't destroyed yet
-					framework.bind(window, 'hashchange', self.onHashChange);
-				}
-			}, 40);
-			
-		},
-		onHashChange: function() {
-
-			if(_getHash() === _initialHash) {
-
-				_closedFromURL = true;
-				self.close();
-				return;
-			}
-			if(!_hashChangedByScript) {
-
-				_hashChangedByHistory = true;
-				self.goTo( _parseItemIndexFromURL().pid );
-				_hashChangedByHistory = false;
-			}
-			
-		},
-		updateURL: function() {
-
-			// Delay the update of URL, to avoid lag during transition, 
-			// and to not to trigger actions like "refresh page sound" or "blinking favicon" to often
-			
-			_cleanHistoryTimeouts();
-			
-
-			if(_hashChangedByHistory) {
-				return;
-			}
-
-			if(!_historyChanged) {
-				_updateHash(); // first time
-			} else {
-				_historyUpdateTimeout = setTimeout(_updateHash, 800);
-			}
-		}
-	
-	}
-});
-
-
-/*>>history*/
-	framework.extend(self, publicMethods); };
-	return PhotoSwipe;
-});
-},{}],2:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.PhotoSwipe = exports.default = undefined;
-
-var _photoswipe = require('photoswipe');
-
-var _photoswipe2 = _interopRequireDefault(_photoswipe);
-
-var _photoswipeUiDefault = require('./libs/photoswipe-ui-default');
-
-var _photoswipeUiDefault2 = _interopRequireDefault(_photoswipeUiDefault);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function PhotoSwipeMounter($) {
-    var $defaultGallery = $('<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true"><div class="pswp__bg"></div><div class="pswp__scroll-wrap"><div class="pswp__container"><div class="pswp__item"></div><div class="pswp__item"></div><div class="pswp__item"></div></div><div class="pswp__ui pswp__ui--hidden"><div class="pswp__top-bar"><div class="pswp__counter"></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button> <button class="pswp__button pswp__button--share" title="Share"></button> <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button> <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class="pswp__preloader"><div class="pswp__preloader__icn"><div class="pswp__preloader__cut"><div class="pswp__preloader__donut"></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class="pswp__share-tooltip"></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button> <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class="pswp__caption"><div class="pswp__caption__center"></div></div></div></div></div>').appendTo('body'),
-        uid = 1;
-
-    function getImgs($gallery) {
-        var slideSelector = getOptions($gallery).slideSelector;
-
-        return $gallery.find(slideSelector).map(function (index) {
-            var $img = $(this).data('index', index),
-                tagName = this.tagName.toUpperCase();
-
-            if (tagName === 'A') {
-                if (this.hash) {
-                    $img = $(this.hash);
-                } else {
-                    $img = $img.find('img').eq(0);
-                    $img.data('original-src', this.href);
-                }
-            } else if (tagName !== 'IMG') {
-                $img = $img.find('img');
-            }
-
-            return $img[0];
-        });
-    }
-
-    function getThumbBoundsFn($imgs) {
-        return function _getThumbBoundsFn(index) {
-            var $img = $imgs.eq(index),
-                imgOffset = $img.offset(),
-                imgWidth = $img[0].width;
-
-            return { x: imgOffset.left, y: imgOffset.top, w: imgWidth };
-        };
-    }
-
-    function getWH(wh, $img) {
-        var d = $.Deferred(),
-            wh_value = $img.data('original-src-' + wh),
-            original_src = decodeURI($img.data('original-src') || $img.attr('src')),
-            matches = original_src.match(/(\d+)[*×x](\d+)/);
-
-        if (wh_value) {
-            d.resolve(wh_value);
-        } else if (matches !== null) {
-            d.resolve(matches[wh === 'width' ? 1 : 2]);
-        } else {
-            $('<img>').on('load', function () {
-                d.resolve(this[wh]);
-            }).attr('src', $img.attr('src'));
-        }
-
-        return d.promise();
-    }
-
-    function getHeight($img) {
-        return getWH('height', $img);
-    }
-
-    function getWidth($img) {
-        return getWH('width', $img);
-    }
-
-    function getImgSize($img) {
-        return $.when(getWidth($img), getHeight($img));
-    }
-
-    function getImgInfo() {
-        var $img = $(this),
-            original_src = $img.data('original-src') || $img.attr('src'),
-            d = $.Deferred();
-
-        if (this.tagName !== 'IMG') {
-            d.resolve({
-                html: this.innerHTML
-            });
-        } else {
-            getImgSize($img).done(function (w, h) {
-                var src = $img.attr('src'),
-                    title,
-                    caption_classname,
-                    $figcaption;
-
-                function get_caption($elem, selector) {
-                    var $parent = $elem.parent(),
-                        $caption_element;
-
-                    if (!$parent.length) {
-                        return undefined;
-                    }
-
-                    $caption_element = $parent.find(selector);
-                    if ($caption_element.length) {
-                        return $caption_element.html();
-                    }
-
-                    return get_caption($parent, selector);
-                }
-
-                // try to find the slide title from :
-                // (in order)
-                //
-                // 1. `data-caption-class` (a class-name that indicates the element containing the caption)
-                // 2. `figcaption` element (the `figcaption` that resides inside a `figure` which contains the slide `img` element)
-                // 3. `alt` attribute (the `alt` attribute of the slide `img` element)
-
-                if (caption_classname = $img.data('caption-class')) {
-                    title = get_caption($img, '.' + caption_classname);
-                } else if (($figcaption = $img.closest('figure').find('figcaption')) && $figcaption.length) {
-                    title = $figcaption.html();
-                } else {
-                    title = $img.attr('alt');
-                }
-
-                d.resolve({
-                    w: w,
-                    h: h,
-                    src: original_src,
-                    msrc: src,
-                    title: title
-                });
-            });
-        }
-
-        return d.promise();
-    }
-
-    function getImgInfoArray($imgs) {
-        var imgInfoArray = $imgs.map(getImgInfo).get(),
-            d = $.Deferred();
-
-        $.when.apply($, imgInfoArray).done(function () {
-            var imgInfoArray = Array.prototype.slice.call(arguments);
-            d.resolve(imgInfoArray);
-        });
-
-        return d.promise();
-    }
-
-    function getOptions($gallery) {
-        return $gallery.data('photoswipeOptions');
-    }
-
-    function addUID($gallery) {
-        if (!$gallery.data('pswp-uid')) {
-            $gallery.data('pswp-uid', uid++);
-        }
-    }
-
-    function openPhotoSwipe(index, $gallery, $imgs, imgInfoArray) {
-        var options = $.extend(getOptions($gallery).globalOptions, { index: index, getThumbBoundsFn: getThumbBoundsFn($imgs), galleryUID: $gallery.data('pswp-uid') }),
-            photoSwipe = new _photoswipe2.default($defaultGallery[0], _photoswipeUiDefault2.default, imgInfoArray, options);
-
-        $.each(getOptions($gallery).events, function (eventName, eventHandler) {
-            photoSwipe.listen(eventName, eventHandler);
-        });
-
-        photoSwipe.init();
-    }
-
-    // parse picture index and gallery index from URL (#&pid=1&gid=2)
-    function photoswipeParseHash() {
-        var hash = window.location.hash.substring(1),
-            params = {};
-
-        if (hash.length < 5) {
-            return params;
-        }
-
-        var vars = hash.split('&');
-        for (var i = 0; i < vars.length; i++) {
-            if (!vars[i]) {
-                continue;
-            }
-            var pair = vars[i].split('=');
-            if (pair.length < 2) {
-                continue;
-            }
-            params[pair[0]] = parseInt(pair[1], 10);
-        }
-
-        return params;
-    }
-
-    function openFromURL($galleries) {
-        // Parse URL and open gallery if it contains #&pid=3&gid=1
-        var hashData = photoswipeParseHash();
-        if (hashData.pid && hashData.gid) {
-            (function () {
-                var $gallery = $galleries[hashData.gid - 1],
-                    pid = hashData.pid - 1,
-                    $imgs = getImgs($gallery),
-                    imgInfoArrayPromise = getImgInfoArray($imgs);
-
-                imgInfoArrayPromise.done(function (imgInfoArray) {
-                    openPhotoSwipe(pid, $gallery, $imgs, imgInfoArray);
-                });
-            })();
-        }
-    }
-
-    function addClickHandler($gallery, $imgs, imgInfoArray) {
-        $gallery.on('click.photoswipe', getOptions($gallery).slideSelector, function (e) {
-            e.preventDefault();
-            openPhotoSwipe($(this).data('index'), $gallery, $imgs, imgInfoArray);
-        });
-    }
-
-    function removeClickHandler($gallery) {
-        $gallery.off('click.photoswipe');
-    }
-
-    function update($gallery) {
-        var $imgs = getImgs($gallery),
-            imgInfoArrayPromise = getImgInfoArray($imgs);
-
-        imgInfoArrayPromise.done(function (imgInfoArray) {
-            removeClickHandler($gallery);
-            addClickHandler($gallery, $imgs, imgInfoArray);
-        });
-    }
-
-    $.fn.photoSwipe = function () {
-        var slideSelector = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'img';
-        var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-        var events = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-        var defaultOptions = {
-            bgOpacity: 0.973,
-            showHideOpacity: true
-        },
-            globalOptions = $.extend(defaultOptions, options);
-
-        // Initialize each gallery
-        var $galleries = [],
-            isUpdate = slideSelector === 'update';
-
-        this.each(function () {
-            if (isUpdate) {
-                update($(this));
-                return;
-            }
-
-            var $gallery = $(this).data('photoswipeOptions', { slideSelector: slideSelector, globalOptions: globalOptions, events: events }),
-                // save options
-            $imgs = getImgs($gallery),
-                imgInfoArrayPromise = getImgInfoArray($imgs);
-
-            addUID($gallery);
-            $galleries.push($gallery);
-
-            imgInfoArrayPromise.done(function (imgInfoArray) {
-                addClickHandler($gallery, $imgs, imgInfoArray);
-            });
-        });
-
-        if (!isUpdate) {
-            openFromURL($galleries);
-        }
-
-        return this;
-    };
-
-    // Attach original PhotoSwipe to $.fn.photoSwipe
-    $.fn.photoSwipe.PhotoSwipe = _photoswipe2.default;
-}
-
-
- PhotoSwipeMounter(jQuery);
- 
-
-exports.default = PhotoSwipeMounter;
-exports.PhotoSwipe = _photoswipe2.default;
-
-},{"./libs/photoswipe-ui-default":3,"photoswipe":1}],3:[function(require,module,exports){
-'use strict';
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-/*! PhotoSwipe Default UI - 4.1.1 - 2015-12-24
-* http://photoswipe.com
-* Copyright (c) 2015 Dmitry Semenov; */
-/**
-*
-* UI on top of main sliding area (caption, arrows, close button, etc.).
-* Built just using public methods/properties of PhotoSwipe.
-* 
-*/
-(function (root, factory) {
-	if (true) {
-		!(__WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
-				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
-				(__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) :
-				__WEBPACK_AMD_DEFINE_FACTORY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	} else {}
-})(undefined, function () {
-
-	'use strict';
-
-	var PhotoSwipeUI_Default = function PhotoSwipeUI_Default(pswp, framework) {
-
-		var ui = this;
-		var _overlayUIUpdated = false,
-		    _controlsVisible = true,
-		    _fullscrenAPI,
-		    _controls,
-		    _captionContainer,
-		    _fakeCaptionContainer,
-		    _indexIndicator,
-		    _shareButton,
-		    _shareModal,
-		    _shareModalHidden = true,
-		    _initalCloseOnScrollValue,
-		    _isIdle,
-		    _listen,
-		    _loadingIndicator,
-		    _loadingIndicatorHidden,
-		    _loadingIndicatorTimeout,
-		    _galleryHasOneSlide,
-		    _options,
-		    _defaultUIOptions = {
-			barsSize: { top: 44, bottom: 'auto' },
-			closeElClasses: ['item', 'caption', 'zoom-wrap', 'ui', 'top-bar'],
-			timeToIdle: 4000,
-			timeToIdleOutside: 1000,
-			loadingIndicatorDelay: 1000, // 2s
-
-			addCaptionHTMLFn: function addCaptionHTMLFn(item, captionEl /*, isFake */) {
-				if (!item.title) {
-					captionEl.children[0].innerHTML = '';
-					return false;
-				}
-				captionEl.children[0].innerHTML = item.title;
-				return true;
-			},
-
-			closeEl: true,
-			captionEl: true,
-			fullscreenEl: true,
-			zoomEl: true,
-			shareEl: true,
-			counterEl: true,
-			arrowEl: true,
-			preloaderEl: true,
-
-			tapToClose: false,
-			tapToToggleControls: true,
-
-			clickToCloseNonZoomable: true,
-
-			shareButtons: [{ id: 'facebook', label: 'Share on Facebook', url: 'https://www.facebook.com/sharer/sharer.php?u={{url}}' }, { id: 'twitter', label: 'Tweet', url: 'https://twitter.com/intent/tweet?text={{text}}&url={{url}}' }, { id: 'pinterest', label: 'Pin it', url: 'http://www.pinterest.com/pin/create/button/' + '?url={{url}}&media={{image_url}}&description={{text}}' }, { id: 'download', label: 'Download image', url: '{{raw_image_url}}', download: true }],
-			getImageURLForShare: function getImageURLForShare() /* shareButtonData */{
-				return pswp.currItem.src || '';
-			},
-			getPageURLForShare: function getPageURLForShare() /* shareButtonData */{
-				return window.location.href;
-			},
-			getTextForShare: function getTextForShare() /* shareButtonData */{
-				return pswp.currItem.title || '';
-			},
-
-			indexIndicatorSep: ' / ',
-			fitControlsWidth: 1200
-
-		},
-		    _blockControlsTap,
-		    _blockControlsTapTimeout;
-
-		var _onControlsTap = function _onControlsTap(e) {
-			if (_blockControlsTap) {
-				return true;
-			}
-
-			e = e || window.event;
-
-			if (_options.timeToIdle && _options.mouseUsed && !_isIdle) {
-				// reset idle timer
-				_onIdleMouseMove();
-			}
-
-			var target = e.target || e.srcElement,
-			    uiElement,
-			    clickedClass = target.getAttribute('class') || '',
-			    found;
-
-			for (var i = 0; i < _uiElements.length; i++) {
-				uiElement = _uiElements[i];
-				if (uiElement.onTap && clickedClass.indexOf('pswp__' + uiElement.name) > -1) {
-					uiElement.onTap();
-					found = true;
-				}
-			}
-
-			if (found) {
-				if (e.stopPropagation) {
-					e.stopPropagation();
-				}
-				_blockControlsTap = true;
-
-				// Some versions of Android don't prevent ghost click event 
-				// when preventDefault() was called on touchstart and/or touchend.
-				// 
-				// This happens on v4.3, 4.2, 4.1, 
-				// older versions strangely work correctly, 
-				// but just in case we add delay on all of them)	
-				var tapDelay = framework.features.isOldAndroid ? 600 : 30;
-				_blockControlsTapTimeout = setTimeout(function () {
-					_blockControlsTap = false;
-				}, tapDelay);
-			}
-		},
-		    _fitControlsInViewport = function _fitControlsInViewport() {
-			return !pswp.likelyTouchDevice || _options.mouseUsed || screen.width > _options.fitControlsWidth;
-		},
-		    _togglePswpClass = function _togglePswpClass(el, cName, add) {
-			framework[(add ? 'add' : 'remove') + 'Class'](el, 'pswp__' + cName);
-		},
-
-
-		// add class when there is just one item in the gallery
-		// (by default it hides left/right arrows and 1ofX counter)
-		_countNumItems = function _countNumItems() {
-			var hasOneSlide = _options.getNumItemsFn() === 1;
-
-			if (hasOneSlide !== _galleryHasOneSlide) {
-				_togglePswpClass(_controls, 'ui--one-slide', hasOneSlide);
-				_galleryHasOneSlide = hasOneSlide;
-			}
-		},
-		    _toggleShareModalClass = function _toggleShareModalClass() {
-			_togglePswpClass(_shareModal, 'share-modal--hidden', _shareModalHidden);
-		},
-		    _toggleShareModal = function _toggleShareModal() {
-
-			_shareModalHidden = !_shareModalHidden;
-
-			if (!_shareModalHidden) {
-				_toggleShareModalClass();
-				setTimeout(function () {
-					if (!_shareModalHidden) {
-						framework.addClass(_shareModal, 'pswp__share-modal--fade-in');
-					}
-				}, 30);
-			} else {
-				framework.removeClass(_shareModal, 'pswp__share-modal--fade-in');
-				setTimeout(function () {
-					if (_shareModalHidden) {
-						_toggleShareModalClass();
-					}
-				}, 300);
-			}
-
-			if (!_shareModalHidden) {
-				_updateShareURLs();
-			}
-			return false;
-		},
-		    _openWindowPopup = function _openWindowPopup(e) {
-			e = e || window.event;
-			var target = e.target || e.srcElement;
-
-			pswp.shout('shareLinkClick', e, target);
-
-			if (!target.href) {
-				return false;
-			}
-
-			if (target.hasAttribute('download')) {
-				return true;
-			}
-
-			window.open(target.href, 'pswp_share', 'scrollbars=yes,resizable=yes,toolbar=no,' + 'location=yes,width=550,height=420,top=100,left=' + (window.screen ? Math.round(screen.width / 2 - 275) : 100));
-
-			if (!_shareModalHidden) {
-				_toggleShareModal();
-			}
-
-			return false;
-		},
-		    _updateShareURLs = function _updateShareURLs() {
-			var shareButtonOut = '',
-			    shareButtonData,
-			    shareURL,
-			    image_url,
-			    page_url,
-			    share_text;
-
-			for (var i = 0; i < _options.shareButtons.length; i++) {
-				shareButtonData = _options.shareButtons[i];
-
-				image_url = _options.getImageURLForShare(shareButtonData);
-				page_url = _options.getPageURLForShare(shareButtonData);
-				share_text = _options.getTextForShare(shareButtonData);
-
-				shareURL = shareButtonData.url.replace('{{url}}', encodeURIComponent(page_url)).replace('{{image_url}}', encodeURIComponent(image_url)).replace('{{raw_image_url}}', image_url).replace('{{text}}', encodeURIComponent(share_text));
-
-				shareButtonOut += '<a href="' + shareURL + '" target="_blank" ' + 'class="pswp__share--' + shareButtonData.id + '"' + (shareButtonData.download ? 'download' : '') + '>' + shareButtonData.label + '</a>';
-
-				if (_options.parseShareButtonOut) {
-					shareButtonOut = _options.parseShareButtonOut(shareButtonData, shareButtonOut);
-				}
-			}
-			_shareModal.children[0].innerHTML = shareButtonOut;
-			_shareModal.children[0].onclick = _openWindowPopup;
-		},
-		    _hasCloseClass = function _hasCloseClass(target) {
-			for (var i = 0; i < _options.closeElClasses.length; i++) {
-				if (framework.hasClass(target, 'pswp__' + _options.closeElClasses[i])) {
-					return true;
-				}
-			}
-		},
-		    _idleInterval,
-		    _idleTimer,
-		    _idleIncrement = 0,
-		    _onIdleMouseMove = function _onIdleMouseMove() {
-			clearTimeout(_idleTimer);
-			_idleIncrement = 0;
-			if (_isIdle) {
-				ui.setIdle(false);
-			}
-		},
-		    _onMouseLeaveWindow = function _onMouseLeaveWindow(e) {
-			e = e ? e : window.event;
-			var from = e.relatedTarget || e.toElement;
-			if (!from || from.nodeName === 'HTML') {
-				clearTimeout(_idleTimer);
-				_idleTimer = setTimeout(function () {
-					ui.setIdle(true);
-				}, _options.timeToIdleOutside);
-			}
-		},
-		    _setupFullscreenAPI = function _setupFullscreenAPI() {
-			if (_options.fullscreenEl && !framework.features.isOldAndroid) {
-				if (!_fullscrenAPI) {
-					_fullscrenAPI = ui.getFullscreenAPI();
-				}
-				if (_fullscrenAPI) {
-					framework.bind(document, _fullscrenAPI.eventK, ui.updateFullscreen);
-					ui.updateFullscreen();
-					framework.addClass(pswp.template, 'pswp--supports-fs');
-				} else {
-					framework.removeClass(pswp.template, 'pswp--supports-fs');
-				}
-			}
-		},
-		    _setupLoadingIndicator = function _setupLoadingIndicator() {
-			// Setup loading indicator
-			if (_options.preloaderEl) {
-
-				_toggleLoadingIndicator(true);
-
-				_listen('beforeChange', function () {
-
-					clearTimeout(_loadingIndicatorTimeout);
-
-					// display loading indicator with delay
-					_loadingIndicatorTimeout = setTimeout(function () {
-
-						if (pswp.currItem && pswp.currItem.loading) {
-
-							if (!pswp.allowProgressiveImg() || pswp.currItem.img && !pswp.currItem.img.naturalWidth) {
-								// show preloader if progressive loading is not enabled, 
-								// or image width is not defined yet (because of slow connection)
-								_toggleLoadingIndicator(false);
-								// items-controller.js function allowProgressiveImg
-							}
-						} else {
-							_toggleLoadingIndicator(true); // hide preloader
-						}
-					}, _options.loadingIndicatorDelay);
-				});
-				_listen('imageLoadComplete', function (index, item) {
-					if (pswp.currItem === item) {
-						_toggleLoadingIndicator(true);
-					}
-				});
-			}
-		},
-		    _toggleLoadingIndicator = function _toggleLoadingIndicator(hide) {
-			if (_loadingIndicatorHidden !== hide) {
-				_togglePswpClass(_loadingIndicator, 'preloader--active', !hide);
-				_loadingIndicatorHidden = hide;
-			}
-		},
-		    _applyNavBarGaps = function _applyNavBarGaps(item) {
-			var gap = item.vGap;
-
-			if (_fitControlsInViewport()) {
-
-				var bars = _options.barsSize;
-				if (_options.captionEl && bars.bottom === 'auto') {
-					if (!_fakeCaptionContainer) {
-						_fakeCaptionContainer = framework.createEl('pswp__caption pswp__caption--fake');
-						_fakeCaptionContainer.appendChild(framework.createEl('pswp__caption__center'));
-						_controls.insertBefore(_fakeCaptionContainer, _captionContainer);
-						framework.addClass(_controls, 'pswp__ui--fit');
-					}
-					if (_options.addCaptionHTMLFn(item, _fakeCaptionContainer, true)) {
-
-						var captionSize = _fakeCaptionContainer.clientHeight;
-						gap.bottom = parseInt(captionSize, 10) || 44;
-					} else {
-						gap.bottom = bars.top; // if no caption, set size of bottom gap to size of top
-					}
-				} else {
-					gap.bottom = bars.bottom === 'auto' ? 0 : bars.bottom;
-				}
-
-				// height of top bar is static, no need to calculate it
-				gap.top = bars.top;
-			} else {
-				gap.top = gap.bottom = 0;
-			}
-		},
-		    _setupIdle = function _setupIdle() {
-			// Hide controls when mouse is used
-			if (_options.timeToIdle) {
-				_listen('mouseUsed', function () {
-
-					framework.bind(document, 'mousemove', _onIdleMouseMove);
-					framework.bind(document, 'mouseout', _onMouseLeaveWindow);
-
-					_idleInterval = setInterval(function () {
-						_idleIncrement++;
-						if (_idleIncrement === 2) {
-							ui.setIdle(true);
-						}
-					}, _options.timeToIdle / 2);
-				});
-			}
-		},
-		    _setupHidingControlsDuringGestures = function _setupHidingControlsDuringGestures() {
-
-			// Hide controls on vertical drag
-			_listen('onVerticalDrag', function (now) {
-				if (_controlsVisible && now < 0.95) {
-					ui.hideControls();
-				} else if (!_controlsVisible && now >= 0.95) {
-					ui.showControls();
-				}
-			});
-
-			// Hide controls when pinching to close
-			var pinchControlsHidden;
-			_listen('onPinchClose', function (now) {
-				if (_controlsVisible && now < 0.9) {
-					ui.hideControls();
-					pinchControlsHidden = true;
-				} else if (pinchControlsHidden && !_controlsVisible && now > 0.9) {
-					ui.showControls();
-				}
-			});
-
-			_listen('zoomGestureEnded', function () {
-				pinchControlsHidden = false;
-				if (pinchControlsHidden && !_controlsVisible) {
-					ui.showControls();
-				}
-			});
-		};
-
-		var _uiElements = [{
-			name: 'caption',
-			option: 'captionEl',
-			onInit: function onInit(el) {
-				_captionContainer = el;
-			}
-		}, {
-			name: 'share-modal',
-			option: 'shareEl',
-			onInit: function onInit(el) {
-				_shareModal = el;
-			},
-			onTap: function onTap() {
-				_toggleShareModal();
-			}
-		}, {
-			name: 'button--share',
-			option: 'shareEl',
-			onInit: function onInit(el) {
-				_shareButton = el;
-			},
-			onTap: function onTap() {
-				_toggleShareModal();
-			}
-		}, {
-			name: 'button--zoom',
-			option: 'zoomEl',
-			onTap: pswp.toggleDesktopZoom
-		}, {
-			name: 'counter',
-			option: 'counterEl',
-			onInit: function onInit(el) {
-				_indexIndicator = el;
-			}
-		}, {
-			name: 'button--close',
-			option: 'closeEl',
-			onTap: pswp.close
-		}, {
-			name: 'button--arrow--left',
-			option: 'arrowEl',
-			onTap: pswp.prev
-		}, {
-			name: 'button--arrow--right',
-			option: 'arrowEl',
-			onTap: pswp.next
-		}, {
-			name: 'button--fs',
-			option: 'fullscreenEl',
-			onTap: function onTap() {
-				if (_fullscrenAPI.isFullscreen()) {
-					_fullscrenAPI.exit();
-				} else {
-					_fullscrenAPI.enter();
-				}
-			}
-		}, {
-			name: 'preloader',
-			option: 'preloaderEl',
-			onInit: function onInit(el) {
-				_loadingIndicator = el;
-			}
-		}];
-
-		var _setupUIElements = function _setupUIElements() {
-			var item, classAttr, uiElement;
-
-			var loopThroughChildElements = function loopThroughChildElements(sChildren) {
-				if (!sChildren) {
-					return;
-				}
-
-				var l = sChildren.length;
-				for (var i = 0; i < l; i++) {
-					item = sChildren[i];
-					classAttr = item.className;
-
-					for (var a = 0; a < _uiElements.length; a++) {
-						uiElement = _uiElements[a];
-
-						if (classAttr.indexOf('pswp__' + uiElement.name) > -1) {
-
-							if (_options[uiElement.option]) {
-								// if element is not disabled from options
-
-								framework.removeClass(item, 'pswp__element--disabled');
-								if (uiElement.onInit) {
-									uiElement.onInit(item);
-								}
-
-								//item.style.display = 'block';
-							} else {
-								framework.addClass(item, 'pswp__element--disabled');
-								//item.style.display = 'none';
-							}
-						}
-					}
-				}
-			};
-			loopThroughChildElements(_controls.children);
-
-			var topBar = framework.getChildByClass(_controls, 'pswp__top-bar');
-			if (topBar) {
-				loopThroughChildElements(topBar.children);
-			}
-		};
-
-		ui.init = function () {
-
-			// extend options
-			framework.extend(pswp.options, _defaultUIOptions, true);
-
-			// create local link for fast access
-			_options = pswp.options;
-
-			// find pswp__ui element
-			_controls = framework.getChildByClass(pswp.scrollWrap, 'pswp__ui');
-
-			// create local link
-			_listen = pswp.listen;
-
-			_setupHidingControlsDuringGestures();
-
-			// update controls when slides change
-			_listen('beforeChange', ui.update);
-
-			// toggle zoom on double-tap
-			_listen('doubleTap', function (point) {
-				var initialZoomLevel = pswp.currItem.initialZoomLevel;
-				if (pswp.getZoomLevel() !== initialZoomLevel) {
-					pswp.zoomTo(initialZoomLevel, point, 333);
-				} else {
-					pswp.zoomTo(_options.getDoubleTapZoom(false, pswp.currItem), point, 333);
-				}
-			});
-
-			// Allow text selection in caption
-			_listen('preventDragEvent', function (e, isDown, preventObj) {
-				var t = e.target || e.srcElement;
-				if (t && t.getAttribute('class') && e.type.indexOf('mouse') > -1 && (t.getAttribute('class').indexOf('__caption') > 0 || /(SMALL|STRONG|EM)/i.test(t.tagName))) {
-					preventObj.prevent = false;
-				}
-			});
-
-			// bind events for UI
-			_listen('bindEvents', function () {
-				framework.bind(_controls, 'pswpTap click', _onControlsTap);
-				framework.bind(pswp.scrollWrap, 'pswpTap', ui.onGlobalTap);
-
-				if (!pswp.likelyTouchDevice) {
-					framework.bind(pswp.scrollWrap, 'mouseover', ui.onMouseOver);
-				}
-			});
-
-			// unbind events for UI
-			_listen('unbindEvents', function () {
-				if (!_shareModalHidden) {
-					_toggleShareModal();
-				}
-
-				if (_idleInterval) {
-					clearInterval(_idleInterval);
-				}
-				framework.unbind(document, 'mouseout', _onMouseLeaveWindow);
-				framework.unbind(document, 'mousemove', _onIdleMouseMove);
-				framework.unbind(_controls, 'pswpTap click', _onControlsTap);
-				framework.unbind(pswp.scrollWrap, 'pswpTap', ui.onGlobalTap);
-				framework.unbind(pswp.scrollWrap, 'mouseover', ui.onMouseOver);
-
-				if (_fullscrenAPI) {
-					framework.unbind(document, _fullscrenAPI.eventK, ui.updateFullscreen);
-					if (_fullscrenAPI.isFullscreen()) {
-						_options.hideAnimationDuration = 0;
-						_fullscrenAPI.exit();
-					}
-					_fullscrenAPI = null;
-				}
-			});
-
-			// clean up things when gallery is destroyed
-			_listen('destroy', function () {
-				if (_options.captionEl) {
-					if (_fakeCaptionContainer) {
-						_controls.removeChild(_fakeCaptionContainer);
-					}
-					framework.removeClass(_captionContainer, 'pswp__caption--empty');
-				}
-
-				if (_shareModal) {
-					_shareModal.children[0].onclick = null;
-				}
-				framework.removeClass(_controls, 'pswp__ui--over-close');
-				framework.addClass(_controls, 'pswp__ui--hidden');
-				ui.setIdle(false);
-			});
-
-			if (!_options.showAnimationDuration) {
-				framework.removeClass(_controls, 'pswp__ui--hidden');
-			}
-			_listen('initialZoomIn', function () {
-				if (_options.showAnimationDuration) {
-					framework.removeClass(_controls, 'pswp__ui--hidden');
-				}
-			});
-			_listen('initialZoomOut', function () {
-				framework.addClass(_controls, 'pswp__ui--hidden');
-			});
-
-			_listen('parseVerticalMargin', _applyNavBarGaps);
-
-			_setupUIElements();
-
-			if (_options.shareEl && _shareButton && _shareModal) {
-				_shareModalHidden = true;
-			}
-
-			_countNumItems();
-
-			_setupIdle();
-
-			_setupFullscreenAPI();
-
-			_setupLoadingIndicator();
-		};
-
-		ui.setIdle = function (isIdle) {
-			_isIdle = isIdle;
-			_togglePswpClass(_controls, 'ui--idle', isIdle);
-		};
-
-		ui.update = function () {
-			// Don't update UI if it's hidden
-			if (_controlsVisible && pswp.currItem) {
-
-				ui.updateIndexIndicator();
-
-				if (_options.captionEl) {
-					_options.addCaptionHTMLFn(pswp.currItem, _captionContainer);
-
-					_togglePswpClass(_captionContainer, 'caption--empty', !pswp.currItem.title);
-				}
-
-				_overlayUIUpdated = true;
-			} else {
-				_overlayUIUpdated = false;
-			}
-
-			if (!_shareModalHidden) {
-				_toggleShareModal();
-			}
-
-			_countNumItems();
-		};
-
-		ui.updateFullscreen = function (e) {
-
-			if (e) {
-				// some browsers change window scroll position during the fullscreen
-				// so PhotoSwipe updates it just in case
-				setTimeout(function () {
-					pswp.setScrollOffset(0, framework.getScrollY());
-				}, 50);
-			}
-
-			// toogle pswp--fs class on root element
-			framework[(_fullscrenAPI.isFullscreen() ? 'add' : 'remove') + 'Class'](pswp.template, 'pswp--fs');
-		};
-
-		ui.updateIndexIndicator = function () {
-			if (_options.counterEl) {
-				_indexIndicator.innerHTML = pswp.getCurrentIndex() + 1 + _options.indexIndicatorSep + _options.getNumItemsFn();
-			}
-		};
-
-		ui.onGlobalTap = function (e) {
-			e = e || window.event;
-			var target = e.target || e.srcElement;
-
-			if (_blockControlsTap) {
-				return;
-			}
-
-			if (e.detail && e.detail.pointerType === 'mouse') {
-
-				// close gallery if clicked outside of the image
-				if (_hasCloseClass(target)) {
-					pswp.close();
-					return;
-				}
-
-				if (framework.hasClass(target, 'pswp__img')) {
-					if (pswp.getZoomLevel() === 1 && pswp.getZoomLevel() <= pswp.currItem.fitRatio) {
-						if (_options.clickToCloseNonZoomable) {
-							pswp.close();
-						}
-					} else {
-						pswp.toggleDesktopZoom(e.detail.releasePoint);
-					}
-				}
-			} else {
-
-				// tap anywhere (except buttons) to toggle visibility of controls
-				if (_options.tapToToggleControls) {
-					if (_controlsVisible) {
-						ui.hideControls();
-					} else {
-						ui.showControls();
-					}
-				}
-
-				// tap to close gallery
-				if (_options.tapToClose && (framework.hasClass(target, 'pswp__img') || _hasCloseClass(target))) {
-					pswp.close();
-					return;
-				}
-			}
-		};
-		ui.onMouseOver = function (e) {
-			e = e || window.event;
-			var target = e.target || e.srcElement;
-
-			// add class when mouse is over an element that should close the gallery
-			_togglePswpClass(_controls, 'ui--over-close', _hasCloseClass(target));
-		};
-
-		ui.hideControls = function () {
-			framework.addClass(_controls, 'pswp__ui--hidden');
-			_controlsVisible = false;
-		};
-
-		ui.showControls = function () {
-			_controlsVisible = true;
-			if (!_overlayUIUpdated) {
-				ui.update();
-			}
-			framework.removeClass(_controls, 'pswp__ui--hidden');
-		};
-
-		ui.supportsFullscreen = function () {
-			var d = document;
-			return !!(d.exitFullscreen || d.mozCancelFullScreen || d.webkitExitFullscreen || d.msExitFullscreen);
-		};
-
-		ui.getFullscreenAPI = function () {
-			var dE = document.documentElement,
-			    api,
-			    tF = 'fullscreenchange';
-
-			if (dE.requestFullscreen) {
-				api = {
-					enterK: 'requestFullscreen',
-					exitK: 'exitFullscreen',
-					elementK: 'fullscreenElement',
-					eventK: tF
-				};
-			} else if (dE.mozRequestFullScreen) {
-				api = {
-					enterK: 'mozRequestFullScreen',
-					exitK: 'mozCancelFullScreen',
-					elementK: 'mozFullScreenElement',
-					eventK: 'moz' + tF
-				};
-			} else if (dE.webkitRequestFullscreen) {
-				api = {
-					enterK: 'webkitRequestFullscreen',
-					exitK: 'webkitExitFullscreen',
-					elementK: 'webkitFullscreenElement',
-					eventK: 'webkit' + tF
-				};
-			} else if (dE.msRequestFullscreen) {
-				api = {
-					enterK: 'msRequestFullscreen',
-					exitK: 'msExitFullscreen',
-					elementK: 'msFullscreenElement',
-					eventK: 'MSFullscreenChange'
-				};
-			}
-
-			if (api) {
-				api.enter = function () {
-					// disable close-on-scroll in fullscreen
-					_initalCloseOnScrollValue = _options.closeOnScroll;
-					_options.closeOnScroll = false;
-
-					if (this.enterK === 'webkitRequestFullscreen') {
-						pswp.template[this.enterK](Element.ALLOW_KEYBOARD_INPUT);
-					} else {
-						return pswp.template[this.enterK]();
-					}
-				};
-				api.exit = function () {
-					_options.closeOnScroll = _initalCloseOnScrollValue;
-
-					return document[this.exitK]();
-				};
-				api.isFullscreen = function () {
-					return document[this.elementK];
-				};
-			}
-
-			return api;
-		};
-	};
-	return PhotoSwipeUI_Default;
-});
-
-},{}]},{},[2]);
-
-
-/***/ }),
-/* 60 */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-/**
- * Load required plugins.
- */
-window.imagesLoaded = __webpack_require__(61);
-window.Shuffle = __webpack_require__(62);
-
-
-/**
- * Configure the plugin.
- */
-
-+function($){
-  page.registerVendor('Shuffle');
-
-  page.initShuffle = function() {
-    if ( undefined === window['Shuffle'] || 0 === $('[data-provide="shuffle"]').length ) {
-      return;
-    }
-
-    var Shuffle = window.Shuffle;
-
-    $('[data-provide="shuffle"]').each(function(){
-
-      var list    = $(this).find('[data-shuffle="list"]');
-      var filter  = $(this).find('[data-shuffle="filter"]');
-      var search  = $(this).find('[data-shuffle="search"]');
-      var options = {
-        itemSelector: '[data-shuffle="item"]',
-        sizer:        '[data-shuffle="sizer"]',
-        delimeter:    ',',
-        speed:        500,
-      };
-
-      var shuffleInstance = new Shuffle(list, options);
-
-      if ( filter.length ) {
-
-        $(filter).find('[data-shuffle="button"]').each( function() {
-          $(this).on('click', function() {
-            var btn = $(this);
-            var isActive = btn.hasClass('active');
-            var btnGroup = btn.data('group');
-
-            if (isActive) {
-              return;
-            }
-
-            $(this).closest('[data-shuffle="filter"]').find('[data-shuffle="button"].active').removeClass('active');
-
-            var filterGroup;
-            if (isActive) {
-              btn.removeClass('active');
-              filterGroup = Shuffle.ALL_ITEMS;
-            } else {
-              btn.addClass('active');
-              filterGroup = btnGroup;
-            }
-
-            shuffleInstance.filter(filterGroup);
-          });
-        });
-
-      } //End if
-
-
-      if ( search.length ) {
-        search.on('input mouseup change', function() {
-          var searchText = $(this).val().toLowerCase();
-          shuffleInstance.filter(function(element, shuffle) {
-            var itemText = element.textContent.toLowerCase().trim();
-            return itemText.indexOf(searchText) !== -1;
-          });
-        });
-      }
-
-
-      $( this ).imagesLoaded( function() {
-        shuffleInstance.layout()
-      });
-
-
-    });
-
-
-  }
-
-}(jQuery);
-
-
-
-
-
-/***/ }),
-/* 61 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_LOCAL_MODULE_0__, __WEBPACK_LOCAL_MODULE_0__factory, __WEBPACK_LOCAL_MODULE_0__module;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
- * imagesLoaded PACKAGED v4.1.4
- * JavaScript is all like "You images are done yet or what?"
- * MIT License
- */
-
-/**
- * EvEmitter v1.1.0
- * Lil' event emitter
- * MIT License
- */
-
-/* jshint unused: true, undef: true, strict: true */
-
-( function( global, factory ) {
-  // universal module definition
-  /* jshint strict: false */ /* globals define, module, window */
-  if ( true ) {
-    // AMD - RequireJS
-    !(__WEBPACK_LOCAL_MODULE_0__factory = (factory), (__WEBPACK_LOCAL_MODULE_0__module = { id: "ev-emitter/ev-emitter", exports: {}, loaded: false }), __WEBPACK_LOCAL_MODULE_0__ = (typeof __WEBPACK_LOCAL_MODULE_0__factory === 'function' ? (__WEBPACK_LOCAL_MODULE_0__factory.call(__WEBPACK_LOCAL_MODULE_0__module.exports, __webpack_require__, __WEBPACK_LOCAL_MODULE_0__module.exports, __WEBPACK_LOCAL_MODULE_0__module)) : __WEBPACK_LOCAL_MODULE_0__factory), (__WEBPACK_LOCAL_MODULE_0__module.loaded = true), __WEBPACK_LOCAL_MODULE_0__ === undefined && (__WEBPACK_LOCAL_MODULE_0__ = __WEBPACK_LOCAL_MODULE_0__module.exports));
-  } else {}
-
-}( typeof window != 'undefined' ? window : this, function() {
-
-
-
-function EvEmitter() {}
-
-var proto = EvEmitter.prototype;
-
-proto.on = function( eventName, listener ) {
-  if ( !eventName || !listener ) {
-    return;
-  }
-  // set events hash
-  var events = this._events = this._events || {};
-  // set listeners array
-  var listeners = events[ eventName ] = events[ eventName ] || [];
-  // only add once
-  if ( listeners.indexOf( listener ) == -1 ) {
-    listeners.push( listener );
-  }
-
-  return this;
-};
-
-proto.once = function( eventName, listener ) {
-  if ( !eventName || !listener ) {
-    return;
-  }
-  // add event
-  this.on( eventName, listener );
-  // set once flag
-  // set onceEvents hash
-  var onceEvents = this._onceEvents = this._onceEvents || {};
-  // set onceListeners object
-  var onceListeners = onceEvents[ eventName ] = onceEvents[ eventName ] || {};
-  // set flag
-  onceListeners[ listener ] = true;
-
-  return this;
-};
-
-proto.off = function( eventName, listener ) {
-  var listeners = this._events && this._events[ eventName ];
-  if ( !listeners || !listeners.length ) {
-    return;
-  }
-  var index = listeners.indexOf( listener );
-  if ( index != -1 ) {
-    listeners.splice( index, 1 );
-  }
-
-  return this;
-};
-
-proto.emitEvent = function( eventName, args ) {
-  var listeners = this._events && this._events[ eventName ];
-  if ( !listeners || !listeners.length ) {
-    return;
-  }
-  // copy over to avoid interference if .off() in listener
-  listeners = listeners.slice(0);
-  args = args || [];
-  // once stuff
-  var onceListeners = this._onceEvents && this._onceEvents[ eventName ];
-
-  for ( var i=0; i < listeners.length; i++ ) {
-    var listener = listeners[i]
-    var isOnce = onceListeners && onceListeners[ listener ];
-    if ( isOnce ) {
-      // remove listener
-      // remove before trigger to prevent recursion
-      this.off( eventName, listener );
-      // unset once flag
-      delete onceListeners[ listener ];
-    }
-    // trigger listener
-    listener.apply( this, args );
-  }
-
-  return this;
-};
-
-proto.allOff = function() {
-  delete this._events;
-  delete this._onceEvents;
-};
-
-return EvEmitter;
-
-}));
-
-/*!
- * imagesLoaded v4.1.4
- * JavaScript is all like "You images are done yet or what?"
- * MIT License
- */
-
-( function( window, factory ) { 'use strict';
-  // universal module definition
-
-  /*global define: false, module: false, require: false */
-
-  if ( true ) {
-    // AMD
-    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-      __WEBPACK_LOCAL_MODULE_0__
-    ], __WEBPACK_AMD_DEFINE_RESULT__ = (function( EvEmitter ) {
-      return factory( window, EvEmitter );
-    }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-  } else {}
-
-})( typeof window !== 'undefined' ? window : this,
-
-// --------------------------  factory -------------------------- //
-
-function factory( window, EvEmitter ) {
-
-
-
-var $ = window.jQuery;
-var console = window.console;
-
-// -------------------------- helpers -------------------------- //
-
-// extend objects
-function extend( a, b ) {
-  for ( var prop in b ) {
-    a[ prop ] = b[ prop ];
-  }
-  return a;
-}
-
-var arraySlice = Array.prototype.slice;
-
-// turn element or nodeList into an array
-function makeArray( obj ) {
-  if ( Array.isArray( obj ) ) {
-    // use object if already an array
-    return obj;
-  }
-
-  var isArrayLike = typeof obj == 'object' && typeof obj.length == 'number';
-  if ( isArrayLike ) {
-    // convert nodeList to array
-    return arraySlice.call( obj );
-  }
-
-  // array of single index
-  return [ obj ];
-}
-
-// -------------------------- imagesLoaded -------------------------- //
-
-/**
- * @param {Array, Element, NodeList, String} elem
- * @param {Object or Function} options - if function, use as callback
- * @param {Function} onAlways - callback function
- */
-function ImagesLoaded( elem, options, onAlways ) {
-  // coerce ImagesLoaded() without new, to be new ImagesLoaded()
-  if ( !( this instanceof ImagesLoaded ) ) {
-    return new ImagesLoaded( elem, options, onAlways );
-  }
-  // use elem as selector string
-  var queryElem = elem;
-  if ( typeof elem == 'string' ) {
-    queryElem = document.querySelectorAll( elem );
-  }
-  // bail if bad element
-  if ( !queryElem ) {
-    console.error( 'Bad element for imagesLoaded ' + ( queryElem || elem ) );
-    return;
-  }
-
-  this.elements = makeArray( queryElem );
-  this.options = extend( {}, this.options );
-  // shift arguments if no options set
-  if ( typeof options == 'function' ) {
-    onAlways = options;
-  } else {
-    extend( this.options, options );
-  }
-
-  if ( onAlways ) {
-    this.on( 'always', onAlways );
-  }
-
-  this.getImages();
-
-  if ( $ ) {
-    // add jQuery Deferred object
-    this.jqDeferred = new $.Deferred();
-  }
-
-  // HACK check async to allow time to bind listeners
-  setTimeout( this.check.bind( this ) );
-}
-
-ImagesLoaded.prototype = Object.create( EvEmitter.prototype );
-
-ImagesLoaded.prototype.options = {};
-
-ImagesLoaded.prototype.getImages = function() {
-  this.images = [];
-
-  // filter & find items if we have an item selector
-  this.elements.forEach( this.addElementImages, this );
-};
-
-/**
- * @param {Node} element
- */
-ImagesLoaded.prototype.addElementImages = function( elem ) {
-  // filter siblings
-  if ( elem.nodeName == 'IMG' ) {
-    this.addImage( elem );
-  }
-  // get background image on element
-  if ( this.options.background === true ) {
-    this.addElementBackgroundImages( elem );
-  }
-
-  // find children
-  // no non-element nodes, #143
-  var nodeType = elem.nodeType;
-  if ( !nodeType || !elementNodeTypes[ nodeType ] ) {
-    return;
-  }
-  var childImgs = elem.querySelectorAll('img');
-  // concat childElems to filterFound array
-  for ( var i=0; i < childImgs.length; i++ ) {
-    var img = childImgs[i];
-    this.addImage( img );
-  }
-
-  // get child background images
-  if ( typeof this.options.background == 'string' ) {
-    var children = elem.querySelectorAll( this.options.background );
-    for ( i=0; i < children.length; i++ ) {
-      var child = children[i];
-      this.addElementBackgroundImages( child );
-    }
-  }
-};
-
-var elementNodeTypes = {
-  1: true,
-  9: true,
-  11: true
-};
-
-ImagesLoaded.prototype.addElementBackgroundImages = function( elem ) {
-  var style = getComputedStyle( elem );
-  if ( !style ) {
-    // Firefox returns null if in a hidden iframe https://bugzil.la/548397
-    return;
-  }
-  // get url inside url("...")
-  var reURL = /url\((['"])?(.*?)\1\)/gi;
-  var matches = reURL.exec( style.backgroundImage );
-  while ( matches !== null ) {
-    var url = matches && matches[2];
-    if ( url ) {
-      this.addBackground( url, elem );
-    }
-    matches = reURL.exec( style.backgroundImage );
-  }
-};
-
-/**
- * @param {Image} img
- */
-ImagesLoaded.prototype.addImage = function( img ) {
-  var loadingImage = new LoadingImage( img );
-  this.images.push( loadingImage );
-};
-
-ImagesLoaded.prototype.addBackground = function( url, elem ) {
-  var background = new Background( url, elem );
-  this.images.push( background );
-};
-
-ImagesLoaded.prototype.check = function() {
-  var _this = this;
-  this.progressedCount = 0;
-  this.hasAnyBroken = false;
-  // complete if no images
-  if ( !this.images.length ) {
-    this.complete();
-    return;
-  }
-
-  function onProgress( image, elem, message ) {
-    // HACK - Chrome triggers event before object properties have changed. #83
-    setTimeout( function() {
-      _this.progress( image, elem, message );
-    });
-  }
-
-  this.images.forEach( function( loadingImage ) {
-    loadingImage.once( 'progress', onProgress );
-    loadingImage.check();
-  });
-};
-
-ImagesLoaded.prototype.progress = function( image, elem, message ) {
-  this.progressedCount++;
-  this.hasAnyBroken = this.hasAnyBroken || !image.isLoaded;
-  // progress event
-  this.emitEvent( 'progress', [ this, image, elem ] );
-  if ( this.jqDeferred && this.jqDeferred.notify ) {
-    this.jqDeferred.notify( this, image );
-  }
-  // check if completed
-  if ( this.progressedCount == this.images.length ) {
-    this.complete();
-  }
-
-  if ( this.options.debug && console ) {
-    console.log( 'progress: ' + message, image, elem );
-  }
-};
-
-ImagesLoaded.prototype.complete = function() {
-  var eventName = this.hasAnyBroken ? 'fail' : 'done';
-  this.isComplete = true;
-  this.emitEvent( eventName, [ this ] );
-  this.emitEvent( 'always', [ this ] );
-  if ( this.jqDeferred ) {
-    var jqMethod = this.hasAnyBroken ? 'reject' : 'resolve';
-    this.jqDeferred[ jqMethod ]( this );
-  }
-};
-
-// --------------------------  -------------------------- //
-
-function LoadingImage( img ) {
-  this.img = img;
-}
-
-LoadingImage.prototype = Object.create( EvEmitter.prototype );
-
-LoadingImage.prototype.check = function() {
-  // If complete is true and browser supports natural sizes,
-  // try to check for image status manually.
-  var isComplete = this.getIsImageComplete();
-  if ( isComplete ) {
-    // report based on naturalWidth
-    this.confirm( this.img.naturalWidth !== 0, 'naturalWidth' );
-    return;
-  }
-
-  // If none of the checks above matched, simulate loading on detached element.
-  this.proxyImage = new Image();
-  this.proxyImage.addEventListener( 'load', this );
-  this.proxyImage.addEventListener( 'error', this );
-  // bind to image as well for Firefox. #191
-  this.img.addEventListener( 'load', this );
-  this.img.addEventListener( 'error', this );
-  this.proxyImage.src = this.img.src;
-};
-
-LoadingImage.prototype.getIsImageComplete = function() {
-  // check for non-zero, non-undefined naturalWidth
-  // fixes Safari+InfiniteScroll+Masonry bug infinite-scroll#671
-  return this.img.complete && this.img.naturalWidth;
-};
-
-LoadingImage.prototype.confirm = function( isLoaded, message ) {
-  this.isLoaded = isLoaded;
-  this.emitEvent( 'progress', [ this, this.img, message ] );
-};
-
-// ----- events ----- //
-
-// trigger specified handler for event type
-LoadingImage.prototype.handleEvent = function( event ) {
-  var method = 'on' + event.type;
-  if ( this[ method ] ) {
-    this[ method ]( event );
-  }
-};
-
-LoadingImage.prototype.onload = function() {
-  this.confirm( true, 'onload' );
-  this.unbindEvents();
-};
-
-LoadingImage.prototype.onerror = function() {
-  this.confirm( false, 'onerror' );
-  this.unbindEvents();
-};
-
-LoadingImage.prototype.unbindEvents = function() {
-  this.proxyImage.removeEventListener( 'load', this );
-  this.proxyImage.removeEventListener( 'error', this );
-  this.img.removeEventListener( 'load', this );
-  this.img.removeEventListener( 'error', this );
-};
-
-// -------------------------- Background -------------------------- //
-
-function Background( url, element ) {
-  this.url = url;
-  this.element = element;
-  this.img = new Image();
-}
-
-// inherit LoadingImage prototype
-Background.prototype = Object.create( LoadingImage.prototype );
-
-Background.prototype.check = function() {
-  this.img.addEventListener( 'load', this );
-  this.img.addEventListener( 'error', this );
-  this.img.src = this.url;
-  // check if image is already complete
-  var isComplete = this.getIsImageComplete();
-  if ( isComplete ) {
-    this.confirm( this.img.naturalWidth !== 0, 'naturalWidth' );
-    this.unbindEvents();
-  }
-};
-
-Background.prototype.unbindEvents = function() {
-  this.img.removeEventListener( 'load', this );
-  this.img.removeEventListener( 'error', this );
-};
-
-Background.prototype.confirm = function( isLoaded, message ) {
-  this.isLoaded = isLoaded;
-  this.emitEvent( 'progress', [ this, this.element, message ] );
-};
-
-// -------------------------- jQuery -------------------------- //
-
-ImagesLoaded.makeJQueryPlugin = function( jQuery ) {
-  jQuery = jQuery || window.jQuery;
-  if ( !jQuery ) {
-    return;
-  }
-  // set local variable
-  $ = jQuery;
-  // $().imagesLoaded()
-  $.fn.imagesLoaded = function( options, callback ) {
-    var instance = new ImagesLoaded( this, options, callback );
-    return instance.jqDeferred.promise( $(this) );
-  };
-};
-// try making plugin
-ImagesLoaded.makeJQueryPlugin();
-
-// --------------------------  -------------------------- //
-
-return ImagesLoaded;
-
-});
-
-
-
-/***/ }),
-/* 62 */
-/***/ (function(module, exports, __webpack_require__) {
-
-!function(t,e){ true?module.exports=e():undefined}(this,function(){"use strict";function t(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}function e(t,e){for(var i=0;i<e.length;i++){var n=e[i];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(t,n.key,n)}}function i(t,i,n){return i&&e(t.prototype,i),n&&e(t,n),t}function n(t){return(n=Object.setPrototypeOf?Object.getPrototypeOf:function(t){return t.__proto__||Object.getPrototypeOf(t)})(t)}function s(t,e){return(s=Object.setPrototypeOf||function(t,e){return t.__proto__=e,t})(t,e)}function o(t,e){return!e||"object"!=typeof e&&"function"!=typeof e?function(t){if(void 0===t)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return t}(t):e}function r(){}r.prototype={on:function(t,e,i){var n=this.e||(this.e={});return(n[t]||(n[t]=[])).push({fn:e,ctx:i}),this},once:function(t,e,i){var n=this;function s(){n.off(t,s),e.apply(i,arguments)}return s._=e,this.on(t,s,i)},emit:function(t){for(var e=[].slice.call(arguments,1),i=((this.e||(this.e={}))[t]||[]).slice(),n=0,s=i.length;n<s;n++)i[n].fn.apply(i[n].ctx,e);return this},off:function(t,e){var i=this.e||(this.e={}),n=i[t],s=[];if(n&&e)for(var o=0,r=n.length;o<r;o++)n[o].fn!==e&&n[o].fn._!==e&&s.push(n[o]);return s.length?i[t]=s:delete i[t],this}};var l=r,a=r;l.TinyEmitter=a;var u="undefined"!=typeof Element?Element.prototype:{},h=u.matches||u.matchesSelector||u.webkitMatchesSelector||u.mozMatchesSelector||u.msMatchesSelector||u.oMatchesSelector,f=function(t,e){if(!t||1!==t.nodeType)return!1;if(h)return h.call(t,e);for(var i=t.parentNode.querySelectorAll(e),n=0;n<i.length;n++)if(i[n]==t)return!0;return!1};var c=function(t,e){var i,n,s,o,r=0;return function(){i=this,n=arguments;var t=new Date-r;return o||(t>=e?l():o=setTimeout(l,e-t)),s};function l(){o=0,r=+new Date,s=t.apply(i,n),i=null,n=null}};function d(){}function m(t){return parseFloat(t)||0}var p=function(){function e(i,n){t(this,e),this.x=m(i),this.y=m(n)}return i(e,null,[{key:"equals",value:function(t,e){return t.x===e.x&&t.y===e.y}}]),e}(),v=function(){function e(i,n,s,o,r){t(this,e),this.id=r,this.left=i,this.top=n,this.width=s,this.height=o}return i(e,null,[{key:"intersects",value:function(t,e){return t.left<e.left+e.width&&e.left<t.left+t.width&&t.top<e.top+e.height&&e.top<t.top+t.height}}]),e}(),y={BASE:"shuffle",SHUFFLE_ITEM:"shuffle-item",VISIBLE:"shuffle-item--visible",HIDDEN:"shuffle-item--hidden"},g=0,_=function(){function e(i){t(this,e),g+=1,this.id=g,this.element=i,this.isVisible=!0,this.isHidden=!1}return i(e,[{key:"show",value:function(){this.isVisible=!0,this.element.classList.remove(y.HIDDEN),this.element.classList.add(y.VISIBLE),this.element.removeAttribute("aria-hidden")}},{key:"hide",value:function(){this.isVisible=!1,this.element.classList.remove(y.VISIBLE),this.element.classList.add(y.HIDDEN),this.element.setAttribute("aria-hidden",!0)}},{key:"init",value:function(){this.addClasses([y.SHUFFLE_ITEM,y.VISIBLE]),this.applyCss(e.Css.INITIAL),this.scale=e.Scale.VISIBLE,this.point=new p}},{key:"addClasses",value:function(t){var e=this;t.forEach(function(t){e.element.classList.add(t)})}},{key:"removeClasses",value:function(t){var e=this;t.forEach(function(t){e.element.classList.remove(t)})}},{key:"applyCss",value:function(t){var e=this;Object.keys(t).forEach(function(i){e.element.style[i]=t[i]})}},{key:"dispose",value:function(){this.removeClasses([y.HIDDEN,y.VISIBLE,y.SHUFFLE_ITEM]),this.element.removeAttribute("style"),this.element=null}}]),e}();_.Css={INITIAL:{position:"absolute",top:0,left:0,visibility:"visible",willChange:"transform"},VISIBLE:{before:{opacity:1,visibility:"visible"},after:{transitionDelay:""}},HIDDEN:{before:{opacity:0},after:{visibility:"hidden",transitionDelay:""}}},_.Scale={VISIBLE:1,HIDDEN:.001};var E=null,I=function(){if(null!==E)return E;var t=document.body||document.documentElement,e=document.createElement("div");return e.style.cssText="width:10px;padding:2px;box-sizing:border-box;",t.appendChild(e),E="10px"===window.getComputedStyle(e,null).width,t.removeChild(e),E};function b(t,e){var i=arguments.length>2&&void 0!==arguments[2]?arguments[2]:window.getComputedStyle(t,null),n=m(i[e]);return I()||"width"!==e?I()||"height"!==e||(n+=m(i.paddingTop)+m(i.paddingBottom)+m(i.borderTopWidth)+m(i.borderBottomWidth)):n+=m(i.paddingLeft)+m(i.paddingRight)+m(i.borderLeftWidth)+m(i.borderRightWidth),n}var S={reverse:!1,by:null,compare:null,randomize:!1,key:"element"};function T(t,e){var i=Object.assign({},S,e),n=Array.from(t),s=!1;return t.length?i.randomize?function(t){for(var e=t.length;e;){e-=1;var i=Math.floor(Math.random()*(e+1)),n=t[i];t[i]=t[e],t[e]=n}return t}(t):("function"==typeof i.by?t.sort(function(t,e){if(s)return 0;var n=i.by(t[i.key]),o=i.by(e[i.key]);return void 0===n&&void 0===o?(s=!0,0):n<o||"sortFirst"===n||"sortLast"===o?-1:n>o||"sortLast"===n||"sortFirst"===o?1:0}):"function"==typeof i.compare&&t.sort(i.compare),s?n:(i.reverse&&t.reverse(),t)):[]}var k={},w="transitionend",C=0;function L(t){return!!k[t]&&(k[t].element.removeEventListener(w,k[t].listener),k[t]=null,!0)}function D(t,e){var i=w+(C+=1),n=function(t){t.currentTarget===t.target&&(L(i),e(t))};return t.addEventListener(w,n),k[i]={element:t,listener:n},i}function z(t){return Math.max.apply(Math,t)}function M(t,e,i,n){var s=t/e;return Math.abs(Math.round(s)-s)<n&&(s=Math.round(s)),Math.min(Math.ceil(s),i)}function A(t,e,i){if(1===e)return t;for(var n=[],s=0;s<=i-e;s++)n.push(z(t.slice(s,s+e)));return n}function F(t,e){for(var i,n=(i=t,Math.min.apply(Math,i)),s=0,o=t.length;s<o;s++)if(t[s]>=n-e&&t[s]<=n+e)return s;return 0}function x(t,e){var i={};t.forEach(function(t){i[t.top]?i[t.top].push(t):i[t.top]=[t]});var n=[],s=[],o=[];return Object.keys(i).forEach(function(t){var r=i[t];s.push(r);var l,a=r[r.length-1],u=a.left+a.width,h=Math.round((e-u)/2),f=r,c=!1;if(h>0){var d=[];(c=r.every(function(t){var e=new v(t.left+h,t.top,t.width,t.height,t.id),i=!n.some(function(t){return v.intersects(e,t)});return d.push(e),i}))&&(f=d)}if(!c&&r.some(function(t){return n.some(function(e){var i=v.intersects(t,e);return i&&(l=e),i})})){var m=o.findIndex(function(t){return t.includes(l)});o.splice(m,1,s[m])}n=n.concat(f),o.push(f)}),[].concat.apply([],o).sort(function(t,e){return t.id-e.id}).map(function(t){return new p(t.left,t.top)})}function O(t){return Array.from(new Set(t))}var N=0,H=function(e){function r(e){var i,s=arguments.length>1&&void 0!==arguments[1]?arguments[1]:{};t(this,r),(i=o(this,n(r).call(this))).options=Object.assign({},r.options,s),i.options.delimeter&&(i.options.delimiter=i.options.delimeter),i.lastSort={},i.group=r.ALL_ITEMS,i.lastFilter=r.ALL_ITEMS,i.isEnabled=!0,i.isDestroyed=!1,i.isInitialized=!1,i._transitions=[],i.isTransitioning=!1,i._queue=[];var l=i._getElementOption(e);if(!l)throw new TypeError("Shuffle needs to be initialized with an element.");return i.element=l,i.id="shuffle_"+N,N+=1,i._init(),i.isInitialized=!0,i}return function(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Super expression must either be null or a function");t.prototype=Object.create(e&&e.prototype,{constructor:{value:t,writable:!0,configurable:!0}}),e&&s(t,e)}(r,l),i(r,[{key:"_init",value:function(){if(this.items=this._getItems(),this.options.sizer=this._getElementOption(this.options.sizer),this.element.classList.add(r.Classes.BASE),this._initItems(this.items),this._onResize=this._getResizeFunction(),window.addEventListener("resize",this._onResize),"complete"!==document.readyState){var t=this.layout.bind(this);window.addEventListener("load",function e(){window.removeEventListener("load",e),t()})}var e=window.getComputedStyle(this.element,null),i=r.getSize(this.element).width;this._validateStyles(e),this._setColumns(i),this.filter(this.options.group,this.options.initialSort),this.element.offsetWidth,this.setItemTransitions(this.items),this.element.style.transition="height ".concat(this.options.speed,"ms ").concat(this.options.easing)}},{key:"_getResizeFunction",value:function(){var t=this._handleResize.bind(this);return this.options.throttle?this.options.throttle(t,this.options.throttleTime):t}},{key:"_getElementOption",value:function(t){return"string"==typeof t?this.element.querySelector(t):t&&t.nodeType&&1===t.nodeType?t:t&&t.jquery?t[0]:null}},{key:"_validateStyles",value:function(t){"static"===t.position&&(this.element.style.position="relative"),"hidden"!==t.overflow&&(this.element.style.overflow="hidden")}},{key:"_filter",value:function(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:this.lastFilter,e=arguments.length>1&&void 0!==arguments[1]?arguments[1]:this.items,i=this._getFilteredSets(t,e);return this._toggleFilterClasses(i),this.lastFilter=t,"string"==typeof t&&(this.group=t),i}},{key:"_getFilteredSets",value:function(t,e){var i=this,n=[],s=[];return t===r.ALL_ITEMS?n=e:e.forEach(function(e){i._doesPassFilter(t,e.element)?n.push(e):s.push(e)}),{visible:n,hidden:s}}},{key:"_doesPassFilter",value:function(t,e){if("function"==typeof t)return t.call(e,e,this);var i=e.getAttribute("data-"+r.FILTER_ATTRIBUTE_KEY),n=this.options.delimiter?i.split(this.options.delimiter):JSON.parse(i);function s(t){return n.includes(t)}return Array.isArray(t)?this.options.filterMode===r.FilterMode.ANY?t.some(s):t.every(s):n.includes(t)}},{key:"_toggleFilterClasses",value:function(t){var e=t.visible,i=t.hidden;e.forEach(function(t){t.show()}),i.forEach(function(t){t.hide()})}},{key:"_initItems",value:function(t){t.forEach(function(t){t.init()})}},{key:"_disposeItems",value:function(t){t.forEach(function(t){t.dispose()})}},{key:"_updateItemCount",value:function(){this.visibleItems=this._getFilteredItems().length}},{key:"setItemTransitions",value:function(t){var e=this.options,i=e.speed,n=e.easing,s=this.options.useTransforms?["transform"]:["top","left"],o=Object.keys(_.Css.HIDDEN.before).map(function(t){return t.replace(/([A-Z])/g,function(t,e){return"-".concat(e.toLowerCase())})}),r=s.concat(o).join();t.forEach(function(t){t.element.style.transitionDuration=i+"ms",t.element.style.transitionTimingFunction=n,t.element.style.transitionProperty=r})}},{key:"_getItems",value:function(){var t=this;return Array.from(this.element.children).filter(function(e){return f(e,t.options.itemSelector)}).map(function(t){return new _(t)})}},{key:"_mergeNewItems",value:function(t){var e=Array.from(this.element.children);return T(this.items.concat(t),{by:function(t){return e.indexOf(t)}})}},{key:"_getFilteredItems",value:function(){return this.items.filter(function(t){return t.isVisible})}},{key:"_getConcealedItems",value:function(){return this.items.filter(function(t){return!t.isVisible})}},{key:"_getColumnSize",value:function(t,e){var i;return 0===(i="function"==typeof this.options.columnWidth?this.options.columnWidth(t):this.options.sizer?r.getSize(this.options.sizer).width:this.options.columnWidth?this.options.columnWidth:this.items.length>0?r.getSize(this.items[0].element,!0).width:t)&&(i=t),i+e}},{key:"_getGutterSize",value:function(t){return"function"==typeof this.options.gutterWidth?this.options.gutterWidth(t):this.options.sizer?b(this.options.sizer,"marginLeft"):this.options.gutterWidth}},{key:"_setColumns",value:function(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:r.getSize(this.element).width,e=this._getGutterSize(t),i=this._getColumnSize(t,e),n=(t+e)/i;Math.abs(Math.round(n)-n)<this.options.columnThreshold&&(n=Math.round(n)),this.cols=Math.max(Math.floor(n||0),1),this.containerWidth=t,this.colWidth=i}},{key:"_setContainerSize",value:function(){this.element.style.height=this._getContainerSize()+"px"}},{key:"_getContainerSize",value:function(){return z(this.positions)}},{key:"_getStaggerAmount",value:function(t){return Math.min(t*this.options.staggerAmount,this.options.staggerAmountMax)}},{key:"_dispatch",value:function(t){var e=arguments.length>1&&void 0!==arguments[1]?arguments[1]:{};this.isDestroyed||(e.shuffle=this,this.emit(t,e))}},{key:"_resetCols",value:function(){var t=this.cols;for(this.positions=[];t;)t-=1,this.positions.push(0)}},{key:"_layout",value:function(t){var e=this,i=this._getNextPositions(t),n=0;t.forEach(function(t,s){function o(){t.applyCss(_.Css.VISIBLE.after)}if(p.equals(t.point,i[s])&&!t.isHidden)return t.applyCss(_.Css.VISIBLE.before),void o();t.point=i[s],t.scale=_.Scale.VISIBLE,t.isHidden=!1;var r=e.getStylesForTransition(t,_.Css.VISIBLE.before);r.transitionDelay=e._getStaggerAmount(n)+"ms",e._queue.push({item:t,styles:r,callback:o}),n+=1})}},{key:"_getNextPositions",value:function(t){var e=this;if(this.options.isCentered){var i=t.map(function(t,i){var n=r.getSize(t.element,!0),s=e._getItemPosition(n);return new v(s.x,s.y,n.width,n.height,i)});return this.getTransformedPositions(i,this.containerWidth)}return t.map(function(t){return e._getItemPosition(r.getSize(t.element,!0))})}},{key:"_getItemPosition",value:function(t){return function(t){for(var e=t.itemSize,i=t.positions,n=t.gridSize,s=t.total,o=t.threshold,r=t.buffer,l=M(e.width,n,s,o),a=A(i,l,s),u=F(a,r),h=new p(n*u,a[u]),f=a[u]+e.height,c=0;c<l;c++)i[u+c]=f;return h}({itemSize:t,positions:this.positions,gridSize:this.colWidth,total:this.cols,threshold:this.options.columnThreshold,buffer:this.options.buffer})}},{key:"getTransformedPositions",value:function(t,e){return x(t,e)}},{key:"_shrink",value:function(){var t=this,e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:this._getConcealedItems(),i=0;e.forEach(function(e){function n(){e.applyCss(_.Css.HIDDEN.after)}if(e.isHidden)return e.applyCss(_.Css.HIDDEN.before),void n();e.scale=_.Scale.HIDDEN,e.isHidden=!0;var s=t.getStylesForTransition(e,_.Css.HIDDEN.before);s.transitionDelay=t._getStaggerAmount(i)+"ms",t._queue.push({item:e,styles:s,callback:n}),i+=1})}},{key:"_handleResize",value:function(){this.isEnabled&&!this.isDestroyed&&this.update()}},{key:"getStylesForTransition",value:function(t,e){var i=Object.assign({},e);if(this.options.useTransforms){var n=this.options.roundTransforms?Math.round(t.point.x):t.point.x,s=this.options.roundTransforms?Math.round(t.point.y):t.point.y;i.transform="translate(".concat(n,"px, ").concat(s,"px) scale(").concat(t.scale,")")}else i.left=t.point.x+"px",i.top=t.point.y+"px";return i}},{key:"_whenTransitionDone",value:function(t,e,i){var n=D(t,function(t){e(),i(null,t)});this._transitions.push(n)}},{key:"_getTransitionFunction",value:function(t){var e=this;return function(i){t.item.applyCss(t.styles),e._whenTransitionDone(t.item.element,t.callback,i)}}},{key:"_processQueue",value:function(){this.isTransitioning&&this._cancelMovement();var t=this.options.speed>0,e=this._queue.length>0;e&&t&&this.isInitialized?this._startTransitions(this._queue):e?(this._styleImmediately(this._queue),this._dispatch(r.EventType.LAYOUT)):this._dispatch(r.EventType.LAYOUT),this._queue.length=0}},{key:"_startTransitions",value:function(t){var e=this;this.isTransitioning=!0,function(t,e,i){i||("function"==typeof e?(i=e,e=null):i=d);var n=t&&t.length;if(!n)return i(null,[]);var s=!1,o=new Array(n);function r(t){return function(e,r){if(!s){if(e)return i(e,o),void(s=!0);o[t]=r,--n||i(null,o)}}}t.forEach(e?function(t,i){t.call(e,r(i))}:function(t,e){t(r(e))})}(t.map(function(t){return e._getTransitionFunction(t)}),this._movementFinished.bind(this))}},{key:"_cancelMovement",value:function(){this._transitions.forEach(L),this._transitions.length=0,this.isTransitioning=!1}},{key:"_styleImmediately",value:function(t){if(t.length){var e=t.map(function(t){return t.item.element});r._skipTransitions(e,function(){t.forEach(function(t){t.item.applyCss(t.styles),t.callback()})})}}},{key:"_movementFinished",value:function(){this._transitions.length=0,this.isTransitioning=!1,this._dispatch(r.EventType.LAYOUT)}},{key:"filter",value:function(t,e){this.isEnabled&&((!t||t&&0===t.length)&&(t=r.ALL_ITEMS),this._filter(t),this._shrink(),this._updateItemCount(),this.sort(e))}},{key:"sort",value:function(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:this.lastSort;if(this.isEnabled){this._resetCols();var e=T(this._getFilteredItems(),t);this._layout(e),this._processQueue(),this._setContainerSize(),this.lastSort=t}}},{key:"update",value:function(){var t=arguments.length>0&&void 0!==arguments[0]&&arguments[0];this.isEnabled&&(t||this._setColumns(),this.sort())}},{key:"layout",value:function(){this.update(!0)}},{key:"add",value:function(t){var e=this,i=O(t).map(function(t){return new _(t)});this._initItems(i),this._resetCols();var n=T(this._mergeNewItems(i),this.lastSort),s=this._filter(this.lastFilter,n),o=function(t){return i.includes(t)},r=function(t){t.scale=_.Scale.HIDDEN,t.isHidden=!0,t.applyCss(_.Css.HIDDEN.before),t.applyCss(_.Css.HIDDEN.after)},l=this._getNextPositions(s.visible);s.visible.forEach(function(t,i){o(t)&&(t.point=l[i],r(t),t.applyCss(e.getStylesForTransition(t,{})))}),s.hidden.forEach(function(t){o(t)&&r(t)}),this.element.offsetWidth,this.setItemTransitions(i),this.items=this._mergeNewItems(i),this.filter(this.lastFilter)}},{key:"disable",value:function(){this.isEnabled=!1}},{key:"enable",value:function(){var t=!(arguments.length>0&&void 0!==arguments[0])||arguments[0];this.isEnabled=!0,t&&this.update()}},{key:"remove",value:function(t){var e=this;if(t.length){var i=O(t),n=i.map(function(t){return e.getItemByElement(t)}).filter(function(t){return!!t});this._toggleFilterClasses({visible:[],hidden:n}),this._shrink(n),this.sort(),this.items=this.items.filter(function(t){return!n.includes(t)}),this._updateItemCount(),this.once(r.EventType.LAYOUT,function(){e._disposeItems(n),i.forEach(function(t){t.parentNode.removeChild(t)}),e._dispatch(r.EventType.REMOVED,{collection:i})})}}},{key:"getItemByElement",value:function(t){return this.items.find(function(e){return e.element===t})}},{key:"resetItems",value:function(){var t=this;this._disposeItems(this.items),this.isInitialized=!1,this.items=this._getItems(),this._initItems(this.items),this.once(r.EventType.LAYOUT,function(){t.setItemTransitions(t.items),t.isInitialized=!0}),this.filter(this.lastFilter)}},{key:"destroy",value:function(){this._cancelMovement(),window.removeEventListener("resize",this._onResize),this.element.classList.remove("shuffle"),this.element.removeAttribute("style"),this._disposeItems(this.items),this.items.length=0,this._transitions.length=0,this.options.sizer=null,this.element=null,this.isDestroyed=!0,this.isEnabled=!1}}],[{key:"getSize",value:function(t){var e=arguments.length>1&&void 0!==arguments[1]&&arguments[1],i=window.getComputedStyle(t,null),n=b(t,"width",i),s=b(t,"height",i);e&&(n+=b(t,"marginLeft",i)+b(t,"marginRight",i),s+=b(t,"marginTop",i)+b(t,"marginBottom",i));return{width:n,height:s}}},{key:"_skipTransitions",value:function(t,e){var i=t.map(function(t){var e=t.style,i=e.transitionDuration,n=e.transitionDelay;return e.transitionDuration="0ms",e.transitionDelay="0ms",{duration:i,delay:n}});e(),t[0].offsetWidth,t.forEach(function(t,e){t.style.transitionDuration=i[e].duration,t.style.transitionDelay=i[e].delay})}}]),r}();return H.ShuffleItem=_,H.ALL_ITEMS="all",H.FILTER_ATTRIBUTE_KEY="groups",H.EventType={LAYOUT:"shuffle:layout",REMOVED:"shuffle:removed"},H.Classes=y,H.FilterMode={ANY:"any",ALL:"all"},H.options={group:H.ALL_ITEMS,speed:250,easing:"cubic-bezier(0.4, 0.0, 0.2, 1)",itemSelector:"*",sizer:null,gutterWidth:0,columnWidth:0,delimiter:null,buffer:0,columnThreshold:.01,initialSort:null,throttle:c,throttleTime:300,staggerAmount:15,staggerAmountMax:150,useTransforms:!0,filterMode:H.FilterMode.ANY,isCentered:!1,roundTransforms:!0},H.Point=p,H.Rect=v,H.__sorter=T,H.__getColumnSpan=M,H.__getAvailablePositions=A,H.__getShortColumn=F,H.__getCenteredPositions=x,H});
-//# sourceMappingURL=shuffle.min.js.map
-
-
-/***/ }),
-/* 63 */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-/**
- * Load required plugin.
- */
-__webpack_require__(64);
-
-
-/**
- * Configure the plugin.
- */
-
-+function($){
-  page.registerVendor('Slick');
-
-  page.initSlick = function() {
-
-    $('[data-provide~="slider"]').each(function() {
-      var tag = $(this),
-          options = {
-            speed: 1000,
-            arrows: false,
-            centerPadding: '0',
-          };
-
-      options = $.extend( options, page.getDataOptions(tag));
-
-      if (options.slidesToShow !== undefined || options.centerMode !== undefined) {
-        var scrollOn768 = 1;
-        if (options.slidesToScroll !== undefined) {
-          if (options.slidesToScroll > 1) {
-            scrollOn768 = 2;
-          }
-        }
-
-        options.responsive = [{
-          breakpoint: 768,
-          settings: {
-            slidesToShow: 2,
-            slidesToScroll: scrollOn768,
-          }
-        },
-        {
-          breakpoint: 576,
-          settings: {
-            slidesToShow: 1,
-            slidesToScroll: 1,
-            centerPadding: '0px',
-          }
-        }];
-      }
-
-      tag.slick(options);
-    });
-
-  }
-
-}(jQuery);
-
-
-
-
-
-/***/ }),
-/* 64 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*
-     _ _      _       _
- ___| (_) ___| | __  (_)___
-/ __| | |/ __| |/ /  | / __|
-\__ \ | | (__|   < _ | \__ \
-|___/_|_|\___|_|\_(_)/ |___/
-                   |__/
-
- Version: 1.8.1
-  Author: Ken Wheeler
- Website: http://kenwheeler.github.io
-    Docs: http://kenwheeler.github.io/slick
-    Repo: http://github.com/kenwheeler/slick
-  Issues: http://github.com/kenwheeler/slick/issues
-
- */
-/* global window, document, define, jQuery, setInterval, clearInterval */
-;(function(factory) {
-    'use strict';
-    if (true) {
-        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
-				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
-				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-    } else {}
-
-}(function($) {
-    'use strict';
-    var Slick = window.Slick || {};
-
-    Slick = (function() {
-
-        var instanceUid = 0;
-
-        function Slick(element, settings) {
-
-            var _ = this, dataSettings;
-
-            _.defaults = {
-                accessibility: true,
-                adaptiveHeight: false,
-                appendArrows: $(element),
-                appendDots: $(element),
-                arrows: true,
-                asNavFor: null,
-                prevArrow: '<button class="slick-prev" aria-label="Previous" type="button">Previous</button>',
-                nextArrow: '<button class="slick-next" aria-label="Next" type="button">Next</button>',
-                autoplay: false,
-                autoplaySpeed: 3000,
-                centerMode: false,
-                centerPadding: '50px',
-                cssEase: 'ease',
-                customPaging: function(slider, i) {
-                    return $('<button type="button" />').text(i + 1);
-                },
-                dots: false,
-                dotsClass: 'slick-dots',
-                draggable: true,
-                easing: 'linear',
-                edgeFriction: 0.35,
-                fade: false,
-                focusOnSelect: false,
-                focusOnChange: false,
-                infinite: true,
-                initialSlide: 0,
-                lazyLoad: 'ondemand',
-                mobileFirst: false,
-                pauseOnHover: true,
-                pauseOnFocus: true,
-                pauseOnDotsHover: false,
-                respondTo: 'window',
-                responsive: null,
-                rows: 1,
-                rtl: false,
-                slide: '',
-                slidesPerRow: 1,
-                slidesToShow: 1,
-                slidesToScroll: 1,
-                speed: 500,
-                swipe: true,
-                swipeToSlide: false,
-                touchMove: true,
-                touchThreshold: 5,
-                useCSS: true,
-                useTransform: true,
-                variableWidth: false,
-                vertical: false,
-                verticalSwiping: false,
-                waitForAnimate: true,
-                zIndex: 1000
-            };
-
-            _.initials = {
-                animating: false,
-                dragging: false,
-                autoPlayTimer: null,
-                currentDirection: 0,
-                currentLeft: null,
-                currentSlide: 0,
-                direction: 1,
-                $dots: null,
-                listWidth: null,
-                listHeight: null,
-                loadIndex: 0,
-                $nextArrow: null,
-                $prevArrow: null,
-                scrolling: false,
-                slideCount: null,
-                slideWidth: null,
-                $slideTrack: null,
-                $slides: null,
-                sliding: false,
-                slideOffset: 0,
-                swipeLeft: null,
-                swiping: false,
-                $list: null,
-                touchObject: {},
-                transformsEnabled: false,
-                unslicked: false
-            };
-
-            $.extend(_, _.initials);
-
-            _.activeBreakpoint = null;
-            _.animType = null;
-            _.animProp = null;
-            _.breakpoints = [];
-            _.breakpointSettings = [];
-            _.cssTransitions = false;
-            _.focussed = false;
-            _.interrupted = false;
-            _.hidden = 'hidden';
-            _.paused = true;
-            _.positionProp = null;
-            _.respondTo = null;
-            _.rowCount = 1;
-            _.shouldClick = true;
-            _.$slider = $(element);
-            _.$slidesCache = null;
-            _.transformType = null;
-            _.transitionType = null;
-            _.visibilityChange = 'visibilitychange';
-            _.windowWidth = 0;
-            _.windowTimer = null;
-
-            dataSettings = $(element).data('slick') || {};
-
-            _.options = $.extend({}, _.defaults, settings, dataSettings);
-
-            _.currentSlide = _.options.initialSlide;
-
-            _.originalSettings = _.options;
-
-            if (typeof document.mozHidden !== 'undefined') {
-                _.hidden = 'mozHidden';
-                _.visibilityChange = 'mozvisibilitychange';
-            } else if (typeof document.webkitHidden !== 'undefined') {
-                _.hidden = 'webkitHidden';
-                _.visibilityChange = 'webkitvisibilitychange';
-            }
-
-            _.autoPlay = $.proxy(_.autoPlay, _);
-            _.autoPlayClear = $.proxy(_.autoPlayClear, _);
-            _.autoPlayIterator = $.proxy(_.autoPlayIterator, _);
-            _.changeSlide = $.proxy(_.changeSlide, _);
-            _.clickHandler = $.proxy(_.clickHandler, _);
-            _.selectHandler = $.proxy(_.selectHandler, _);
-            _.setPosition = $.proxy(_.setPosition, _);
-            _.swipeHandler = $.proxy(_.swipeHandler, _);
-            _.dragHandler = $.proxy(_.dragHandler, _);
-            _.keyHandler = $.proxy(_.keyHandler, _);
-
-            _.instanceUid = instanceUid++;
-
-            // A simple way to check for HTML strings
-            // Strict HTML recognition (must start with <)
-            // Extracted from jQuery v1.11 source
-            _.htmlExpr = /^(?:\s*(<[\w\W]+>)[^>]*)$/;
-
-
-            _.registerBreakpoints();
-            _.init(true);
-
-        }
-
-        return Slick;
-
-    }());
-
-    Slick.prototype.activateADA = function() {
-        var _ = this;
-
-        _.$slideTrack.find('.slick-active').attr({
-            'aria-hidden': 'false'
-        }).find('a, input, button, select').attr({
-            'tabindex': '0'
-        });
-
-    };
-
-    Slick.prototype.addSlide = Slick.prototype.slickAdd = function(markup, index, addBefore) {
-
-        var _ = this;
-
-        if (typeof(index) === 'boolean') {
-            addBefore = index;
-            index = null;
-        } else if (index < 0 || (index >= _.slideCount)) {
-            return false;
-        }
-
-        _.unload();
-
-        if (typeof(index) === 'number') {
-            if (index === 0 && _.$slides.length === 0) {
-                $(markup).appendTo(_.$slideTrack);
-            } else if (addBefore) {
-                $(markup).insertBefore(_.$slides.eq(index));
-            } else {
-                $(markup).insertAfter(_.$slides.eq(index));
-            }
-        } else {
-            if (addBefore === true) {
-                $(markup).prependTo(_.$slideTrack);
-            } else {
-                $(markup).appendTo(_.$slideTrack);
-            }
-        }
-
-        _.$slides = _.$slideTrack.children(this.options.slide);
-
-        _.$slideTrack.children(this.options.slide).detach();
-
-        _.$slideTrack.append(_.$slides);
-
-        _.$slides.each(function(index, element) {
-            $(element).attr('data-slick-index', index);
-        });
-
-        _.$slidesCache = _.$slides;
-
-        _.reinit();
-
-    };
-
-    Slick.prototype.animateHeight = function() {
-        var _ = this;
-        if (_.options.slidesToShow === 1 && _.options.adaptiveHeight === true && _.options.vertical === false) {
-            var targetHeight = _.$slides.eq(_.currentSlide).outerHeight(true);
-            _.$list.animate({
-                height: targetHeight
-            }, _.options.speed);
-        }
-    };
-
-    Slick.prototype.animateSlide = function(targetLeft, callback) {
-
-        var animProps = {},
-            _ = this;
-
-        _.animateHeight();
-
-        if (_.options.rtl === true && _.options.vertical === false) {
-            targetLeft = -targetLeft;
-        }
-        if (_.transformsEnabled === false) {
-            if (_.options.vertical === false) {
-                _.$slideTrack.animate({
-                    left: targetLeft
-                }, _.options.speed, _.options.easing, callback);
-            } else {
-                _.$slideTrack.animate({
-                    top: targetLeft
-                }, _.options.speed, _.options.easing, callback);
-            }
-
-        } else {
-
-            if (_.cssTransitions === false) {
-                if (_.options.rtl === true) {
-                    _.currentLeft = -(_.currentLeft);
-                }
-                $({
-                    animStart: _.currentLeft
-                }).animate({
-                    animStart: targetLeft
-                }, {
-                    duration: _.options.speed,
-                    easing: _.options.easing,
-                    step: function(now) {
-                        now = Math.ceil(now);
-                        if (_.options.vertical === false) {
-                            animProps[_.animType] = 'translate(' +
-                                now + 'px, 0px)';
-                            _.$slideTrack.css(animProps);
-                        } else {
-                            animProps[_.animType] = 'translate(0px,' +
-                                now + 'px)';
-                            _.$slideTrack.css(animProps);
-                        }
-                    },
-                    complete: function() {
-                        if (callback) {
-                            callback.call();
-                        }
-                    }
-                });
-
-            } else {
-
-                _.applyTransition();
-                targetLeft = Math.ceil(targetLeft);
-
-                if (_.options.vertical === false) {
-                    animProps[_.animType] = 'translate3d(' + targetLeft + 'px, 0px, 0px)';
-                } else {
-                    animProps[_.animType] = 'translate3d(0px,' + targetLeft + 'px, 0px)';
-                }
-                _.$slideTrack.css(animProps);
-
-                if (callback) {
-                    setTimeout(function() {
-
-                        _.disableTransition();
-
-                        callback.call();
-                    }, _.options.speed);
-                }
-
-            }
-
-        }
-
-    };
-
-    Slick.prototype.getNavTarget = function() {
-
-        var _ = this,
-            asNavFor = _.options.asNavFor;
-
-        if ( asNavFor && asNavFor !== null ) {
-            asNavFor = $(asNavFor).not(_.$slider);
-        }
-
-        return asNavFor;
-
-    };
-
-    Slick.prototype.asNavFor = function(index) {
-
-        var _ = this,
-            asNavFor = _.getNavTarget();
-
-        if ( asNavFor !== null && typeof asNavFor === 'object' ) {
-            asNavFor.each(function() {
-                var target = $(this).slick('getSlick');
-                if(!target.unslicked) {
-                    target.slideHandler(index, true);
-                }
-            });
-        }
-
-    };
-
-    Slick.prototype.applyTransition = function(slide) {
-
-        var _ = this,
-            transition = {};
-
-        if (_.options.fade === false) {
-            transition[_.transitionType] = _.transformType + ' ' + _.options.speed + 'ms ' + _.options.cssEase;
-        } else {
-            transition[_.transitionType] = 'opacity ' + _.options.speed + 'ms ' + _.options.cssEase;
-        }
-
-        if (_.options.fade === false) {
-            _.$slideTrack.css(transition);
-        } else {
-            _.$slides.eq(slide).css(transition);
-        }
-
-    };
-
-    Slick.prototype.autoPlay = function() {
-
-        var _ = this;
-
-        _.autoPlayClear();
-
-        if ( _.slideCount > _.options.slidesToShow ) {
-            _.autoPlayTimer = setInterval( _.autoPlayIterator, _.options.autoplaySpeed );
-        }
-
-    };
-
-    Slick.prototype.autoPlayClear = function() {
-
-        var _ = this;
-
-        if (_.autoPlayTimer) {
-            clearInterval(_.autoPlayTimer);
-        }
-
-    };
-
-    Slick.prototype.autoPlayIterator = function() {
-
-        var _ = this,
-            slideTo = _.currentSlide + _.options.slidesToScroll;
-
-        if ( !_.paused && !_.interrupted && !_.focussed ) {
-
-            if ( _.options.infinite === false ) {
-
-                if ( _.direction === 1 && ( _.currentSlide + 1 ) === ( _.slideCount - 1 )) {
-                    _.direction = 0;
-                }
-
-                else if ( _.direction === 0 ) {
-
-                    slideTo = _.currentSlide - _.options.slidesToScroll;
-
-                    if ( _.currentSlide - 1 === 0 ) {
-                        _.direction = 1;
-                    }
-
-                }
-
-            }
-
-            _.slideHandler( slideTo );
-
-        }
-
-    };
-
-    Slick.prototype.buildArrows = function() {
-
-        var _ = this;
-
-        if (_.options.arrows === true ) {
-
-            _.$prevArrow = $(_.options.prevArrow).addClass('slick-arrow');
-            _.$nextArrow = $(_.options.nextArrow).addClass('slick-arrow');
-
-            if( _.slideCount > _.options.slidesToShow ) {
-
-                _.$prevArrow.removeClass('slick-hidden').removeAttr('aria-hidden tabindex');
-                _.$nextArrow.removeClass('slick-hidden').removeAttr('aria-hidden tabindex');
-
-                if (_.htmlExpr.test(_.options.prevArrow)) {
-                    _.$prevArrow.prependTo(_.options.appendArrows);
-                }
-
-                if (_.htmlExpr.test(_.options.nextArrow)) {
-                    _.$nextArrow.appendTo(_.options.appendArrows);
-                }
-
-                if (_.options.infinite !== true) {
-                    _.$prevArrow
-                        .addClass('slick-disabled')
-                        .attr('aria-disabled', 'true');
-                }
-
-            } else {
-
-                _.$prevArrow.add( _.$nextArrow )
-
-                    .addClass('slick-hidden')
-                    .attr({
-                        'aria-disabled': 'true',
-                        'tabindex': '-1'
-                    });
-
-            }
-
-        }
-
-    };
-
-    Slick.prototype.buildDots = function() {
-
-        var _ = this,
-            i, dot;
-
-        if (_.options.dots === true && _.slideCount > _.options.slidesToShow) {
-
-            _.$slider.addClass('slick-dotted');
-
-            dot = $('<ul />').addClass(_.options.dotsClass);
-
-            for (i = 0; i <= _.getDotCount(); i += 1) {
-                dot.append($('<li />').append(_.options.customPaging.call(this, _, i)));
-            }
-
-            _.$dots = dot.appendTo(_.options.appendDots);
-
-            _.$dots.find('li').first().addClass('slick-active');
-
-        }
-
-    };
-
-    Slick.prototype.buildOut = function() {
-
-        var _ = this;
-
-        _.$slides =
-            _.$slider
-                .children( _.options.slide + ':not(.slick-cloned)')
-                .addClass('slick-slide');
-
-        _.slideCount = _.$slides.length;
-
-        _.$slides.each(function(index, element) {
-            $(element)
-                .attr('data-slick-index', index)
-                .data('originalStyling', $(element).attr('style') || '');
-        });
-
-        _.$slider.addClass('slick-slider');
-
-        _.$slideTrack = (_.slideCount === 0) ?
-            $('<div class="slick-track"/>').appendTo(_.$slider) :
-            _.$slides.wrapAll('<div class="slick-track"/>').parent();
-
-        _.$list = _.$slideTrack.wrap(
-            '<div class="slick-list"/>').parent();
-        _.$slideTrack.css('opacity', 0);
-
-        if (_.options.centerMode === true || _.options.swipeToSlide === true) {
-            _.options.slidesToScroll = 1;
-        }
-
-        $('img[data-lazy]', _.$slider).not('[src]').addClass('slick-loading');
-
-        _.setupInfinite();
-
-        _.buildArrows();
-
-        _.buildDots();
-
-        _.updateDots();
-
-
-        _.setSlideClasses(typeof _.currentSlide === 'number' ? _.currentSlide : 0);
-
-        if (_.options.draggable === true) {
-            _.$list.addClass('draggable');
-        }
-
-    };
-
-    Slick.prototype.buildRows = function() {
-
-        var _ = this, a, b, c, newSlides, numOfSlides, originalSlides,slidesPerSection;
-
-        newSlides = document.createDocumentFragment();
-        originalSlides = _.$slider.children();
-
-        if(_.options.rows > 0) {
-
-            slidesPerSection = _.options.slidesPerRow * _.options.rows;
-            numOfSlides = Math.ceil(
-                originalSlides.length / slidesPerSection
-            );
-
-            for(a = 0; a < numOfSlides; a++){
-                var slide = document.createElement('div');
-                for(b = 0; b < _.options.rows; b++) {
-                    var row = document.createElement('div');
-                    for(c = 0; c < _.options.slidesPerRow; c++) {
-                        var target = (a * slidesPerSection + ((b * _.options.slidesPerRow) + c));
-                        if (originalSlides.get(target)) {
-                            row.appendChild(originalSlides.get(target));
-                        }
-                    }
-                    slide.appendChild(row);
-                }
-                newSlides.appendChild(slide);
-            }
-
-            _.$slider.empty().append(newSlides);
-            _.$slider.children().children().children()
-                .css({
-                    'width':(100 / _.options.slidesPerRow) + '%',
-                    'display': 'inline-block'
-                });
-
-        }
-
-    };
-
-    Slick.prototype.checkResponsive = function(initial, forceUpdate) {
-
-        var _ = this,
-            breakpoint, targetBreakpoint, respondToWidth, triggerBreakpoint = false;
-        var sliderWidth = _.$slider.width();
-        var windowWidth = window.innerWidth || $(window).width();
-
-        if (_.respondTo === 'window') {
-            respondToWidth = windowWidth;
-        } else if (_.respondTo === 'slider') {
-            respondToWidth = sliderWidth;
-        } else if (_.respondTo === 'min') {
-            respondToWidth = Math.min(windowWidth, sliderWidth);
-        }
-
-        if ( _.options.responsive &&
-            _.options.responsive.length &&
-            _.options.responsive !== null) {
-
-            targetBreakpoint = null;
-
-            for (breakpoint in _.breakpoints) {
-                if (_.breakpoints.hasOwnProperty(breakpoint)) {
-                    if (_.originalSettings.mobileFirst === false) {
-                        if (respondToWidth < _.breakpoints[breakpoint]) {
-                            targetBreakpoint = _.breakpoints[breakpoint];
-                        }
-                    } else {
-                        if (respondToWidth > _.breakpoints[breakpoint]) {
-                            targetBreakpoint = _.breakpoints[breakpoint];
-                        }
-                    }
-                }
-            }
-
-            if (targetBreakpoint !== null) {
-                if (_.activeBreakpoint !== null) {
-                    if (targetBreakpoint !== _.activeBreakpoint || forceUpdate) {
-                        _.activeBreakpoint =
-                            targetBreakpoint;
-                        if (_.breakpointSettings[targetBreakpoint] === 'unslick') {
-                            _.unslick(targetBreakpoint);
-                        } else {
-                            _.options = $.extend({}, _.originalSettings,
-                                _.breakpointSettings[
-                                    targetBreakpoint]);
-                            if (initial === true) {
-                                _.currentSlide = _.options.initialSlide;
-                            }
-                            _.refresh(initial);
-                        }
-                        triggerBreakpoint = targetBreakpoint;
-                    }
-                } else {
-                    _.activeBreakpoint = targetBreakpoint;
-                    if (_.breakpointSettings[targetBreakpoint] === 'unslick') {
-                        _.unslick(targetBreakpoint);
-                    } else {
-                        _.options = $.extend({}, _.originalSettings,
-                            _.breakpointSettings[
-                                targetBreakpoint]);
-                        if (initial === true) {
-                            _.currentSlide = _.options.initialSlide;
-                        }
-                        _.refresh(initial);
-                    }
-                    triggerBreakpoint = targetBreakpoint;
-                }
-            } else {
-                if (_.activeBreakpoint !== null) {
-                    _.activeBreakpoint = null;
-                    _.options = _.originalSettings;
-                    if (initial === true) {
-                        _.currentSlide = _.options.initialSlide;
-                    }
-                    _.refresh(initial);
-                    triggerBreakpoint = targetBreakpoint;
-                }
-            }
-
-            // only trigger breakpoints during an actual break. not on initialize.
-            if( !initial && triggerBreakpoint !== false ) {
-                _.$slider.trigger('breakpoint', [_, triggerBreakpoint]);
-            }
-        }
-
-    };
-
-    Slick.prototype.changeSlide = function(event, dontAnimate) {
-
-        var _ = this,
-            $target = $(event.currentTarget),
-            indexOffset, slideOffset, unevenOffset;
-
-        // If target is a link, prevent default action.
-        if($target.is('a')) {
-            event.preventDefault();
-        }
-
-        // If target is not the <li> element (ie: a child), find the <li>.
-        if(!$target.is('li')) {
-            $target = $target.closest('li');
-        }
-
-        unevenOffset = (_.slideCount % _.options.slidesToScroll !== 0);
-        indexOffset = unevenOffset ? 0 : (_.slideCount - _.currentSlide) % _.options.slidesToScroll;
-
-        switch (event.data.message) {
-
-            case 'previous':
-                slideOffset = indexOffset === 0 ? _.options.slidesToScroll : _.options.slidesToShow - indexOffset;
-                if (_.slideCount > _.options.slidesToShow) {
-                    _.slideHandler(_.currentSlide - slideOffset, false, dontAnimate);
-                }
-                break;
-
-            case 'next':
-                slideOffset = indexOffset === 0 ? _.options.slidesToScroll : indexOffset;
-                if (_.slideCount > _.options.slidesToShow) {
-                    _.slideHandler(_.currentSlide + slideOffset, false, dontAnimate);
-                }
-                break;
-
-            case 'index':
-                var index = event.data.index === 0 ? 0 :
-                    event.data.index || $target.index() * _.options.slidesToScroll;
-
-                _.slideHandler(_.checkNavigable(index), false, dontAnimate);
-                $target.children().trigger('focus');
-                break;
-
-            default:
-                return;
-        }
-
-    };
-
-    Slick.prototype.checkNavigable = function(index) {
-
-        var _ = this,
-            navigables, prevNavigable;
-
-        navigables = _.getNavigableIndexes();
-        prevNavigable = 0;
-        if (index > navigables[navigables.length - 1]) {
-            index = navigables[navigables.length - 1];
-        } else {
-            for (var n in navigables) {
-                if (index < navigables[n]) {
-                    index = prevNavigable;
-                    break;
-                }
-                prevNavigable = navigables[n];
-            }
-        }
-
-        return index;
-    };
-
-    Slick.prototype.cleanUpEvents = function() {
-
-        var _ = this;
-
-        if (_.options.dots && _.$dots !== null) {
-
-            $('li', _.$dots)
-                .off('click.slick', _.changeSlide)
-                .off('mouseenter.slick', $.proxy(_.interrupt, _, true))
-                .off('mouseleave.slick', $.proxy(_.interrupt, _, false));
-
-            if (_.options.accessibility === true) {
-                _.$dots.off('keydown.slick', _.keyHandler);
-            }
-        }
-
-        _.$slider.off('focus.slick blur.slick');
-
-        if (_.options.arrows === true && _.slideCount > _.options.slidesToShow) {
-            _.$prevArrow && _.$prevArrow.off('click.slick', _.changeSlide);
-            _.$nextArrow && _.$nextArrow.off('click.slick', _.changeSlide);
-
-            if (_.options.accessibility === true) {
-                _.$prevArrow && _.$prevArrow.off('keydown.slick', _.keyHandler);
-                _.$nextArrow && _.$nextArrow.off('keydown.slick', _.keyHandler);
-            }
-        }
-
-        _.$list.off('touchstart.slick mousedown.slick', _.swipeHandler);
-        _.$list.off('touchmove.slick mousemove.slick', _.swipeHandler);
-        _.$list.off('touchend.slick mouseup.slick', _.swipeHandler);
-        _.$list.off('touchcancel.slick mouseleave.slick', _.swipeHandler);
-
-        _.$list.off('click.slick', _.clickHandler);
-
-        $(document).off(_.visibilityChange, _.visibility);
-
-        _.cleanUpSlideEvents();
-
-        if (_.options.accessibility === true) {
-            _.$list.off('keydown.slick', _.keyHandler);
-        }
-
-        if (_.options.focusOnSelect === true) {
-            $(_.$slideTrack).children().off('click.slick', _.selectHandler);
-        }
-
-        $(window).off('orientationchange.slick.slick-' + _.instanceUid, _.orientationChange);
-
-        $(window).off('resize.slick.slick-' + _.instanceUid, _.resize);
-
-        $('[draggable!=true]', _.$slideTrack).off('dragstart', _.preventDefault);
-
-        $(window).off('load.slick.slick-' + _.instanceUid, _.setPosition);
-
-    };
-
-    Slick.prototype.cleanUpSlideEvents = function() {
-
-        var _ = this;
-
-        _.$list.off('mouseenter.slick', $.proxy(_.interrupt, _, true));
-        _.$list.off('mouseleave.slick', $.proxy(_.interrupt, _, false));
-
-    };
-
-    Slick.prototype.cleanUpRows = function() {
-
-        var _ = this, originalSlides;
-
-        if(_.options.rows > 0) {
-            originalSlides = _.$slides.children().children();
-            originalSlides.removeAttr('style');
-            _.$slider.empty().append(originalSlides);
-        }
-
-    };
-
-    Slick.prototype.clickHandler = function(event) {
-
-        var _ = this;
-
-        if (_.shouldClick === false) {
-            event.stopImmediatePropagation();
-            event.stopPropagation();
-            event.preventDefault();
-        }
-
-    };
-
-    Slick.prototype.destroy = function(refresh) {
-
-        var _ = this;
-
-        _.autoPlayClear();
-
-        _.touchObject = {};
-
-        _.cleanUpEvents();
-
-        $('.slick-cloned', _.$slider).detach();
-
-        if (_.$dots) {
-            _.$dots.remove();
-        }
-
-        if ( _.$prevArrow && _.$prevArrow.length ) {
-
-            _.$prevArrow
-                .removeClass('slick-disabled slick-arrow slick-hidden')
-                .removeAttr('aria-hidden aria-disabled tabindex')
-                .css('display','');
-
-            if ( _.htmlExpr.test( _.options.prevArrow )) {
-                _.$prevArrow.remove();
-            }
-        }
-
-        if ( _.$nextArrow && _.$nextArrow.length ) {
-
-            _.$nextArrow
-                .removeClass('slick-disabled slick-arrow slick-hidden')
-                .removeAttr('aria-hidden aria-disabled tabindex')
-                .css('display','');
-
-            if ( _.htmlExpr.test( _.options.nextArrow )) {
-                _.$nextArrow.remove();
-            }
-        }
-
-
-        if (_.$slides) {
-
-            _.$slides
-                .removeClass('slick-slide slick-active slick-center slick-visible slick-current')
-                .removeAttr('aria-hidden')
-                .removeAttr('data-slick-index')
-                .each(function(){
-                    $(this).attr('style', $(this).data('originalStyling'));
-                });
-
-            _.$slideTrack.children(this.options.slide).detach();
-
-            _.$slideTrack.detach();
-
-            _.$list.detach();
-
-            _.$slider.append(_.$slides);
-        }
-
-        _.cleanUpRows();
-
-        _.$slider.removeClass('slick-slider');
-        _.$slider.removeClass('slick-initialized');
-        _.$slider.removeClass('slick-dotted');
-
-        _.unslicked = true;
-
-        if(!refresh) {
-            _.$slider.trigger('destroy', [_]);
-        }
-
-    };
-
-    Slick.prototype.disableTransition = function(slide) {
-
-        var _ = this,
-            transition = {};
-
-        transition[_.transitionType] = '';
-
-        if (_.options.fade === false) {
-            _.$slideTrack.css(transition);
-        } else {
-            _.$slides.eq(slide).css(transition);
-        }
-
-    };
-
-    Slick.prototype.fadeSlide = function(slideIndex, callback) {
-
-        var _ = this;
-
-        if (_.cssTransitions === false) {
-
-            _.$slides.eq(slideIndex).css({
-                zIndex: _.options.zIndex
-            });
-
-            _.$slides.eq(slideIndex).animate({
-                opacity: 1
-            }, _.options.speed, _.options.easing, callback);
-
-        } else {
-
-            _.applyTransition(slideIndex);
-
-            _.$slides.eq(slideIndex).css({
-                opacity: 1,
-                zIndex: _.options.zIndex
-            });
-
-            if (callback) {
-                setTimeout(function() {
-
-                    _.disableTransition(slideIndex);
-
-                    callback.call();
-                }, _.options.speed);
-            }
-
-        }
-
-    };
-
-    Slick.prototype.fadeSlideOut = function(slideIndex) {
-
-        var _ = this;
-
-        if (_.cssTransitions === false) {
-
-            _.$slides.eq(slideIndex).animate({
-                opacity: 0,
-                zIndex: _.options.zIndex - 2
-            }, _.options.speed, _.options.easing);
-
-        } else {
-
-            _.applyTransition(slideIndex);
-
-            _.$slides.eq(slideIndex).css({
-                opacity: 0,
-                zIndex: _.options.zIndex - 2
-            });
-
-        }
-
-    };
-
-    Slick.prototype.filterSlides = Slick.prototype.slickFilter = function(filter) {
-
-        var _ = this;
-
-        if (filter !== null) {
-
-            _.$slidesCache = _.$slides;
-
-            _.unload();
-
-            _.$slideTrack.children(this.options.slide).detach();
-
-            _.$slidesCache.filter(filter).appendTo(_.$slideTrack);
-
-            _.reinit();
-
-        }
-
-    };
-
-    Slick.prototype.focusHandler = function() {
-
-        var _ = this;
-
-        _.$slider
-            .off('focus.slick blur.slick')
-            .on('focus.slick blur.slick', '*', function(event) {
-
-            event.stopImmediatePropagation();
-            var $sf = $(this);
-
-            setTimeout(function() {
-
-                if( _.options.pauseOnFocus ) {
-                    _.focussed = $sf.is(':focus');
-                    _.autoPlay();
-                }
-
-            }, 0);
-
-        });
-    };
-
-    Slick.prototype.getCurrent = Slick.prototype.slickCurrentSlide = function() {
-
-        var _ = this;
-        return _.currentSlide;
-
-    };
-
-    Slick.prototype.getDotCount = function() {
-
-        var _ = this;
-
-        var breakPoint = 0;
-        var counter = 0;
-        var pagerQty = 0;
-
-        if (_.options.infinite === true) {
-            if (_.slideCount <= _.options.slidesToShow) {
-                 ++pagerQty;
-            } else {
-                while (breakPoint < _.slideCount) {
-                    ++pagerQty;
-                    breakPoint = counter + _.options.slidesToScroll;
-                    counter += _.options.slidesToScroll <= _.options.slidesToShow ? _.options.slidesToScroll : _.options.slidesToShow;
-                }
-            }
-        } else if (_.options.centerMode === true) {
-            pagerQty = _.slideCount;
-        } else if(!_.options.asNavFor) {
-            pagerQty = 1 + Math.ceil((_.slideCount - _.options.slidesToShow) / _.options.slidesToScroll);
-        }else {
-            while (breakPoint < _.slideCount) {
-                ++pagerQty;
-                breakPoint = counter + _.options.slidesToScroll;
-                counter += _.options.slidesToScroll <= _.options.slidesToShow ? _.options.slidesToScroll : _.options.slidesToShow;
-            }
-        }
-
-        return pagerQty - 1;
-
-    };
-
-    Slick.prototype.getLeft = function(slideIndex) {
-
-        var _ = this,
-            targetLeft,
-            verticalHeight,
-            verticalOffset = 0,
-            targetSlide,
-            coef;
-
-        _.slideOffset = 0;
-        verticalHeight = _.$slides.first().outerHeight(true);
-
-        if (_.options.infinite === true) {
-            if (_.slideCount > _.options.slidesToShow) {
-                _.slideOffset = (_.slideWidth * _.options.slidesToShow) * -1;
-                coef = -1
-
-                if (_.options.vertical === true && _.options.centerMode === true) {
-                    if (_.options.slidesToShow === 2) {
-                        coef = -1.5;
-                    } else if (_.options.slidesToShow === 1) {
-                        coef = -2
-                    }
-                }
-                verticalOffset = (verticalHeight * _.options.slidesToShow) * coef;
-            }
-            if (_.slideCount % _.options.slidesToScroll !== 0) {
-                if (slideIndex + _.options.slidesToScroll > _.slideCount && _.slideCount > _.options.slidesToShow) {
-                    if (slideIndex > _.slideCount) {
-                        _.slideOffset = ((_.options.slidesToShow - (slideIndex - _.slideCount)) * _.slideWidth) * -1;
-                        verticalOffset = ((_.options.slidesToShow - (slideIndex - _.slideCount)) * verticalHeight) * -1;
-                    } else {
-                        _.slideOffset = ((_.slideCount % _.options.slidesToScroll) * _.slideWidth) * -1;
-                        verticalOffset = ((_.slideCount % _.options.slidesToScroll) * verticalHeight) * -1;
-                    }
-                }
-            }
-        } else {
-            if (slideIndex + _.options.slidesToShow > _.slideCount) {
-                _.slideOffset = ((slideIndex + _.options.slidesToShow) - _.slideCount) * _.slideWidth;
-                verticalOffset = ((slideIndex + _.options.slidesToShow) - _.slideCount) * verticalHeight;
-            }
-        }
-
-        if (_.slideCount <= _.options.slidesToShow) {
-            _.slideOffset = 0;
-            verticalOffset = 0;
-        }
-
-        if (_.options.centerMode === true && _.slideCount <= _.options.slidesToShow) {
-            _.slideOffset = ((_.slideWidth * Math.floor(_.options.slidesToShow)) / 2) - ((_.slideWidth * _.slideCount) / 2);
-        } else if (_.options.centerMode === true && _.options.infinite === true) {
-            _.slideOffset += _.slideWidth * Math.floor(_.options.slidesToShow / 2) - _.slideWidth;
-        } else if (_.options.centerMode === true) {
-            _.slideOffset = 0;
-            _.slideOffset += _.slideWidth * Math.floor(_.options.slidesToShow / 2);
-        }
-
-        if (_.options.vertical === false) {
-            targetLeft = ((slideIndex * _.slideWidth) * -1) + _.slideOffset;
-        } else {
-            targetLeft = ((slideIndex * verticalHeight) * -1) + verticalOffset;
-        }
-
-        if (_.options.variableWidth === true) {
-
-            if (_.slideCount <= _.options.slidesToShow || _.options.infinite === false) {
-                targetSlide = _.$slideTrack.children('.slick-slide').eq(slideIndex);
-            } else {
-                targetSlide = _.$slideTrack.children('.slick-slide').eq(slideIndex + _.options.slidesToShow);
-            }
-
-            if (_.options.rtl === true) {
-                if (targetSlide[0]) {
-                    targetLeft = (_.$slideTrack.width() - targetSlide[0].offsetLeft - targetSlide.width()) * -1;
-                } else {
-                    targetLeft =  0;
-                }
-            } else {
-                targetLeft = targetSlide[0] ? targetSlide[0].offsetLeft * -1 : 0;
-            }
-
-            if (_.options.centerMode === true) {
-                if (_.slideCount <= _.options.slidesToShow || _.options.infinite === false) {
-                    targetSlide = _.$slideTrack.children('.slick-slide').eq(slideIndex);
-                } else {
-                    targetSlide = _.$slideTrack.children('.slick-slide').eq(slideIndex + _.options.slidesToShow + 1);
-                }
-
-                if (_.options.rtl === true) {
-                    if (targetSlide[0]) {
-                        targetLeft = (_.$slideTrack.width() - targetSlide[0].offsetLeft - targetSlide.width()) * -1;
-                    } else {
-                        targetLeft =  0;
-                    }
-                } else {
-                    targetLeft = targetSlide[0] ? targetSlide[0].offsetLeft * -1 : 0;
-                }
-
-                targetLeft += (_.$list.width() - targetSlide.outerWidth()) / 2;
-            }
-        }
-
-        return targetLeft;
-
-    };
-
-    Slick.prototype.getOption = Slick.prototype.slickGetOption = function(option) {
-
-        var _ = this;
-
-        return _.options[option];
-
-    };
-
-    Slick.prototype.getNavigableIndexes = function() {
-
-        var _ = this,
-            breakPoint = 0,
-            counter = 0,
-            indexes = [],
-            max;
-
-        if (_.options.infinite === false) {
-            max = _.slideCount;
-        } else {
-            breakPoint = _.options.slidesToScroll * -1;
-            counter = _.options.slidesToScroll * -1;
-            max = _.slideCount * 2;
-        }
-
-        while (breakPoint < max) {
-            indexes.push(breakPoint);
-            breakPoint = counter + _.options.slidesToScroll;
-            counter += _.options.slidesToScroll <= _.options.slidesToShow ? _.options.slidesToScroll : _.options.slidesToShow;
-        }
-
-        return indexes;
-
-    };
-
-    Slick.prototype.getSlick = function() {
-
-        return this;
-
-    };
-
-    Slick.prototype.getSlideCount = function() {
-
-        var _ = this,
-            slidesTraversed, swipedSlide, centerOffset;
-
-        centerOffset = _.options.centerMode === true ? _.slideWidth * Math.floor(_.options.slidesToShow / 2) : 0;
-
-        if (_.options.swipeToSlide === true) {
-            _.$slideTrack.find('.slick-slide').each(function(index, slide) {
-                if (slide.offsetLeft - centerOffset + ($(slide).outerWidth() / 2) > (_.swipeLeft * -1)) {
-                    swipedSlide = slide;
-                    return false;
-                }
-            });
-
-            slidesTraversed = Math.abs($(swipedSlide).attr('data-slick-index') - _.currentSlide) || 1;
-
-            return slidesTraversed;
-
-        } else {
-            return _.options.slidesToScroll;
-        }
-
-    };
-
-    Slick.prototype.goTo = Slick.prototype.slickGoTo = function(slide, dontAnimate) {
-
-        var _ = this;
-
-        _.changeSlide({
-            data: {
-                message: 'index',
-                index: parseInt(slide)
-            }
-        }, dontAnimate);
-
-    };
-
-    Slick.prototype.init = function(creation) {
-
-        var _ = this;
-
-        if (!$(_.$slider).hasClass('slick-initialized')) {
-
-            $(_.$slider).addClass('slick-initialized');
-
-            _.buildRows();
-            _.buildOut();
-            _.setProps();
-            _.startLoad();
-            _.loadSlider();
-            _.initializeEvents();
-            _.updateArrows();
-            _.updateDots();
-            _.checkResponsive(true);
-            _.focusHandler();
-
-        }
-
-        if (creation) {
-            _.$slider.trigger('init', [_]);
-        }
-
-        if (_.options.accessibility === true) {
-            _.initADA();
-        }
-
-        if ( _.options.autoplay ) {
-
-            _.paused = false;
-            _.autoPlay();
-
-        }
-
-    };
-
-    Slick.prototype.initADA = function() {
-        var _ = this,
-                numDotGroups = Math.ceil(_.slideCount / _.options.slidesToShow),
-                tabControlIndexes = _.getNavigableIndexes().filter(function(val) {
-                    return (val >= 0) && (val < _.slideCount);
-                });
-
-        _.$slides.add(_.$slideTrack.find('.slick-cloned')).attr({
-            'aria-hidden': 'true',
-            'tabindex': '-1'
-        }).find('a, input, button, select').attr({
-            'tabindex': '-1'
-        });
-
-        if (_.$dots !== null) {
-            _.$slides.not(_.$slideTrack.find('.slick-cloned')).each(function(i) {
-                var slideControlIndex = tabControlIndexes.indexOf(i);
-
-                $(this).attr({
-                    'role': 'tabpanel',
-                    'id': 'slick-slide' + _.instanceUid + i,
-                    'tabindex': -1
-                });
-
-                if (slideControlIndex !== -1) {
-                   var ariaButtonControl = 'slick-slide-control' + _.instanceUid + slideControlIndex
-                   if ($('#' + ariaButtonControl).length) {
-                     $(this).attr({
-                         'aria-describedby': ariaButtonControl
-                     });
-                   }
-                }
-            });
-
-            _.$dots.attr('role', 'tablist').find('li').each(function(i) {
-                var mappedSlideIndex = tabControlIndexes[i];
-
-                $(this).attr({
-                    'role': 'presentation'
-                });
-
-                $(this).find('button').first().attr({
-                    'role': 'tab',
-                    'id': 'slick-slide-control' + _.instanceUid + i,
-                    'aria-controls': 'slick-slide' + _.instanceUid + mappedSlideIndex,
-                    'aria-label': (i + 1) + ' of ' + numDotGroups,
-                    'aria-selected': null,
-                    'tabindex': '-1'
-                });
-
-            }).eq(_.currentSlide).find('button').attr({
-                'aria-selected': 'true',
-                'tabindex': '0'
-            }).end();
-        }
-
-        for (var i=_.currentSlide, max=i+_.options.slidesToShow; i < max; i++) {
-          if (_.options.focusOnChange) {
-            _.$slides.eq(i).attr({'tabindex': '0'});
-          } else {
-            _.$slides.eq(i).removeAttr('tabindex');
-          }
-        }
-
-        _.activateADA();
-
-    };
-
-    Slick.prototype.initArrowEvents = function() {
-
-        var _ = this;
-
-        if (_.options.arrows === true && _.slideCount > _.options.slidesToShow) {
-            _.$prevArrow
-               .off('click.slick')
-               .on('click.slick', {
-                    message: 'previous'
-               }, _.changeSlide);
-            _.$nextArrow
-               .off('click.slick')
-               .on('click.slick', {
-                    message: 'next'
-               }, _.changeSlide);
-
-            if (_.options.accessibility === true) {
-                _.$prevArrow.on('keydown.slick', _.keyHandler);
-                _.$nextArrow.on('keydown.slick', _.keyHandler);
-            }
-        }
-
-    };
-
-    Slick.prototype.initDotEvents = function() {
-
-        var _ = this;
-
-        if (_.options.dots === true && _.slideCount > _.options.slidesToShow) {
-            $('li', _.$dots).on('click.slick', {
-                message: 'index'
-            }, _.changeSlide);
-
-            if (_.options.accessibility === true) {
-                _.$dots.on('keydown.slick', _.keyHandler);
-            }
-        }
-
-        if (_.options.dots === true && _.options.pauseOnDotsHover === true && _.slideCount > _.options.slidesToShow) {
-
-            $('li', _.$dots)
-                .on('mouseenter.slick', $.proxy(_.interrupt, _, true))
-                .on('mouseleave.slick', $.proxy(_.interrupt, _, false));
-
-        }
-
-    };
-
-    Slick.prototype.initSlideEvents = function() {
-
-        var _ = this;
-
-        if ( _.options.pauseOnHover ) {
-
-            _.$list.on('mouseenter.slick', $.proxy(_.interrupt, _, true));
-            _.$list.on('mouseleave.slick', $.proxy(_.interrupt, _, false));
-
-        }
-
-    };
-
-    Slick.prototype.initializeEvents = function() {
-
-        var _ = this;
-
-        _.initArrowEvents();
-
-        _.initDotEvents();
-        _.initSlideEvents();
-
-        _.$list.on('touchstart.slick mousedown.slick', {
-            action: 'start'
-        }, _.swipeHandler);
-        _.$list.on('touchmove.slick mousemove.slick', {
-            action: 'move'
-        }, _.swipeHandler);
-        _.$list.on('touchend.slick mouseup.slick', {
-            action: 'end'
-        }, _.swipeHandler);
-        _.$list.on('touchcancel.slick mouseleave.slick', {
-            action: 'end'
-        }, _.swipeHandler);
-
-        _.$list.on('click.slick', _.clickHandler);
-
-        $(document).on(_.visibilityChange, $.proxy(_.visibility, _));
-
-        if (_.options.accessibility === true) {
-            _.$list.on('keydown.slick', _.keyHandler);
-        }
-
-        if (_.options.focusOnSelect === true) {
-            $(_.$slideTrack).children().on('click.slick', _.selectHandler);
-        }
-
-        $(window).on('orientationchange.slick.slick-' + _.instanceUid, $.proxy(_.orientationChange, _));
-
-        $(window).on('resize.slick.slick-' + _.instanceUid, $.proxy(_.resize, _));
-
-        $('[draggable!=true]', _.$slideTrack).on('dragstart', _.preventDefault);
-
-        $(window).on('load.slick.slick-' + _.instanceUid, _.setPosition);
-        $(_.setPosition);
-
-    };
-
-    Slick.prototype.initUI = function() {
-
-        var _ = this;
-
-        if (_.options.arrows === true && _.slideCount > _.options.slidesToShow) {
-
-            _.$prevArrow.show();
-            _.$nextArrow.show();
-
-        }
-
-        if (_.options.dots === true && _.slideCount > _.options.slidesToShow) {
-
-            _.$dots.show();
-
-        }
-
-    };
-
-    Slick.prototype.keyHandler = function(event) {
-
-        var _ = this;
-         //Dont slide if the cursor is inside the form fields and arrow keys are pressed
-        if(!event.target.tagName.match('TEXTAREA|INPUT|SELECT')) {
-            if (event.keyCode === 37 && _.options.accessibility === true) {
-                _.changeSlide({
-                    data: {
-                        message: _.options.rtl === true ? 'next' :  'previous'
-                    }
-                });
-            } else if (event.keyCode === 39 && _.options.accessibility === true) {
-                _.changeSlide({
-                    data: {
-                        message: _.options.rtl === true ? 'previous' : 'next'
-                    }
-                });
-            }
-        }
-
-    };
-
-    Slick.prototype.lazyLoad = function() {
-
-        var _ = this,
-            loadRange, cloneRange, rangeStart, rangeEnd;
-
-        function loadImages(imagesScope) {
-
-            $('img[data-lazy]', imagesScope).each(function() {
-
-                var image = $(this),
-                    imageSource = $(this).attr('data-lazy'),
-                    imageSrcSet = $(this).attr('data-srcset'),
-                    imageSizes  = $(this).attr('data-sizes') || _.$slider.attr('data-sizes'),
-                    imageToLoad = document.createElement('img');
-
-                imageToLoad.onload = function() {
-
-                    image
-                        .animate({ opacity: 0 }, 100, function() {
-
-                            if (imageSrcSet) {
-                                image
-                                    .attr('srcset', imageSrcSet );
-
-                                if (imageSizes) {
-                                    image
-                                        .attr('sizes', imageSizes );
-                                }
-                            }
-
-                            image
-                                .attr('src', imageSource)
-                                .animate({ opacity: 1 }, 200, function() {
-                                    image
-                                        .removeAttr('data-lazy data-srcset data-sizes')
-                                        .removeClass('slick-loading');
-                                });
-                            _.$slider.trigger('lazyLoaded', [_, image, imageSource]);
-                        });
-
-                };
-
-                imageToLoad.onerror = function() {
-
-                    image
-                        .removeAttr( 'data-lazy' )
-                        .removeClass( 'slick-loading' )
-                        .addClass( 'slick-lazyload-error' );
-
-                    _.$slider.trigger('lazyLoadError', [ _, image, imageSource ]);
-
-                };
-
-                imageToLoad.src = imageSource;
-
-            });
-
-        }
-
-        if (_.options.centerMode === true) {
-            if (_.options.infinite === true) {
-                rangeStart = _.currentSlide + (_.options.slidesToShow / 2 + 1);
-                rangeEnd = rangeStart + _.options.slidesToShow + 2;
-            } else {
-                rangeStart = Math.max(0, _.currentSlide - (_.options.slidesToShow / 2 + 1));
-                rangeEnd = 2 + (_.options.slidesToShow / 2 + 1) + _.currentSlide;
-            }
-        } else {
-            rangeStart = _.options.infinite ? _.options.slidesToShow + _.currentSlide : _.currentSlide;
-            rangeEnd = Math.ceil(rangeStart + _.options.slidesToShow);
-            if (_.options.fade === true) {
-                if (rangeStart > 0) rangeStart--;
-                if (rangeEnd <= _.slideCount) rangeEnd++;
-            }
-        }
-
-        loadRange = _.$slider.find('.slick-slide').slice(rangeStart, rangeEnd);
-
-        if (_.options.lazyLoad === 'anticipated') {
-            var prevSlide = rangeStart - 1,
-                nextSlide = rangeEnd,
-                $slides = _.$slider.find('.slick-slide');
-
-            for (var i = 0; i < _.options.slidesToScroll; i++) {
-                if (prevSlide < 0) prevSlide = _.slideCount - 1;
-                loadRange = loadRange.add($slides.eq(prevSlide));
-                loadRange = loadRange.add($slides.eq(nextSlide));
-                prevSlide--;
-                nextSlide++;
-            }
-        }
-
-        loadImages(loadRange);
-
-        if (_.slideCount <= _.options.slidesToShow) {
-            cloneRange = _.$slider.find('.slick-slide');
-            loadImages(cloneRange);
-        } else
-        if (_.currentSlide >= _.slideCount - _.options.slidesToShow) {
-            cloneRange = _.$slider.find('.slick-cloned').slice(0, _.options.slidesToShow);
-            loadImages(cloneRange);
-        } else if (_.currentSlide === 0) {
-            cloneRange = _.$slider.find('.slick-cloned').slice(_.options.slidesToShow * -1);
-            loadImages(cloneRange);
-        }
-
-    };
-
-    Slick.prototype.loadSlider = function() {
-
-        var _ = this;
-
-        _.setPosition();
-
-        _.$slideTrack.css({
-            opacity: 1
-        });
-
-        _.$slider.removeClass('slick-loading');
-
-        _.initUI();
-
-        if (_.options.lazyLoad === 'progressive') {
-            _.progressiveLazyLoad();
-        }
-
-    };
-
-    Slick.prototype.next = Slick.prototype.slickNext = function() {
-
-        var _ = this;
-
-        _.changeSlide({
-            data: {
-                message: 'next'
-            }
-        });
-
-    };
-
-    Slick.prototype.orientationChange = function() {
-
-        var _ = this;
-
-        _.checkResponsive();
-        _.setPosition();
-
-    };
-
-    Slick.prototype.pause = Slick.prototype.slickPause = function() {
-
-        var _ = this;
-
-        _.autoPlayClear();
-        _.paused = true;
-
-    };
-
-    Slick.prototype.play = Slick.prototype.slickPlay = function() {
-
-        var _ = this;
-
-        _.autoPlay();
-        _.options.autoplay = true;
-        _.paused = false;
-        _.focussed = false;
-        _.interrupted = false;
-
-    };
-
-    Slick.prototype.postSlide = function(index) {
-
-        var _ = this;
-
-        if( !_.unslicked ) {
-
-            _.$slider.trigger('afterChange', [_, index]);
-
-            _.animating = false;
-
-            if (_.slideCount > _.options.slidesToShow) {
-                _.setPosition();
-            }
-
-            _.swipeLeft = null;
-
-            if ( _.options.autoplay ) {
-                _.autoPlay();
-            }
-
-            if (_.options.accessibility === true) {
-                _.initADA();
-
-                if (_.options.focusOnChange) {
-                    var $currentSlide = $(_.$slides.get(_.currentSlide));
-                    $currentSlide.attr('tabindex', 0).focus();
-                }
-            }
-
-        }
-
-    };
-
-    Slick.prototype.prev = Slick.prototype.slickPrev = function() {
-
-        var _ = this;
-
-        _.changeSlide({
-            data: {
-                message: 'previous'
-            }
-        });
-
-    };
-
-    Slick.prototype.preventDefault = function(event) {
-
-        event.preventDefault();
-
-    };
-
-    Slick.prototype.progressiveLazyLoad = function( tryCount ) {
-
-        tryCount = tryCount || 1;
-
-        var _ = this,
-            $imgsToLoad = $( 'img[data-lazy]', _.$slider ),
-            image,
-            imageSource,
-            imageSrcSet,
-            imageSizes,
-            imageToLoad;
-
-        if ( $imgsToLoad.length ) {
-
-            image = $imgsToLoad.first();
-            imageSource = image.attr('data-lazy');
-            imageSrcSet = image.attr('data-srcset');
-            imageSizes  = image.attr('data-sizes') || _.$slider.attr('data-sizes');
-            imageToLoad = document.createElement('img');
-
-            imageToLoad.onload = function() {
-
-                if (imageSrcSet) {
-                    image
-                        .attr('srcset', imageSrcSet );
-
-                    if (imageSizes) {
-                        image
-                            .attr('sizes', imageSizes );
-                    }
-                }
-
-                image
-                    .attr( 'src', imageSource )
-                    .removeAttr('data-lazy data-srcset data-sizes')
-                    .removeClass('slick-loading');
-
-                if ( _.options.adaptiveHeight === true ) {
-                    _.setPosition();
-                }
-
-                _.$slider.trigger('lazyLoaded', [ _, image, imageSource ]);
-                _.progressiveLazyLoad();
-
-            };
-
-            imageToLoad.onerror = function() {
-
-                if ( tryCount < 3 ) {
-
-                    /**
-                     * try to load the image 3 times,
-                     * leave a slight delay so we don't get
-                     * servers blocking the request.
-                     */
-                    setTimeout( function() {
-                        _.progressiveLazyLoad( tryCount + 1 );
-                    }, 500 );
-
-                } else {
-
-                    image
-                        .removeAttr( 'data-lazy' )
-                        .removeClass( 'slick-loading' )
-                        .addClass( 'slick-lazyload-error' );
-
-                    _.$slider.trigger('lazyLoadError', [ _, image, imageSource ]);
-
-                    _.progressiveLazyLoad();
-
-                }
-
-            };
-
-            imageToLoad.src = imageSource;
-
-        } else {
-
-            _.$slider.trigger('allImagesLoaded', [ _ ]);
-
-        }
-
-    };
-
-    Slick.prototype.refresh = function( initializing ) {
-
-        var _ = this, currentSlide, lastVisibleIndex;
-
-        lastVisibleIndex = _.slideCount - _.options.slidesToShow;
-
-        // in non-infinite sliders, we don't want to go past the
-        // last visible index.
-        if( !_.options.infinite && ( _.currentSlide > lastVisibleIndex )) {
-            _.currentSlide = lastVisibleIndex;
-        }
-
-        // if less slides than to show, go to start.
-        if ( _.slideCount <= _.options.slidesToShow ) {
-            _.currentSlide = 0;
-
-        }
-
-        currentSlide = _.currentSlide;
-
-        _.destroy(true);
-
-        $.extend(_, _.initials, { currentSlide: currentSlide });
-
-        _.init();
-
-        if( !initializing ) {
-
-            _.changeSlide({
-                data: {
-                    message: 'index',
-                    index: currentSlide
-                }
-            }, false);
-
-        }
-
-    };
-
-    Slick.prototype.registerBreakpoints = function() {
-
-        var _ = this, breakpoint, currentBreakpoint, l,
-            responsiveSettings = _.options.responsive || null;
-
-        if ( $.type(responsiveSettings) === 'array' && responsiveSettings.length ) {
-
-            _.respondTo = _.options.respondTo || 'window';
-
-            for ( breakpoint in responsiveSettings ) {
-
-                l = _.breakpoints.length-1;
-
-                if (responsiveSettings.hasOwnProperty(breakpoint)) {
-                    currentBreakpoint = responsiveSettings[breakpoint].breakpoint;
-
-                    // loop through the breakpoints and cut out any existing
-                    // ones with the same breakpoint number, we don't want dupes.
-                    while( l >= 0 ) {
-                        if( _.breakpoints[l] && _.breakpoints[l] === currentBreakpoint ) {
-                            _.breakpoints.splice(l,1);
-                        }
-                        l--;
-                    }
-
-                    _.breakpoints.push(currentBreakpoint);
-                    _.breakpointSettings[currentBreakpoint] = responsiveSettings[breakpoint].settings;
-
-                }
-
-            }
-
-            _.breakpoints.sort(function(a, b) {
-                return ( _.options.mobileFirst ) ? a-b : b-a;
-            });
-
-        }
-
-    };
-
-    Slick.prototype.reinit = function() {
-
-        var _ = this;
-
-        _.$slides =
-            _.$slideTrack
-                .children(_.options.slide)
-                .addClass('slick-slide');
-
-        _.slideCount = _.$slides.length;
-
-        if (_.currentSlide >= _.slideCount && _.currentSlide !== 0) {
-            _.currentSlide = _.currentSlide - _.options.slidesToScroll;
-        }
-
-        if (_.slideCount <= _.options.slidesToShow) {
-            _.currentSlide = 0;
-        }
-
-        _.registerBreakpoints();
-
-        _.setProps();
-        _.setupInfinite();
-        _.buildArrows();
-        _.updateArrows();
-        _.initArrowEvents();
-        _.buildDots();
-        _.updateDots();
-        _.initDotEvents();
-        _.cleanUpSlideEvents();
-        _.initSlideEvents();
-
-        _.checkResponsive(false, true);
-
-        if (_.options.focusOnSelect === true) {
-            $(_.$slideTrack).children().on('click.slick', _.selectHandler);
-        }
-
-        _.setSlideClasses(typeof _.currentSlide === 'number' ? _.currentSlide : 0);
-
-        _.setPosition();
-        _.focusHandler();
-
-        _.paused = !_.options.autoplay;
-        _.autoPlay();
-
-        _.$slider.trigger('reInit', [_]);
-
-    };
-
-    Slick.prototype.resize = function() {
-
-        var _ = this;
-
-        if ($(window).width() !== _.windowWidth) {
-            clearTimeout(_.windowDelay);
-            _.windowDelay = window.setTimeout(function() {
-                _.windowWidth = $(window).width();
-                _.checkResponsive();
-                if( !_.unslicked ) { _.setPosition(); }
-            }, 50);
-        }
-    };
-
-    Slick.prototype.removeSlide = Slick.prototype.slickRemove = function(index, removeBefore, removeAll) {
-
-        var _ = this;
-
-        if (typeof(index) === 'boolean') {
-            removeBefore = index;
-            index = removeBefore === true ? 0 : _.slideCount - 1;
-        } else {
-            index = removeBefore === true ? --index : index;
-        }
-
-        if (_.slideCount < 1 || index < 0 || index > _.slideCount - 1) {
-            return false;
-        }
-
-        _.unload();
-
-        if (removeAll === true) {
-            _.$slideTrack.children().remove();
-        } else {
-            _.$slideTrack.children(this.options.slide).eq(index).remove();
-        }
-
-        _.$slides = _.$slideTrack.children(this.options.slide);
-
-        _.$slideTrack.children(this.options.slide).detach();
-
-        _.$slideTrack.append(_.$slides);
-
-        _.$slidesCache = _.$slides;
-
-        _.reinit();
-
-    };
-
-    Slick.prototype.setCSS = function(position) {
-
-        var _ = this,
-            positionProps = {},
-            x, y;
-
-        if (_.options.rtl === true) {
-            position = -position;
-        }
-        x = _.positionProp == 'left' ? Math.ceil(position) + 'px' : '0px';
-        y = _.positionProp == 'top' ? Math.ceil(position) + 'px' : '0px';
-
-        positionProps[_.positionProp] = position;
-
-        if (_.transformsEnabled === false) {
-            _.$slideTrack.css(positionProps);
-        } else {
-            positionProps = {};
-            if (_.cssTransitions === false) {
-                positionProps[_.animType] = 'translate(' + x + ', ' + y + ')';
-                _.$slideTrack.css(positionProps);
-            } else {
-                positionProps[_.animType] = 'translate3d(' + x + ', ' + y + ', 0px)';
-                _.$slideTrack.css(positionProps);
-            }
-        }
-
-    };
-
-    Slick.prototype.setDimensions = function() {
-
-        var _ = this;
-
-        if (_.options.vertical === false) {
-            if (_.options.centerMode === true) {
-                _.$list.css({
-                    padding: ('0px ' + _.options.centerPadding)
-                });
-            }
-        } else {
-            _.$list.height(_.$slides.first().outerHeight(true) * _.options.slidesToShow);
-            if (_.options.centerMode === true) {
-                _.$list.css({
-                    padding: (_.options.centerPadding + ' 0px')
-                });
-            }
-        }
-
-        _.listWidth = _.$list.width();
-        _.listHeight = _.$list.height();
-
-
-        if (_.options.vertical === false && _.options.variableWidth === false) {
-            _.slideWidth = Math.ceil(_.listWidth / _.options.slidesToShow);
-            _.$slideTrack.width(Math.ceil((_.slideWidth * _.$slideTrack.children('.slick-slide').length)));
-
-        } else if (_.options.variableWidth === true) {
-            _.$slideTrack.width(5000 * _.slideCount);
-        } else {
-            _.slideWidth = Math.ceil(_.listWidth);
-            _.$slideTrack.height(Math.ceil((_.$slides.first().outerHeight(true) * _.$slideTrack.children('.slick-slide').length)));
-        }
-
-        var offset = _.$slides.first().outerWidth(true) - _.$slides.first().width();
-        if (_.options.variableWidth === false) _.$slideTrack.children('.slick-slide').width(_.slideWidth - offset);
-
-    };
-
-    Slick.prototype.setFade = function() {
-
-        var _ = this,
-            targetLeft;
-
-        _.$slides.each(function(index, element) {
-            targetLeft = (_.slideWidth * index) * -1;
-            if (_.options.rtl === true) {
-                $(element).css({
-                    position: 'relative',
-                    right: targetLeft,
-                    top: 0,
-                    zIndex: _.options.zIndex - 2,
-                    opacity: 0
-                });
-            } else {
-                $(element).css({
-                    position: 'relative',
-                    left: targetLeft,
-                    top: 0,
-                    zIndex: _.options.zIndex - 2,
-                    opacity: 0
-                });
-            }
-        });
-
-        _.$slides.eq(_.currentSlide).css({
-            zIndex: _.options.zIndex - 1,
-            opacity: 1
-        });
-
-    };
-
-    Slick.prototype.setHeight = function() {
-
-        var _ = this;
-
-        if (_.options.slidesToShow === 1 && _.options.adaptiveHeight === true && _.options.vertical === false) {
-            var targetHeight = _.$slides.eq(_.currentSlide).outerHeight(true);
-            _.$list.css('height', targetHeight);
-        }
-
-    };
-
-    Slick.prototype.setOption =
-    Slick.prototype.slickSetOption = function() {
-
-        /**
-         * accepts arguments in format of:
-         *
-         *  - for changing a single option's value:
-         *     .slick("setOption", option, value, refresh )
-         *
-         *  - for changing a set of responsive options:
-         *     .slick("setOption", 'responsive', [{}, ...], refresh )
-         *
-         *  - for updating multiple values at once (not responsive)
-         *     .slick("setOption", { 'option': value, ... }, refresh )
-         */
-
-        var _ = this, l, item, option, value, refresh = false, type;
-
-        if( $.type( arguments[0] ) === 'object' ) {
-
-            option =  arguments[0];
-            refresh = arguments[1];
-            type = 'multiple';
-
-        } else if ( $.type( arguments[0] ) === 'string' ) {
-
-            option =  arguments[0];
-            value = arguments[1];
-            refresh = arguments[2];
-
-            if ( arguments[0] === 'responsive' && $.type( arguments[1] ) === 'array' ) {
-
-                type = 'responsive';
-
-            } else if ( typeof arguments[1] !== 'undefined' ) {
-
-                type = 'single';
-
-            }
-
-        }
-
-        if ( type === 'single' ) {
-
-            _.options[option] = value;
-
-
-        } else if ( type === 'multiple' ) {
-
-            $.each( option , function( opt, val ) {
-
-                _.options[opt] = val;
-
-            });
-
-
-        } else if ( type === 'responsive' ) {
-
-            for ( item in value ) {
-
-                if( $.type( _.options.responsive ) !== 'array' ) {
-
-                    _.options.responsive = [ value[item] ];
-
-                } else {
-
-                    l = _.options.responsive.length-1;
-
-                    // loop through the responsive object and splice out duplicates.
-                    while( l >= 0 ) {
-
-                        if( _.options.responsive[l].breakpoint === value[item].breakpoint ) {
-
-                            _.options.responsive.splice(l,1);
-
-                        }
-
-                        l--;
-
-                    }
-
-                    _.options.responsive.push( value[item] );
-
-                }
-
-            }
-
-        }
-
-        if ( refresh ) {
-
-            _.unload();
-            _.reinit();
-
-        }
-
-    };
-
-    Slick.prototype.setPosition = function() {
-
-        var _ = this;
-
-        _.setDimensions();
-
-        _.setHeight();
-
-        if (_.options.fade === false) {
-            _.setCSS(_.getLeft(_.currentSlide));
-        } else {
-            _.setFade();
-        }
-
-        _.$slider.trigger('setPosition', [_]);
-
-    };
-
-    Slick.prototype.setProps = function() {
-
-        var _ = this,
-            bodyStyle = document.body.style;
-
-        _.positionProp = _.options.vertical === true ? 'top' : 'left';
-
-        if (_.positionProp === 'top') {
-            _.$slider.addClass('slick-vertical');
-        } else {
-            _.$slider.removeClass('slick-vertical');
-        }
-
-        if (bodyStyle.WebkitTransition !== undefined ||
-            bodyStyle.MozTransition !== undefined ||
-            bodyStyle.msTransition !== undefined) {
-            if (_.options.useCSS === true) {
-                _.cssTransitions = true;
-            }
-        }
-
-        if ( _.options.fade ) {
-            if ( typeof _.options.zIndex === 'number' ) {
-                if( _.options.zIndex < 3 ) {
-                    _.options.zIndex = 3;
-                }
-            } else {
-                _.options.zIndex = _.defaults.zIndex;
-            }
-        }
-
-        if (bodyStyle.OTransform !== undefined) {
-            _.animType = 'OTransform';
-            _.transformType = '-o-transform';
-            _.transitionType = 'OTransition';
-            if (bodyStyle.perspectiveProperty === undefined && bodyStyle.webkitPerspective === undefined) _.animType = false;
-        }
-        if (bodyStyle.MozTransform !== undefined) {
-            _.animType = 'MozTransform';
-            _.transformType = '-moz-transform';
-            _.transitionType = 'MozTransition';
-            if (bodyStyle.perspectiveProperty === undefined && bodyStyle.MozPerspective === undefined) _.animType = false;
-        }
-        if (bodyStyle.webkitTransform !== undefined) {
-            _.animType = 'webkitTransform';
-            _.transformType = '-webkit-transform';
-            _.transitionType = 'webkitTransition';
-            if (bodyStyle.perspectiveProperty === undefined && bodyStyle.webkitPerspective === undefined) _.animType = false;
-        }
-        if (bodyStyle.msTransform !== undefined) {
-            _.animType = 'msTransform';
-            _.transformType = '-ms-transform';
-            _.transitionType = 'msTransition';
-            if (bodyStyle.msTransform === undefined) _.animType = false;
-        }
-        if (bodyStyle.transform !== undefined && _.animType !== false) {
-            _.animType = 'transform';
-            _.transformType = 'transform';
-            _.transitionType = 'transition';
-        }
-        _.transformsEnabled = _.options.useTransform && (_.animType !== null && _.animType !== false);
-    };
-
-
-    Slick.prototype.setSlideClasses = function(index) {
-
-        var _ = this,
-            centerOffset, allSlides, indexOffset, remainder;
-
-        allSlides = _.$slider
-            .find('.slick-slide')
-            .removeClass('slick-active slick-center slick-current')
-            .attr('aria-hidden', 'true');
-
-        _.$slides
-            .eq(index)
-            .addClass('slick-current');
-
-        if (_.options.centerMode === true) {
-
-            var evenCoef = _.options.slidesToShow % 2 === 0 ? 1 : 0;
-
-            centerOffset = Math.floor(_.options.slidesToShow / 2);
-
-            if (_.options.infinite === true) {
-
-                if (index >= centerOffset && index <= (_.slideCount - 1) - centerOffset) {
-                    _.$slides
-                        .slice(index - centerOffset + evenCoef, index + centerOffset + 1)
-                        .addClass('slick-active')
-                        .attr('aria-hidden', 'false');
-
-                } else {
-
-                    indexOffset = _.options.slidesToShow + index;
-                    allSlides
-                        .slice(indexOffset - centerOffset + 1 + evenCoef, indexOffset + centerOffset + 2)
-                        .addClass('slick-active')
-                        .attr('aria-hidden', 'false');
-
-                }
-
-                if (index === 0) {
-
-                    allSlides
-                        .eq(allSlides.length - 1 - _.options.slidesToShow)
-                        .addClass('slick-center');
-
-                } else if (index === _.slideCount - 1) {
-
-                    allSlides
-                        .eq(_.options.slidesToShow)
-                        .addClass('slick-center');
-
-                }
-
-            }
-
-            _.$slides
-                .eq(index)
-                .addClass('slick-center');
-
-        } else {
-
-            if (index >= 0 && index <= (_.slideCount - _.options.slidesToShow)) {
-
-                _.$slides
-                    .slice(index, index + _.options.slidesToShow)
-                    .addClass('slick-active')
-                    .attr('aria-hidden', 'false');
-
-            } else if (allSlides.length <= _.options.slidesToShow) {
-
-                allSlides
-                    .addClass('slick-active')
-                    .attr('aria-hidden', 'false');
-
-            } else {
-
-                remainder = _.slideCount % _.options.slidesToShow;
-                indexOffset = _.options.infinite === true ? _.options.slidesToShow + index : index;
-
-                if (_.options.slidesToShow == _.options.slidesToScroll && (_.slideCount - index) < _.options.slidesToShow) {
-
-                    allSlides
-                        .slice(indexOffset - (_.options.slidesToShow - remainder), indexOffset + remainder)
-                        .addClass('slick-active')
-                        .attr('aria-hidden', 'false');
-
-                } else {
-
-                    allSlides
-                        .slice(indexOffset, indexOffset + _.options.slidesToShow)
-                        .addClass('slick-active')
-                        .attr('aria-hidden', 'false');
-
-                }
-
-            }
-
-        }
-
-        if (_.options.lazyLoad === 'ondemand' || _.options.lazyLoad === 'anticipated') {
-            _.lazyLoad();
-        }
-    };
-
-    Slick.prototype.setupInfinite = function() {
-
-        var _ = this,
-            i, slideIndex, infiniteCount;
-
-        if (_.options.fade === true) {
-            _.options.centerMode = false;
-        }
-
-        if (_.options.infinite === true && _.options.fade === false) {
-
-            slideIndex = null;
-
-            if (_.slideCount > _.options.slidesToShow) {
-
-                if (_.options.centerMode === true) {
-                    infiniteCount = _.options.slidesToShow + 1;
-                } else {
-                    infiniteCount = _.options.slidesToShow;
-                }
-
-                for (i = _.slideCount; i > (_.slideCount -
-                        infiniteCount); i -= 1) {
-                    slideIndex = i - 1;
-                    $(_.$slides[slideIndex]).clone(true).attr('id', '')
-                        .attr('data-slick-index', slideIndex - _.slideCount)
-                        .prependTo(_.$slideTrack).addClass('slick-cloned');
-                }
-                for (i = 0; i < infiniteCount  + _.slideCount; i += 1) {
-                    slideIndex = i;
-                    $(_.$slides[slideIndex]).clone(true).attr('id', '')
-                        .attr('data-slick-index', slideIndex + _.slideCount)
-                        .appendTo(_.$slideTrack).addClass('slick-cloned');
-                }
-                _.$slideTrack.find('.slick-cloned').find('[id]').each(function() {
-                    $(this).attr('id', '');
-                });
-
-            }
-
-        }
-
-    };
-
-    Slick.prototype.interrupt = function( toggle ) {
-
-        var _ = this;
-
-        if( !toggle ) {
-            _.autoPlay();
-        }
-        _.interrupted = toggle;
-
-    };
-
-    Slick.prototype.selectHandler = function(event) {
-
-        var _ = this;
-
-        var targetElement =
-            $(event.target).is('.slick-slide') ?
-                $(event.target) :
-                $(event.target).parents('.slick-slide');
-
-        var index = parseInt(targetElement.attr('data-slick-index'));
-
-        if (!index) index = 0;
-
-        if (_.slideCount <= _.options.slidesToShow) {
-
-            _.slideHandler(index, false, true);
-            return;
-
-        }
-
-        _.slideHandler(index);
-
-    };
-
-    Slick.prototype.slideHandler = function(index, sync, dontAnimate) {
-
-        var targetSlide, animSlide, oldSlide, slideLeft, targetLeft = null,
-            _ = this, navTarget;
-
-        sync = sync || false;
-
-        if (_.animating === true && _.options.waitForAnimate === true) {
-            return;
-        }
-
-        if (_.options.fade === true && _.currentSlide === index) {
-            return;
-        }
-
-        if (sync === false) {
-            _.asNavFor(index);
-        }
-
-        targetSlide = index;
-        targetLeft = _.getLeft(targetSlide);
-        slideLeft = _.getLeft(_.currentSlide);
-
-        _.currentLeft = _.swipeLeft === null ? slideLeft : _.swipeLeft;
-
-        if (_.options.infinite === false && _.options.centerMode === false && (index < 0 || index > _.getDotCount() * _.options.slidesToScroll)) {
-            if (_.options.fade === false) {
-                targetSlide = _.currentSlide;
-                if (dontAnimate !== true && _.slideCount > _.options.slidesToShow) {
-                    _.animateSlide(slideLeft, function() {
-                        _.postSlide(targetSlide);
-                    });
-                } else {
-                    _.postSlide(targetSlide);
-                }
-            }
-            return;
-        } else if (_.options.infinite === false && _.options.centerMode === true && (index < 0 || index > (_.slideCount - _.options.slidesToScroll))) {
-            if (_.options.fade === false) {
-                targetSlide = _.currentSlide;
-                if (dontAnimate !== true && _.slideCount > _.options.slidesToShow) {
-                    _.animateSlide(slideLeft, function() {
-                        _.postSlide(targetSlide);
-                    });
-                } else {
-                    _.postSlide(targetSlide);
-                }
-            }
-            return;
-        }
-
-        if ( _.options.autoplay ) {
-            clearInterval(_.autoPlayTimer);
-        }
-
-        if (targetSlide < 0) {
-            if (_.slideCount % _.options.slidesToScroll !== 0) {
-                animSlide = _.slideCount - (_.slideCount % _.options.slidesToScroll);
-            } else {
-                animSlide = _.slideCount + targetSlide;
-            }
-        } else if (targetSlide >= _.slideCount) {
-            if (_.slideCount % _.options.slidesToScroll !== 0) {
-                animSlide = 0;
-            } else {
-                animSlide = targetSlide - _.slideCount;
-            }
-        } else {
-            animSlide = targetSlide;
-        }
-
-        _.animating = true;
-
-        _.$slider.trigger('beforeChange', [_, _.currentSlide, animSlide]);
-
-        oldSlide = _.currentSlide;
-        _.currentSlide = animSlide;
-
-        _.setSlideClasses(_.currentSlide);
-
-        if ( _.options.asNavFor ) {
-
-            navTarget = _.getNavTarget();
-            navTarget = navTarget.slick('getSlick');
-
-            if ( navTarget.slideCount <= navTarget.options.slidesToShow ) {
-                navTarget.setSlideClasses(_.currentSlide);
-            }
-
-        }
-
-        _.updateDots();
-        _.updateArrows();
-
-        if (_.options.fade === true) {
-            if (dontAnimate !== true) {
-
-                _.fadeSlideOut(oldSlide);
-
-                _.fadeSlide(animSlide, function() {
-                    _.postSlide(animSlide);
-                });
-
-            } else {
-                _.postSlide(animSlide);
-            }
-            _.animateHeight();
-            return;
-        }
-
-        if (dontAnimate !== true && _.slideCount > _.options.slidesToShow) {
-            _.animateSlide(targetLeft, function() {
-                _.postSlide(animSlide);
-            });
-        } else {
-            _.postSlide(animSlide);
-        }
-
-    };
-
-    Slick.prototype.startLoad = function() {
-
-        var _ = this;
-
-        if (_.options.arrows === true && _.slideCount > _.options.slidesToShow) {
-
-            _.$prevArrow.hide();
-            _.$nextArrow.hide();
-
-        }
-
-        if (_.options.dots === true && _.slideCount > _.options.slidesToShow) {
-
-            _.$dots.hide();
-
-        }
-
-        _.$slider.addClass('slick-loading');
-
-    };
-
-    Slick.prototype.swipeDirection = function() {
-
-        var xDist, yDist, r, swipeAngle, _ = this;
-
-        xDist = _.touchObject.startX - _.touchObject.curX;
-        yDist = _.touchObject.startY - _.touchObject.curY;
-        r = Math.atan2(yDist, xDist);
-
-        swipeAngle = Math.round(r * 180 / Math.PI);
-        if (swipeAngle < 0) {
-            swipeAngle = 360 - Math.abs(swipeAngle);
-        }
-
-        if ((swipeAngle <= 45) && (swipeAngle >= 0)) {
-            return (_.options.rtl === false ? 'left' : 'right');
-        }
-        if ((swipeAngle <= 360) && (swipeAngle >= 315)) {
-            return (_.options.rtl === false ? 'left' : 'right');
-        }
-        if ((swipeAngle >= 135) && (swipeAngle <= 225)) {
-            return (_.options.rtl === false ? 'right' : 'left');
-        }
-        if (_.options.verticalSwiping === true) {
-            if ((swipeAngle >= 35) && (swipeAngle <= 135)) {
-                return 'down';
-            } else {
-                return 'up';
-            }
-        }
-
-        return 'vertical';
-
-    };
-
-    Slick.prototype.swipeEnd = function(event) {
-
-        var _ = this,
-            slideCount,
-            direction;
-
-        _.dragging = false;
-        _.swiping = false;
-
-        if (_.scrolling) {
-            _.scrolling = false;
-            return false;
-        }
-
-        _.interrupted = false;
-        _.shouldClick = ( _.touchObject.swipeLength > 10 ) ? false : true;
-
-        if ( _.touchObject.curX === undefined ) {
-            return false;
-        }
-
-        if ( _.touchObject.edgeHit === true ) {
-            _.$slider.trigger('edge', [_, _.swipeDirection() ]);
-        }
-
-        if ( _.touchObject.swipeLength >= _.touchObject.minSwipe ) {
-
-            direction = _.swipeDirection();
-
-            switch ( direction ) {
-
-                case 'left':
-                case 'down':
-
-                    slideCount =
-                        _.options.swipeToSlide ?
-                            _.checkNavigable( _.currentSlide + _.getSlideCount() ) :
-                            _.currentSlide + _.getSlideCount();
-
-                    _.currentDirection = 0;
-
-                    break;
-
-                case 'right':
-                case 'up':
-
-                    slideCount =
-                        _.options.swipeToSlide ?
-                            _.checkNavigable( _.currentSlide - _.getSlideCount() ) :
-                            _.currentSlide - _.getSlideCount();
-
-                    _.currentDirection = 1;
-
-                    break;
-
-                default:
-
-
-            }
-
-            if( direction != 'vertical' ) {
-
-                _.slideHandler( slideCount );
-                _.touchObject = {};
-                _.$slider.trigger('swipe', [_, direction ]);
-
-            }
-
-        } else {
-
-            if ( _.touchObject.startX !== _.touchObject.curX ) {
-
-                _.slideHandler( _.currentSlide );
-                _.touchObject = {};
-
-            }
-
-        }
-
-    };
-
-    Slick.prototype.swipeHandler = function(event) {
-
-        var _ = this;
-
-        if ((_.options.swipe === false) || ('ontouchend' in document && _.options.swipe === false)) {
-            return;
-        } else if (_.options.draggable === false && event.type.indexOf('mouse') !== -1) {
-            return;
-        }
-
-        _.touchObject.fingerCount = event.originalEvent && event.originalEvent.touches !== undefined ?
-            event.originalEvent.touches.length : 1;
-
-        _.touchObject.minSwipe = _.listWidth / _.options
-            .touchThreshold;
-
-        if (_.options.verticalSwiping === true) {
-            _.touchObject.minSwipe = _.listHeight / _.options
-                .touchThreshold;
-        }
-
-        switch (event.data.action) {
-
-            case 'start':
-                _.swipeStart(event);
-                break;
-
-            case 'move':
-                _.swipeMove(event);
-                break;
-
-            case 'end':
-                _.swipeEnd(event);
-                break;
-
-        }
-
-    };
-
-    Slick.prototype.swipeMove = function(event) {
-
-        var _ = this,
-            edgeWasHit = false,
-            curLeft, swipeDirection, swipeLength, positionOffset, touches, verticalSwipeLength;
-
-        touches = event.originalEvent !== undefined ? event.originalEvent.touches : null;
-
-        if (!_.dragging || _.scrolling || touches && touches.length !== 1) {
-            return false;
-        }
-
-        curLeft = _.getLeft(_.currentSlide);
-
-        _.touchObject.curX = touches !== undefined ? touches[0].pageX : event.clientX;
-        _.touchObject.curY = touches !== undefined ? touches[0].pageY : event.clientY;
-
-        _.touchObject.swipeLength = Math.round(Math.sqrt(
-            Math.pow(_.touchObject.curX - _.touchObject.startX, 2)));
-
-        verticalSwipeLength = Math.round(Math.sqrt(
-            Math.pow(_.touchObject.curY - _.touchObject.startY, 2)));
-
-        if (!_.options.verticalSwiping && !_.swiping && verticalSwipeLength > 4) {
-            _.scrolling = true;
-            return false;
-        }
-
-        if (_.options.verticalSwiping === true) {
-            _.touchObject.swipeLength = verticalSwipeLength;
-        }
-
-        swipeDirection = _.swipeDirection();
-
-        if (event.originalEvent !== undefined && _.touchObject.swipeLength > 4) {
-            _.swiping = true;
-            event.preventDefault();
-        }
-
-        positionOffset = (_.options.rtl === false ? 1 : -1) * (_.touchObject.curX > _.touchObject.startX ? 1 : -1);
-        if (_.options.verticalSwiping === true) {
-            positionOffset = _.touchObject.curY > _.touchObject.startY ? 1 : -1;
-        }
-
-
-        swipeLength = _.touchObject.swipeLength;
-
-        _.touchObject.edgeHit = false;
-
-        if (_.options.infinite === false) {
-            if ((_.currentSlide === 0 && swipeDirection === 'right') || (_.currentSlide >= _.getDotCount() && swipeDirection === 'left')) {
-                swipeLength = _.touchObject.swipeLength * _.options.edgeFriction;
-                _.touchObject.edgeHit = true;
-            }
-        }
-
-        if (_.options.vertical === false) {
-            _.swipeLeft = curLeft + swipeLength * positionOffset;
-        } else {
-            _.swipeLeft = curLeft + (swipeLength * (_.$list.height() / _.listWidth)) * positionOffset;
-        }
-        if (_.options.verticalSwiping === true) {
-            _.swipeLeft = curLeft + swipeLength * positionOffset;
-        }
-
-        if (_.options.fade === true || _.options.touchMove === false) {
-            return false;
-        }
-
-        if (_.animating === true) {
-            _.swipeLeft = null;
-            return false;
-        }
-
-        _.setCSS(_.swipeLeft);
-
-    };
-
-    Slick.prototype.swipeStart = function(event) {
-
-        var _ = this,
-            touches;
-
-        _.interrupted = true;
-
-        if (_.touchObject.fingerCount !== 1 || _.slideCount <= _.options.slidesToShow) {
-            _.touchObject = {};
-            return false;
-        }
-
-        if (event.originalEvent !== undefined && event.originalEvent.touches !== undefined) {
-            touches = event.originalEvent.touches[0];
-        }
-
-        _.touchObject.startX = _.touchObject.curX = touches !== undefined ? touches.pageX : event.clientX;
-        _.touchObject.startY = _.touchObject.curY = touches !== undefined ? touches.pageY : event.clientY;
-
-        _.dragging = true;
-
-    };
-
-    Slick.prototype.unfilterSlides = Slick.prototype.slickUnfilter = function() {
-
-        var _ = this;
-
-        if (_.$slidesCache !== null) {
-
-            _.unload();
-
-            _.$slideTrack.children(this.options.slide).detach();
-
-            _.$slidesCache.appendTo(_.$slideTrack);
-
-            _.reinit();
-
-        }
-
-    };
-
-    Slick.prototype.unload = function() {
-
-        var _ = this;
-
-        $('.slick-cloned', _.$slider).remove();
-
-        if (_.$dots) {
-            _.$dots.remove();
-        }
-
-        if (_.$prevArrow && _.htmlExpr.test(_.options.prevArrow)) {
-            _.$prevArrow.remove();
-        }
-
-        if (_.$nextArrow && _.htmlExpr.test(_.options.nextArrow)) {
-            _.$nextArrow.remove();
-        }
-
-        _.$slides
-            .removeClass('slick-slide slick-active slick-visible slick-current')
-            .attr('aria-hidden', 'true')
-            .css('width', '');
-
-    };
-
-    Slick.prototype.unslick = function(fromBreakpoint) {
-
-        var _ = this;
-        _.$slider.trigger('unslick', [_, fromBreakpoint]);
-        _.destroy();
-
-    };
-
-    Slick.prototype.updateArrows = function() {
-
-        var _ = this,
-            centerOffset;
-
-        centerOffset = Math.floor(_.options.slidesToShow / 2);
-
-        if ( _.options.arrows === true &&
-            _.slideCount > _.options.slidesToShow &&
-            !_.options.infinite ) {
-
-            _.$prevArrow.removeClass('slick-disabled').attr('aria-disabled', 'false');
-            _.$nextArrow.removeClass('slick-disabled').attr('aria-disabled', 'false');
-
-            if (_.currentSlide === 0) {
-
-                _.$prevArrow.addClass('slick-disabled').attr('aria-disabled', 'true');
-                _.$nextArrow.removeClass('slick-disabled').attr('aria-disabled', 'false');
-
-            } else if (_.currentSlide >= _.slideCount - _.options.slidesToShow && _.options.centerMode === false) {
-
-                _.$nextArrow.addClass('slick-disabled').attr('aria-disabled', 'true');
-                _.$prevArrow.removeClass('slick-disabled').attr('aria-disabled', 'false');
-
-            } else if (_.currentSlide >= _.slideCount - 1 && _.options.centerMode === true) {
-
-                _.$nextArrow.addClass('slick-disabled').attr('aria-disabled', 'true');
-                _.$prevArrow.removeClass('slick-disabled').attr('aria-disabled', 'false');
-
-            }
-
-        }
-
-    };
-
-    Slick.prototype.updateDots = function() {
-
-        var _ = this;
-
-        if (_.$dots !== null) {
-
-            _.$dots
-                .find('li')
-                    .removeClass('slick-active')
-                    .end();
-
-            _.$dots
-                .find('li')
-                .eq(Math.floor(_.currentSlide / _.options.slidesToScroll))
-                .addClass('slick-active');
-
-        }
-
-    };
-
-    Slick.prototype.visibility = function() {
-
-        var _ = this;
-
-        if ( _.options.autoplay ) {
-
-            if ( document[_.hidden] ) {
-
-                _.interrupted = true;
-
-            } else {
-
-                _.interrupted = false;
-
-            }
-
-        }
-
-    };
-
-    $.fn.slick = function() {
-        var _ = this,
-            opt = arguments[0],
-            args = Array.prototype.slice.call(arguments, 1),
-            l = _.length,
-            i,
-            ret;
-        for (i = 0; i < l; i++) {
-            if (typeof opt == 'object' || typeof opt == 'undefined')
-                _[i].slick = new Slick(_[i], opt);
-            else
-                ret = _[i].slick[opt].apply(_[i].slick, args);
-            if (typeof ret != 'undefined') return ret;
-        }
-        return _;
-    };
-
-}));
-
-
-/***/ }),
-/* 65 */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-/**
- * Load required plugin.
- */
-window.Typed = __webpack_require__(66);
-
-
-/**
- * Configure the plugin.
- */
-
-+function($){
-  page.registerVendor('Typed');
-
-  page.initTyped = function() {
-    $('[data-typing]').each(function(){
-      var strings = $(this).data('typing').split(',');
-      var options = {
-        strings: strings,
-        typeSpeed: 50,
-        backSpeed: 30,
-        backDelay: 800,
-        loop: true
-      };
-
-      options = $.extend( options, page.getDataOptions($(this)) );
-      var typed = new Typed( $(this)[0], options );
-    });
-  }
-
-}(jQuery);
-
-
-
-
-
-/***/ }),
-/* 66 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*!
- * 
- *   typed.js - A JavaScript Typing Animation Library
- *   Author: Matt Boldt <me@mattboldt.com>
- *   Version: v2.0.9
- *   Url: https://github.com/mattboldt/typed.js
- *   License(s): MIT
- * 
- */
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(true)
-		module.exports = factory();
-	else {}
-})(this, function() {
-return /******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
-/******/ 			return installedModules[moduleId].exports;
-/******/
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			exports: {},
-/******/ 			id: moduleId,
-/******/ 			loaded: false
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.loaded = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(0);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	  value: true
-	});
-	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-	
-	var _initializerJs = __webpack_require__(1);
-	
-	var _htmlParserJs = __webpack_require__(3);
-	
-	/**
-	 * Welcome to Typed.js!
-	 * @param {string} elementId HTML element ID _OR_ HTML element
-	 * @param {object} options options object
-	 * @returns {object} a new Typed object
-	 */
-	
-	var Typed = (function () {
-	  function Typed(elementId, options) {
-	    _classCallCheck(this, Typed);
-	
-	    // Initialize it up
-	    _initializerJs.initializer.load(this, options, elementId);
-	    // All systems go!
-	    this.begin();
-	  }
-	
-	  /**
-	   * Toggle start() and stop() of the Typed instance
-	   * @public
-	   */
-	
-	  _createClass(Typed, [{
-	    key: 'toggle',
-	    value: function toggle() {
-	      this.pause.status ? this.start() : this.stop();
-	    }
-	
-	    /**
-	     * Stop typing / backspacing and enable cursor blinking
-	     * @public
-	     */
-	  }, {
-	    key: 'stop',
-	    value: function stop() {
-	      if (this.typingComplete) return;
-	      if (this.pause.status) return;
-	      this.toggleBlinking(true);
-	      this.pause.status = true;
-	      this.options.onStop(this.arrayPos, this);
-	    }
-	
-	    /**
-	     * Start typing / backspacing after being stopped
-	     * @public
-	     */
-	  }, {
-	    key: 'start',
-	    value: function start() {
-	      if (this.typingComplete) return;
-	      if (!this.pause.status) return;
-	      this.pause.status = false;
-	      if (this.pause.typewrite) {
-	        this.typewrite(this.pause.curString, this.pause.curStrPos);
-	      } else {
-	        this.backspace(this.pause.curString, this.pause.curStrPos);
-	      }
-	      this.options.onStart(this.arrayPos, this);
-	    }
-	
-	    /**
-	     * Destroy this instance of Typed
-	     * @public
-	     */
-	  }, {
-	    key: 'destroy',
-	    value: function destroy() {
-	      this.reset(false);
-	      this.options.onDestroy(this);
-	    }
-	
-	    /**
-	     * Reset Typed and optionally restarts
-	     * @param {boolean} restart
-	     * @public
-	     */
-	  }, {
-	    key: 'reset',
-	    value: function reset() {
-	      var restart = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
-	
-	      clearInterval(this.timeout);
-	      this.replaceText('');
-	      if (this.cursor && this.cursor.parentNode) {
-	        this.cursor.parentNode.removeChild(this.cursor);
-	        this.cursor = null;
-	      }
-	      this.strPos = 0;
-	      this.arrayPos = 0;
-	      this.curLoop = 0;
-	      if (restart) {
-	        this.insertCursor();
-	        this.options.onReset(this);
-	        this.begin();
-	      }
-	    }
-	
-	    /**
-	     * Begins the typing animation
-	     * @private
-	     */
-	  }, {
-	    key: 'begin',
-	    value: function begin() {
-	      var _this = this;
-	
-	      this.typingComplete = false;
-	      this.shuffleStringsIfNeeded(this);
-	      this.insertCursor();
-	      if (this.bindInputFocusEvents) this.bindFocusEvents();
-	      this.timeout = setTimeout(function () {
-	        // Check if there is some text in the element, if yes start by backspacing the default message
-	        if (!_this.currentElContent || _this.currentElContent.length === 0) {
-	          _this.typewrite(_this.strings[_this.sequence[_this.arrayPos]], _this.strPos);
-	        } else {
-	          // Start typing
-	          _this.backspace(_this.currentElContent, _this.currentElContent.length);
-	        }
-	      }, this.startDelay);
-	    }
-	
-	    /**
-	     * Called for each character typed
-	     * @param {string} curString the current string in the strings array
-	     * @param {number} curStrPos the current position in the curString
-	     * @private
-	     */
-	  }, {
-	    key: 'typewrite',
-	    value: function typewrite(curString, curStrPos) {
-	      var _this2 = this;
-	
-	      if (this.fadeOut && this.el.classList.contains(this.fadeOutClass)) {
-	        this.el.classList.remove(this.fadeOutClass);
-	        if (this.cursor) this.cursor.classList.remove(this.fadeOutClass);
-	      }
-	
-	      var humanize = this.humanizer(this.typeSpeed);
-	      var numChars = 1;
-	
-	      if (this.pause.status === true) {
-	        this.setPauseStatus(curString, curStrPos, true);
-	        return;
-	      }
-	
-	      // contain typing function in a timeout humanize'd delay
-	      this.timeout = setTimeout(function () {
-	        // skip over any HTML chars
-	        curStrPos = _htmlParserJs.htmlParser.typeHtmlChars(curString, curStrPos, _this2);
-	
-	        var pauseTime = 0;
-	        var substr = curString.substr(curStrPos);
-	        // check for an escape character before a pause value
-	        // format: \^\d+ .. eg: ^1000 .. should be able to print the ^ too using ^^
-	        // single ^ are removed from string
-	        if (substr.charAt(0) === '^') {
-	          if (/^\^\d+/.test(substr)) {
-	            var skip = 1; // skip at least 1
-	            substr = /\d+/.exec(substr)[0];
-	            skip += substr.length;
-	            pauseTime = parseInt(substr);
-	            _this2.temporaryPause = true;
-	            _this2.options.onTypingPaused(_this2.arrayPos, _this2);
-	            // strip out the escape character and pause value so they're not printed
-	            curString = curString.substring(0, curStrPos) + curString.substring(curStrPos + skip);
-	            _this2.toggleBlinking(true);
-	          }
-	        }
-	
-	        // check for skip characters formatted as
-	        // "this is a `string to print NOW` ..."
-	        if (substr.charAt(0) === '`') {
-	          while (curString.substr(curStrPos + numChars).charAt(0) !== '`') {
-	            numChars++;
-	            if (curStrPos + numChars > curString.length) break;
-	          }
-	          // strip out the escape characters and append all the string in between
-	          var stringBeforeSkip = curString.substring(0, curStrPos);
-	          var stringSkipped = curString.substring(stringBeforeSkip.length + 1, curStrPos + numChars);
-	          var stringAfterSkip = curString.substring(curStrPos + numChars + 1);
-	          curString = stringBeforeSkip + stringSkipped + stringAfterSkip;
-	          numChars--;
-	        }
-	
-	        // timeout for any pause after a character
-	        _this2.timeout = setTimeout(function () {
-	          // Accounts for blinking while paused
-	          _this2.toggleBlinking(false);
-	
-	          // We're done with this sentence!
-	          if (curStrPos >= curString.length) {
-	            _this2.doneTyping(curString, curStrPos);
-	          } else {
-	            _this2.keepTyping(curString, curStrPos, numChars);
-	          }
-	          // end of character pause
-	          if (_this2.temporaryPause) {
-	            _this2.temporaryPause = false;
-	            _this2.options.onTypingResumed(_this2.arrayPos, _this2);
-	          }
-	        }, pauseTime);
-	
-	        // humanized value for typing
-	      }, humanize);
-	    }
-	
-	    /**
-	     * Continue to the next string & begin typing
-	     * @param {string} curString the current string in the strings array
-	     * @param {number} curStrPos the current position in the curString
-	     * @private
-	     */
-	  }, {
-	    key: 'keepTyping',
-	    value: function keepTyping(curString, curStrPos, numChars) {
-	      // call before functions if applicable
-	      if (curStrPos === 0) {
-	        this.toggleBlinking(false);
-	        this.options.preStringTyped(this.arrayPos, this);
-	      }
-	      // start typing each new char into existing string
-	      // curString: arg, this.el.html: original text inside element
-	      curStrPos += numChars;
-	      var nextString = curString.substr(0, curStrPos);
-	      this.replaceText(nextString);
-	      // loop the function
-	      this.typewrite(curString, curStrPos);
-	    }
-	
-	    /**
-	     * We're done typing all strings
-	     * @param {string} curString the current string in the strings array
-	     * @param {number} curStrPos the current position in the curString
-	     * @private
-	     */
-	  }, {
-	    key: 'doneTyping',
-	    value: function doneTyping(curString, curStrPos) {
-	      var _this3 = this;
-	
-	      // fires callback function
-	      this.options.onStringTyped(this.arrayPos, this);
-	      this.toggleBlinking(true);
-	      // is this the final string
-	      if (this.arrayPos === this.strings.length - 1) {
-	        // callback that occurs on the last typed string
-	        this.complete();
-	        // quit if we wont loop back
-	        if (this.loop === false || this.curLoop === this.loopCount) {
-	          return;
-	        }
-	      }
-	      this.timeout = setTimeout(function () {
-	        _this3.backspace(curString, curStrPos);
-	      }, this.backDelay);
-	    }
-	
-	    /**
-	     * Backspaces 1 character at a time
-	     * @param {string} curString the current string in the strings array
-	     * @param {number} curStrPos the current position in the curString
-	     * @private
-	     */
-	  }, {
-	    key: 'backspace',
-	    value: function backspace(curString, curStrPos) {
-	      var _this4 = this;
-	
-	      if (this.pause.status === true) {
-	        this.setPauseStatus(curString, curStrPos, true);
-	        return;
-	      }
-	      if (this.fadeOut) return this.initFadeOut();
-	
-	      this.toggleBlinking(false);
-	      var humanize = this.humanizer(this.backSpeed);
-	
-	      this.timeout = setTimeout(function () {
-	        curStrPos = _htmlParserJs.htmlParser.backSpaceHtmlChars(curString, curStrPos, _this4);
-	        // replace text with base text + typed characters
-	        var curStringAtPosition = curString.substr(0, curStrPos);
-	        _this4.replaceText(curStringAtPosition);
-	
-	        // if smartBack is enabled
-	        if (_this4.smartBackspace) {
-	          // the remaining part of the current string is equal of the same part of the new string
-	          var nextString = _this4.strings[_this4.arrayPos + 1];
-	          if (nextString && curStringAtPosition === nextString.substr(0, curStrPos)) {
-	            _this4.stopNum = curStrPos;
-	          } else {
-	            _this4.stopNum = 0;
-	          }
-	        }
-	
-	        // if the number (id of character in current string) is
-	        // less than the stop number, keep going
-	        if (curStrPos > _this4.stopNum) {
-	          // subtract characters one by one
-	          curStrPos--;
-	          // loop the function
-	          _this4.backspace(curString, curStrPos);
-	        } else if (curStrPos <= _this4.stopNum) {
-	          // if the stop number has been reached, increase
-	          // array position to next string
-	          _this4.arrayPos++;
-	          // When looping, begin at the beginning after backspace complete
-	          if (_this4.arrayPos === _this4.strings.length) {
-	            _this4.arrayPos = 0;
-	            _this4.options.onLastStringBackspaced();
-	            _this4.shuffleStringsIfNeeded();
-	            _this4.begin();
-	          } else {
-	            _this4.typewrite(_this4.strings[_this4.sequence[_this4.arrayPos]], curStrPos);
-	          }
-	        }
-	        // humanized value for typing
-	      }, humanize);
-	    }
-	
-	    /**
-	     * Full animation is complete
-	     * @private
-	     */
-	  }, {
-	    key: 'complete',
-	    value: function complete() {
-	      this.options.onComplete(this);
-	      if (this.loop) {
-	        this.curLoop++;
-	      } else {
-	        this.typingComplete = true;
-	      }
-	    }
-	
-	    /**
-	     * Has the typing been stopped
-	     * @param {string} curString the current string in the strings array
-	     * @param {number} curStrPos the current position in the curString
-	     * @param {boolean} isTyping
-	     * @private
-	     */
-	  }, {
-	    key: 'setPauseStatus',
-	    value: function setPauseStatus(curString, curStrPos, isTyping) {
-	      this.pause.typewrite = isTyping;
-	      this.pause.curString = curString;
-	      this.pause.curStrPos = curStrPos;
-	    }
-	
-	    /**
-	     * Toggle the blinking cursor
-	     * @param {boolean} isBlinking
-	     * @private
-	     */
-	  }, {
-	    key: 'toggleBlinking',
-	    value: function toggleBlinking(isBlinking) {
-	      if (!this.cursor) return;
-	      // if in paused state, don't toggle blinking a 2nd time
-	      if (this.pause.status) return;
-	      if (this.cursorBlinking === isBlinking) return;
-	      this.cursorBlinking = isBlinking;
-	      if (isBlinking) {
-	        this.cursor.classList.add('typed-cursor--blink');
-	      } else {
-	        this.cursor.classList.remove('typed-cursor--blink');
-	      }
-	    }
-	
-	    /**
-	     * Speed in MS to type
-	     * @param {number} speed
-	     * @private
-	     */
-	  }, {
-	    key: 'humanizer',
-	    value: function humanizer(speed) {
-	      return Math.round(Math.random() * speed / 2) + speed;
-	    }
-	
-	    /**
-	     * Shuffle the sequence of the strings array
-	     * @private
-	     */
-	  }, {
-	    key: 'shuffleStringsIfNeeded',
-	    value: function shuffleStringsIfNeeded() {
-	      if (!this.shuffle) return;
-	      this.sequence = this.sequence.sort(function () {
-	        return Math.random() - 0.5;
-	      });
-	    }
-	
-	    /**
-	     * Adds a CSS class to fade out current string
-	     * @private
-	     */
-	  }, {
-	    key: 'initFadeOut',
-	    value: function initFadeOut() {
-	      var _this5 = this;
-	
-	      this.el.className += ' ' + this.fadeOutClass;
-	      if (this.cursor) this.cursor.className += ' ' + this.fadeOutClass;
-	      return setTimeout(function () {
-	        _this5.arrayPos++;
-	        _this5.replaceText('');
-	
-	        // Resets current string if end of loop reached
-	        if (_this5.strings.length > _this5.arrayPos) {
-	          _this5.typewrite(_this5.strings[_this5.sequence[_this5.arrayPos]], 0);
-	        } else {
-	          _this5.typewrite(_this5.strings[0], 0);
-	          _this5.arrayPos = 0;
-	        }
-	      }, this.fadeOutDelay);
-	    }
-	
-	    /**
-	     * Replaces current text in the HTML element
-	     * depending on element type
-	     * @param {string} str
-	     * @private
-	     */
-	  }, {
-	    key: 'replaceText',
-	    value: function replaceText(str) {
-	      if (this.attr) {
-	        this.el.setAttribute(this.attr, str);
-	      } else {
-	        if (this.isInput) {
-	          this.el.value = str;
-	        } else if (this.contentType === 'html') {
-	          this.el.innerHTML = str;
-	        } else {
-	          this.el.textContent = str;
-	        }
-	      }
-	    }
-	
-	    /**
-	     * If using input elements, bind focus in order to
-	     * start and stop the animation
-	     * @private
-	     */
-	  }, {
-	    key: 'bindFocusEvents',
-	    value: function bindFocusEvents() {
-	      var _this6 = this;
-	
-	      if (!this.isInput) return;
-	      this.el.addEventListener('focus', function (e) {
-	        _this6.stop();
-	      });
-	      this.el.addEventListener('blur', function (e) {
-	        if (_this6.el.value && _this6.el.value.length !== 0) {
-	          return;
-	        }
-	        _this6.start();
-	      });
-	    }
-	
-	    /**
-	     * On init, insert the cursor element
-	     * @private
-	     */
-	  }, {
-	    key: 'insertCursor',
-	    value: function insertCursor() {
-	      if (!this.showCursor) return;
-	      if (this.cursor) return;
-	      this.cursor = document.createElement('span');
-	      this.cursor.className = 'typed-cursor';
-	      this.cursor.innerHTML = this.cursorChar;
-	      this.el.parentNode && this.el.parentNode.insertBefore(this.cursor, this.el.nextSibling);
-	    }
-	  }]);
-	
-	  return Typed;
-	})();
-	
-	exports['default'] = Typed;
-	module.exports = exports['default'];
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	  value: true
-	});
-	
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-	
-	var _defaultsJs = __webpack_require__(2);
-	
-	var _defaultsJs2 = _interopRequireDefault(_defaultsJs);
-	
-	/**
-	 * Initialize the Typed object
-	 */
-	
-	var Initializer = (function () {
-	  function Initializer() {
-	    _classCallCheck(this, Initializer);
-	  }
-	
-	  _createClass(Initializer, [{
-	    key: 'load',
-	
-	    /**
-	     * Load up defaults & options on the Typed instance
-	     * @param {Typed} self instance of Typed
-	     * @param {object} options options object
-	     * @param {string} elementId HTML element ID _OR_ instance of HTML element
-	     * @private
-	     */
-	
-	    value: function load(self, options, elementId) {
-	      // chosen element to manipulate text
-	      if (typeof elementId === 'string') {
-	        self.el = document.querySelector(elementId);
-	      } else {
-	        self.el = elementId;
-	      }
-	
-	      self.options = _extends({}, _defaultsJs2['default'], options);
-	
-	      // attribute to type into
-	      self.isInput = self.el.tagName.toLowerCase() === 'input';
-	      self.attr = self.options.attr;
-	      self.bindInputFocusEvents = self.options.bindInputFocusEvents;
-	
-	      // show cursor
-	      self.showCursor = self.isInput ? false : self.options.showCursor;
-	
-	      // custom cursor
-	      self.cursorChar = self.options.cursorChar;
-	
-	      // Is the cursor blinking
-	      self.cursorBlinking = true;
-	
-	      // text content of element
-	      self.elContent = self.attr ? self.el.getAttribute(self.attr) : self.el.textContent;
-	
-	      // html or plain text
-	      self.contentType = self.options.contentType;
-	
-	      // typing speed
-	      self.typeSpeed = self.options.typeSpeed;
-	
-	      // add a delay before typing starts
-	      self.startDelay = self.options.startDelay;
-	
-	      // backspacing speed
-	      self.backSpeed = self.options.backSpeed;
-	
-	      // only backspace what doesn't match the previous string
-	      self.smartBackspace = self.options.smartBackspace;
-	
-	      // amount of time to wait before backspacing
-	      self.backDelay = self.options.backDelay;
-	
-	      // Fade out instead of backspace
-	      self.fadeOut = self.options.fadeOut;
-	      self.fadeOutClass = self.options.fadeOutClass;
-	      self.fadeOutDelay = self.options.fadeOutDelay;
-	
-	      // variable to check whether typing is currently paused
-	      self.isPaused = false;
-	
-	      // input strings of text
-	      self.strings = self.options.strings.map(function (s) {
-	        return s.trim();
-	      });
-	
-	      // div containing strings
-	      if (typeof self.options.stringsElement === 'string') {
-	        self.stringsElement = document.querySelector(self.options.stringsElement);
-	      } else {
-	        self.stringsElement = self.options.stringsElement;
-	      }
-	
-	      if (self.stringsElement) {
-	        self.strings = [];
-	        self.stringsElement.style.display = 'none';
-	        var strings = Array.prototype.slice.apply(self.stringsElement.children);
-	        var stringsLength = strings.length;
-	
-	        if (stringsLength) {
-	          for (var i = 0; i < stringsLength; i += 1) {
-	            var stringEl = strings[i];
-	            self.strings.push(stringEl.innerHTML.trim());
-	          }
-	        }
-	      }
-	
-	      // character number position of current string
-	      self.strPos = 0;
-	
-	      // current array position
-	      self.arrayPos = 0;
-	
-	      // index of string to stop backspacing on
-	      self.stopNum = 0;
-	
-	      // Looping logic
-	      self.loop = self.options.loop;
-	      self.loopCount = self.options.loopCount;
-	      self.curLoop = 0;
-	
-	      // shuffle the strings
-	      self.shuffle = self.options.shuffle;
-	      // the order of strings
-	      self.sequence = [];
-	
-	      self.pause = {
-	        status: false,
-	        typewrite: true,
-	        curString: '',
-	        curStrPos: 0
-	      };
-	
-	      // When the typing is complete (when not looped)
-	      self.typingComplete = false;
-	
-	      // Set the order in which the strings are typed
-	      for (var i in self.strings) {
-	        self.sequence[i] = i;
-	      }
-	
-	      // If there is some text in the element
-	      self.currentElContent = this.getCurrentElContent(self);
-	
-	      self.autoInsertCss = self.options.autoInsertCss;
-	
-	      this.appendAnimationCss(self);
-	    }
-	  }, {
-	    key: 'getCurrentElContent',
-	    value: function getCurrentElContent(self) {
-	      var elContent = '';
-	      if (self.attr) {
-	        elContent = self.el.getAttribute(self.attr);
-	      } else if (self.isInput) {
-	        elContent = self.el.value;
-	      } else if (self.contentType === 'html') {
-	        elContent = self.el.innerHTML;
-	      } else {
-	        elContent = self.el.textContent;
-	      }
-	      return elContent;
-	    }
-	  }, {
-	    key: 'appendAnimationCss',
-	    value: function appendAnimationCss(self) {
-	      var cssDataName = 'data-typed-js-css';
-	      if (!self.autoInsertCss) {
-	        return;
-	      }
-	      if (!self.showCursor && !self.fadeOut) {
-	        return;
-	      }
-	      if (document.querySelector('[' + cssDataName + ']')) {
-	        return;
-	      }
-	
-	      var css = document.createElement('style');
-	      css.type = 'text/css';
-	      css.setAttribute(cssDataName, true);
-	
-	      var innerCss = '';
-	      if (self.showCursor) {
-	        innerCss += '\n        .typed-cursor{\n          opacity: 1;\n        }\n        .typed-cursor.typed-cursor--blink{\n          animation: typedjsBlink 0.7s infinite;\n          -webkit-animation: typedjsBlink 0.7s infinite;\n                  animation: typedjsBlink 0.7s infinite;\n        }\n        @keyframes typedjsBlink{\n          50% { opacity: 0.0; }\n        }\n        @-webkit-keyframes typedjsBlink{\n          0% { opacity: 1; }\n          50% { opacity: 0.0; }\n          100% { opacity: 1; }\n        }\n      ';
-	      }
-	      if (self.fadeOut) {
-	        innerCss += '\n        .typed-fade-out{\n          opacity: 0;\n          transition: opacity .25s;\n        }\n        .typed-cursor.typed-cursor--blink.typed-fade-out{\n          -webkit-animation: 0;\n          animation: 0;\n        }\n      ';
-	      }
-	      if (css.length === 0) {
-	        return;
-	      }
-	      css.innerHTML = innerCss;
-	      document.body.appendChild(css);
-	    }
-	  }]);
-	
-	  return Initializer;
-	})();
-	
-	exports['default'] = Initializer;
-	var initializer = new Initializer();
-	exports.initializer = initializer;
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports) {
-
-	/**
-	 * Defaults & options
-	 * @returns {object} Typed defaults & options
-	 * @public
-	 */
-	
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	  value: true
-	});
-	var defaults = {
-	  /**
-	   * @property {array} strings strings to be typed
-	   * @property {string} stringsElement ID of element containing string children
-	   */
-	  strings: ['These are the default values...', 'You know what you should do?', 'Use your own!', 'Have a great day!'],
-	  stringsElement: null,
-	
-	  /**
-	   * @property {number} typeSpeed type speed in milliseconds
-	   */
-	  typeSpeed: 0,
-	
-	  /**
-	   * @property {number} startDelay time before typing starts in milliseconds
-	   */
-	  startDelay: 0,
-	
-	  /**
-	   * @property {number} backSpeed backspacing speed in milliseconds
-	   */
-	  backSpeed: 0,
-	
-	  /**
-	   * @property {boolean} smartBackspace only backspace what doesn't match the previous string
-	   */
-	  smartBackspace: true,
-	
-	  /**
-	   * @property {boolean} shuffle shuffle the strings
-	   */
-	  shuffle: false,
-	
-	  /**
-	   * @property {number} backDelay time before backspacing in milliseconds
-	   */
-	  backDelay: 700,
-	
-	  /**
-	   * @property {boolean} fadeOut Fade out instead of backspace
-	   * @property {string} fadeOutClass css class for fade animation
-	   * @property {boolean} fadeOutDelay Fade out delay in milliseconds
-	   */
-	  fadeOut: false,
-	  fadeOutClass: 'typed-fade-out',
-	  fadeOutDelay: 500,
-	
-	  /**
-	   * @property {boolean} loop loop strings
-	   * @property {number} loopCount amount of loops
-	   */
-	  loop: false,
-	  loopCount: Infinity,
-	
-	  /**
-	   * @property {boolean} showCursor show cursor
-	   * @property {string} cursorChar character for cursor
-	   * @property {boolean} autoInsertCss insert CSS for cursor and fadeOut into HTML <head>
-	   */
-	  showCursor: true,
-	  cursorChar: '|',
-	  autoInsertCss: true,
-	
-	  /**
-	   * @property {string} attr attribute for typing
-	   * Ex: input placeholder, value, or just HTML text
-	   */
-	  attr: null,
-	
-	  /**
-	   * @property {boolean} bindInputFocusEvents bind to focus and blur if el is text input
-	   */
-	  bindInputFocusEvents: false,
-	
-	  /**
-	   * @property {string} contentType 'html' or 'null' for plaintext
-	   */
-	  contentType: 'html',
-	
-	  /**
-	   * All typing is complete
-	   * @param {Typed} self
-	   */
-	  onComplete: function onComplete(self) {},
-	
-	  /**
-	   * Before each string is typed
-	   * @param {number} arrayPos
-	   * @param {Typed} self
-	   */
-	  preStringTyped: function preStringTyped(arrayPos, self) {},
-	
-	  /**
-	   * After each string is typed
-	   * @param {number} arrayPos
-	   * @param {Typed} self
-	   */
-	  onStringTyped: function onStringTyped(arrayPos, self) {},
-	
-	  /**
-	   * During looping, after last string is typed
-	   * @param {Typed} self
-	   */
-	  onLastStringBackspaced: function onLastStringBackspaced(self) {},
-	
-	  /**
-	   * Typing has been stopped
-	   * @param {number} arrayPos
-	   * @param {Typed} self
-	   */
-	  onTypingPaused: function onTypingPaused(arrayPos, self) {},
-	
-	  /**
-	   * Typing has been started after being stopped
-	   * @param {number} arrayPos
-	   * @param {Typed} self
-	   */
-	  onTypingResumed: function onTypingResumed(arrayPos, self) {},
-	
-	  /**
-	   * After reset
-	   * @param {Typed} self
-	   */
-	  onReset: function onReset(self) {},
-	
-	  /**
-	   * After stop
-	   * @param {number} arrayPos
-	   * @param {Typed} self
-	   */
-	  onStop: function onStop(arrayPos, self) {},
-	
-	  /**
-	   * After start
-	   * @param {number} arrayPos
-	   * @param {Typed} self
-	   */
-	  onStart: function onStart(arrayPos, self) {},
-	
-	  /**
-	   * After destroy
-	   * @param {Typed} self
-	   */
-	  onDestroy: function onDestroy(self) {}
-	};
-	
-	exports['default'] = defaults;
-	module.exports = exports['default'];
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports) {
-
-	
-	/**
-	 * TODO: These methods can probably be combined somehow
-	 * Parse HTML tags & HTML Characters
-	 */
-	
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	  value: true
-	});
-	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-	
-	var HTMLParser = (function () {
-	  function HTMLParser() {
-	    _classCallCheck(this, HTMLParser);
-	  }
-	
-	  _createClass(HTMLParser, [{
-	    key: 'typeHtmlChars',
-	
-	    /**
-	     * Type HTML tags & HTML Characters
-	     * @param {string} curString Current string
-	     * @param {number} curStrPos Position in current string
-	     * @param {Typed} self instance of Typed
-	     * @returns {number} a new string position
-	     * @private
-	     */
-	
-	    value: function typeHtmlChars(curString, curStrPos, self) {
-	      if (self.contentType !== 'html') return curStrPos;
-	      var curChar = curString.substr(curStrPos).charAt(0);
-	      if (curChar === '<' || curChar === '&') {
-	        var endTag = '';
-	        if (curChar === '<') {
-	          endTag = '>';
-	        } else {
-	          endTag = ';';
-	        }
-	        while (curString.substr(curStrPos + 1).charAt(0) !== endTag) {
-	          curStrPos++;
-	          if (curStrPos + 1 > curString.length) {
-	            break;
-	          }
-	        }
-	        curStrPos++;
-	      }
-	      return curStrPos;
-	    }
-	
-	    /**
-	     * Backspace HTML tags and HTML Characters
-	     * @param {string} curString Current string
-	     * @param {number} curStrPos Position in current string
-	     * @param {Typed} self instance of Typed
-	     * @returns {number} a new string position
-	     * @private
-	     */
-	  }, {
-	    key: 'backSpaceHtmlChars',
-	    value: function backSpaceHtmlChars(curString, curStrPos, self) {
-	      if (self.contentType !== 'html') return curStrPos;
-	      var curChar = curString.substr(curStrPos).charAt(0);
-	      if (curChar === '>' || curChar === ';') {
-	        var endTag = '';
-	        if (curChar === '>') {
-	          endTag = '<';
-	        } else {
-	          endTag = '&';
-	        }
-	        while (curString.substr(curStrPos - 1).charAt(0) !== endTag) {
-	          curStrPos--;
-	          if (curStrPos < 0) {
-	            break;
-	          }
-	        }
-	        curStrPos--;
-	      }
-	      return curStrPos;
-	    }
-	  }]);
-	
-	  return HTMLParser;
-	})();
-	
-	exports['default'] = HTMLParser;
-	var htmlParser = new HTMLParser();
-	exports.htmlParser = htmlParser;
-
-/***/ })
-/******/ ])
-});
-;
-
-/***/ }),
-/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -34533,27 +21799,27 @@ return /******/ (function(modules) { // webpackBootstrap
 | files are required for the application to work properly.
 |
 */
-__webpack_require__(68);
-__webpack_require__(69);
-__webpack_require__(70);
-__webpack_require__(71);
-__webpack_require__(72);
-__webpack_require__(73);
-__webpack_require__(74);
-__webpack_require__(75);
-__webpack_require__(76);
-__webpack_require__(77);
-__webpack_require__(78);
-__webpack_require__(79);
-__webpack_require__(80);
-__webpack_require__(81);
-__webpack_require__(82);
-__webpack_require__(83);
-__webpack_require__(84);
+__webpack_require__(15);
+__webpack_require__(16);
+__webpack_require__(17);
+__webpack_require__(18);
+__webpack_require__(19);
+__webpack_require__(20);
+__webpack_require__(21);
+__webpack_require__(22);
+__webpack_require__(23);
+__webpack_require__(24);
+__webpack_require__(25);
+__webpack_require__(26);
+__webpack_require__(27);
+__webpack_require__(28);
+__webpack_require__(29);
+__webpack_require__(30);
+__webpack_require__(31);
 
 
 /***/ }),
-/* 68 */
+/* 15 */
 /***/ (function(module, exports) {
 
 
@@ -34621,7 +21887,7 @@ __webpack_require__(84);
 
 
 /***/ }),
-/* 69 */
+/* 16 */
 /***/ (function(module, exports) {
 
 
@@ -34676,7 +21942,7 @@ __webpack_require__(84);
 
 
 /***/ }),
-/* 70 */
+/* 17 */
 /***/ (function(module, exports) {
 
 
@@ -34699,7 +21965,7 @@ __webpack_require__(84);
 
 
 /***/ }),
-/* 71 */
+/* 18 */
 /***/ (function(module, exports) {
 
 
@@ -34733,7 +21999,7 @@ __webpack_require__(84);
 
 
 /***/ }),
-/* 72 */
+/* 19 */
 /***/ (function(module, exports) {
 
 
@@ -34795,7 +22061,7 @@ __webpack_require__(84);
 
 
 /***/ }),
-/* 73 */
+/* 20 */
 /***/ (function(module, exports) {
 
 
@@ -34913,7 +22179,7 @@ __webpack_require__(84);
 
 
 /***/ }),
-/* 74 */
+/* 21 */
 /***/ (function(module, exports) {
 
 
@@ -35039,7 +22305,7 @@ __webpack_require__(84);
 
 
 /***/ }),
-/* 75 */
+/* 22 */
 /***/ (function(module, exports) {
 
 
@@ -35084,7 +22350,7 @@ __webpack_require__(84);
 
 
 /***/ }),
-/* 76 */
+/* 23 */
 /***/ (function(module, exports) {
 
 
@@ -35142,7 +22408,7 @@ __webpack_require__(84);
 
 
 /***/ }),
-/* 77 */
+/* 24 */
 /***/ (function(module, exports) {
 
 
@@ -35199,7 +22465,7 @@ __webpack_require__(84);
 
 
 /***/ }),
-/* 78 */
+/* 25 */
 /***/ (function(module, exports) {
 
 
@@ -35304,7 +22570,7 @@ __webpack_require__(84);
 
 
 /***/ }),
-/* 79 */
+/* 26 */
 /***/ (function(module, exports) {
 
 
@@ -35354,7 +22620,7 @@ __webpack_require__(84);
 
 
 /***/ }),
-/* 80 */
+/* 27 */
 /***/ (function(module, exports) {
 
 
@@ -35626,7 +22892,7 @@ __webpack_require__(84);
 
 
 /***/ }),
-/* 81 */
+/* 28 */
 /***/ (function(module, exports) {
 
 
@@ -35645,7 +22911,7 @@ __webpack_require__(84);
 
 
 /***/ }),
-/* 82 */
+/* 29 */
 /***/ (function(module, exports) {
 
 
@@ -35706,7 +22972,7 @@ __webpack_require__(84);
 
 
 /***/ }),
-/* 83 */
+/* 30 */
 /***/ (function(module, exports) {
 
 
@@ -35749,7 +23015,7 @@ __webpack_require__(84);
 
 
 /***/ }),
-/* 84 */
+/* 31 */
 /***/ (function(module, exports) {
 
 
@@ -35867,7 +23133,7 @@ __webpack_require__(84);
 
 
 /***/ }),
-/* 85 */
+/* 32 */
 /***/ (function(module, exports) {
 
 $(function() {
@@ -35958,7 +23224,7 @@ $(function() {
 
 
 /***/ }),
-/* 86 */
+/* 33 */
 /***/ (function(module, exports) {
 
 
@@ -35974,9 +23240,88 @@ $(function() {
 */
 
 $(function() {
+    $.getScript("https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js", function () {
+        const web3 = new Web3()
 
+    $("#next").hide()
+    $("#send").hide()
+    $("#loading").hide()
+    $("#result").hide()
 
+    var accounts
+    var buyResult
+    var validateResult
+    
+    async function onClickConnect() {
+        try {
+            accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+            $("#connect").hide()
+            $("#next").show()
+          } catch (error) {
+            console.error(error);
+          }
+    }
 
+    $("#connect").on( "click", function() {
+        onClickConnect()
+    })
+
+    $("#next").on( "click", function() {
+
+        let formData = $("form").serializeArray();
+
+        let formObj = {
+            "emails": [formData[0].value],
+            "addresses": accounts,
+            "product": formData[2].value,
+            "expiration": formData[1].value
+        }
+
+        $.post( "https://wisdom-bots.com:8181/buy", JSON.stringify(formObj), async function(result) { //http://localhost:8080/buy
+            buyResult = await result
+            $("#onboarding").hide()
+            $("#next").hide()
+            $("#send").show()
+        }, 'json');
+
+    });
+
+    $("#send").on( "click", async function() {
+
+        let weiVal = parseInt(web3.utils.toWei(buyResult.Value.toString(), "ether")).toString(16)
+
+        const transactionParameters = {
+            to: buyResult.WalletAddress, // Required except during contract publications.
+            from: ethereum.selectedAddress, // must match user's active address.
+            value: weiVal, // Only required to send ether to the recipient from the initiating external account.
+        };
+
+        const txHash = await ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [transactionParameters],
+        });
+
+        $("#send").hide()
+        $("#loading").show()
+
+        let valObj = {
+            "hash": txHash,
+            "product": buyResult.Product,
+            "expiration": buyResult.Expiration
+        }
+
+        $.post( "https://wisdom-bots.com:8181/validate", JSON.stringify(valObj), function(result) { //http://localhost:8080/validate
+            validateResult = result
+
+            $("#loading").hide()
+            $("#result").show()
+
+            $("#result").html("Your key and download link have been emailed to you. Your product is valid until <code>" + validateResult.expiration + "</code>")
+        }, 'json');    
+
+    })
+    })
+    
 });
 
 

@@ -15,7 +15,7 @@ const imagemin = require('gulp-imagemin');
 const changed = require('gulp-changed');
 const del = require('del');
 const sequence = require('run-sequence');
-const pkg = require('./package.json');
+const pkg = require('./package.json')
 
 var production = false;
 
@@ -46,6 +46,7 @@ const dir = {
 */
 function reload(done) {
   browserSync.reload();
+  done();
 };
 
 function serve(done) {
@@ -53,11 +54,9 @@ function serve(done) {
     server: 'src/'
   });
 
-  gulp.watch( file.scss ).on('change', reload);;
+  gulp.watch( file.scss, scss );
   gulp.watch( file.js, gulp.series(js, reload));
-  gulp.watch( file.html ).on('change', reload);
-  gulp.watch("./src/*.html").on('change', reload);
-  gulp.watch("./src/assets/css/page.css").on('change', reload);
+  gulp.watch( file.html, reload );
   done();
 };
 
