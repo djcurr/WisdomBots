@@ -113,7 +113,7 @@
 
         </div>
         <div class="col-md">
-          <img src="https://dumbwisdom.mo.cloudinary.net/assets/img/landing-datacenter.png" alt="datacenter image">
+          <img src="https://dumbwisdom.mo.cloudinary.net/assets/img/landing-datacenter.webp" alt="datacenter image">
         </div>
       </div>
     </div>
@@ -493,10 +493,12 @@
   <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
 
   <script>
-    var typed = new Typed('#typed', {
+    if (window.matchMedia("(min-width: 768px)").matches) {
+      var typed = new Typed('#typed', {
       stringsElement: '#typed-strings',
       typeSpeed: 30
     });
+    }
   </script>
 
 </body>
