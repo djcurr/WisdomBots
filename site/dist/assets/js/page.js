@@ -23255,7 +23255,7 @@ $(function() {
     async function onClickConnect() {
         try {
             accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-            $("#connect").hide()
+            $("#connect").html(accounts[0].slice(0,6)+"..."+accounts[0].slice(38))
             $("#next").show()
           } catch (error) {
             console.error(error);
@@ -23280,6 +23280,7 @@ $(function() {
         $.post( "https://wisdom-bots.com:8181/buy", JSON.stringify(formObj), async function(result) { //http://localhost:8080/buy
             buyResult = await result
             $("#onboarding").hide()
+            $("#connect").hide()
             $("#next").hide()
             $("#send").show()
         }, 'json');

@@ -10,7 +10,6 @@ import (
 	"math"
 	"math/big"
 	"math/rand"
-	"modules/licensing"
 	"net/http"
 	"os"
 	"strconv"
@@ -485,7 +484,6 @@ func generateLicense(product string, expiration string) (string, string) {
 
 	tmpemail := "example@example.com"
 	email := "example@example.com"
-	key := envConfig.LicenseServerKey
 	var licenseTable string
 	var expirationDate string
 
@@ -510,7 +508,7 @@ func generateLicense(product string, expiration string) (string, string) {
 			fmt.Println("[!] ERROR: UNABLE TO INSERT INTO DATABASE [!]")
 		} else {
 			fmt.Println("License already in database?")
-			fmt.Println("License:", licensing.Encrypt(key, license))
+			fmt.Println("License:", license)
 		}
 	}
 	return license, expirationDate
@@ -551,7 +549,7 @@ func sendEmail(to string, key string, product string, expiration string) {
 	m.SetBody("text/plain", "Your activation key for "+product+" is: "+key+" and expires on "+expiration+" UTC. Your download link is "+link)
 
 	// Settings for SMTP server
-	d := gomail.NewDialer(envConfig.EmailHost, 465, envConfig.EmailUser, envConfig.EmailPassword)
+	d := gomail.NewDialer(envConfig.EmailHost, 587, envConfig.EmailUser, envConfig.EmailPassword)
 
 	// This is only needed when SSL/TLS certificate is not valid on server.
 	// In production this should be set to false.
