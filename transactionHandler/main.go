@@ -114,7 +114,7 @@ func NewConfig() *EnvironmentVariables {
 	}
 }
 
-var PROD = false
+var PROD = true
 var TLS = true
 
 func init() {
