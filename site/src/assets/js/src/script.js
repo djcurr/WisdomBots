@@ -22,6 +22,23 @@ $(function() {
     var accounts
     var buyResult
     var validateResult
+    var buyLink
+    var validateLink
+    var newAffiliateLink
+    var checkAffiliate
+
+    const PROD = true
+    if (PROD) {
+        buyLink = "https://wisdom-bots.com:8181/buy"
+        validateLink = "https://wisdom-bots.com:8181/validate"
+        newAffiliateLink = "https://wisdom-bots.com:8181/newAffiliate"
+        checkAffiliate = "https://wisdom-bots.com:8181/checkAffiliate"
+    } else {
+        buyLink = "http://localhost:8181/buy"
+        validateLink = "http://localhost:8181/validate"
+        newAffiliateLink = "http://localhost:8181/newAffiliate"
+        checkAffiliate = "http://localhost:8181/checkAffiliate"
+    }
     
     async function onClickConnect() {
         try {
@@ -48,7 +65,7 @@ $(function() {
             "expiration": formData[1].value
         }
 
-        $.post( "https://wisdom-bots.com:8181/buy", JSON.stringify(formObj), async function(result) { //http://localhost:8080/buy
+        $.post( buyLink, JSON.stringify(formObj), async function(result) { //http://localhost:8181/buy https://wisdom-bots.com:8181/buy
             buyResult = await result
             $("#onboarding").hide()
             $("#connect").hide()
@@ -57,6 +74,51 @@ $(function() {
         }, 'json');
 
     });
+
+    $("#existingAffiliateNext").on( "click", function() {
+
+        let formData = $("#existingAffiliateForm").serializeArray();
+
+        let formObj = {
+            "affiliatePrivateCode": formData[0].value
+        }
+
+        $.post( checkAffiliate, JSON.stringify(formObj), async function(result) { //http://localhost:8181/buy https://wisdom-bots.com:8181/buy
+            buyResult = await result
+            $("#existingAffiliateForm").hide()
+            $("#existingAffiliateNext").hide()
+            $("#existingAffiliateError").hide()
+            $("#existingAffiliateResult").html("Your code "+buyResult.affiliateCode+" has earned "+buyResult.affiliateEarnings+" BNB. Your commission rate is "+buyResult.affiliatePercent+"%. Your address is "+buyResult.affiliateAddress+".")
+        }, 'json')
+        .fail(function(jqXHR) {
+            $("#existingAffiliateError").html(jqXHR.responseJSON)
+        });
+
+    });
+
+    $("#newAffiliateNext").on( "click", function() {
+
+        let formData = $("#newAffiliateForm").serializeArray();
+
+        let formObj = {
+            "affiliateAddress": formData[1].value,
+            "affiliateCode": formData[0].value
+        }
+
+        $.post( newAffiliateLink, JSON.stringify(formObj), async function(result) { //http://localhost:8181/buy https://wisdom-bots.com:8181/buy
+            buyResult = await result
+            console.log(buyResult)
+            $("#newAffiliateForm").hide()
+            $("#newAffiliateNext").hide()
+            $("#newAffiliateError").hide()
+            $("#newAffiliateResult").html("Your private affiliate code is <code>"+buyResult.AffiliatePrivateCode+"</code>. Use this to check your earnings. Your address is <code>"+buyResult.Address+"</code>. Share the link <code>https://wisdom-bots.com?affiliate="+buyResult.Code+"</code> to earn.")
+        }, 'json')
+        .fail(function(jqXHR) {
+            $("#newAffiliateError").html(jqXHR.responseJSON)
+        });
+
+    });
+
 
     $("#send").on( "click", async function() {
 
@@ -76,13 +138,20 @@ $(function() {
         $("#send").hide()
         $("#loading").show()
 
+        const params = new Proxy(new URLSearchParams(window.location.search), {
+            get: (searchParams, prop) => searchParams.get(prop),
+        });
+
+        let affiliate = params.affiliate
+
         let valObj = {
             "hash": txHash,
             "product": buyResult.Product,
-            "expiration": buyResult.Expiration
+            "expiration": buyResult.Expiration,
+            "affiliate": affiliate
         }
 
-        $.post( "https://wisdom-bots.com:8181/validate", JSON.stringify(valObj), function(result) { //http://localhost:8080/validate
+        $.post( validateLink, JSON.stringify(valObj), function(result) { //http://localhost:8181/validate https://wisdom-bots.com:8181/validate
             validateResult = result
 
             $("#loading").hide()

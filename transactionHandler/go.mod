@@ -4,14 +4,17 @@ go 1.17
 
 replace modules/licensing => ./licensing
 
+replace modules/transactions => ../modules/transactions
+
 require (
 	github.com/ethereum/go-ethereum v1.10.14
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-sql-driver/mysql v1.4.1
+	github.com/joho/godotenv v1.4.0
 	go.mongodb.org/mongo-driver v1.8.1
 	gopkg.in/mail.v2 v2.3.1
-	modules/licensing v0.0.0-00010101000000-000000000000
+	modules/transactions v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -27,7 +30,6 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
-	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect

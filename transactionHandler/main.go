@@ -10,6 +10,7 @@ import (
 	"math"
 	"math/big"
 	"math/rand"
+	"modules/transactions"
 	"net/http"
 	"os"
 	"strconv"
@@ -26,6 +27,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -45,10 +47,20 @@ type user struct {
 	Hashes        []string           `json:"hashes"`
 }
 
+type affiliate struct {
+	ID                   primitive.ObjectID `bson:"_id" json:"id,omitempty"`
+	AffiliateCode        string             `json:"affiliateCode"`
+	AffiliateEarnings    float64            `json:"affiliateEarnings"`
+	AffiliatePercent     int                `json:"affiliatePercent"`
+	AffiliateAddress     string             `json:"affiliateAddress"`
+	AffiliatePrivateCode string             `json:"affiliatePrivateCode"`
+}
+
 type keys struct {
-	Product    string `json:"product"`
-	Key        string `json:"key"`
-	Expiration string `json:"expiration"`
+	Product       string `json:"product"`
+	Key           string `json:"key"`
+	Expiration    string `json:"expiration"`
+	AffiliateCode string `json:"affiliateCode"`
 }
 
 type initialResponse struct {
@@ -58,10 +70,18 @@ type initialResponse struct {
 	Product       string
 }
 
+type existingAffiliateResponse struct {
+	Address              string
+	Code                 string
+	Earnings             float64
+	AffiliatePrivateCode string
+}
+
 type transaction struct {
 	Hash       string
 	Product    string
 	Expiration string
+	Affiliate  string
 }
 
 type EnvironmentVariables struct {
@@ -85,6 +105,7 @@ type EnvironmentVariables struct {
 	EmailHost           string
 	PresaleBotDownload  string
 	TelegramBotDownload string
+	AffiliateCollection string
 }
 
 var envConfig *EnvironmentVariables
@@ -111,6 +132,7 @@ func NewConfig() *EnvironmentVariables {
 		EmailHost:           os.Getenv("EMAIL_HOST"),
 		PresaleBotDownload:  os.Getenv("PRESALE_BOT_DOWNLOAD"),
 		TelegramBotDownload: os.Getenv("TELEGRAM_BOT_DOWNLOAD"),
+		AffiliateCollection: os.Getenv("AFFILIATE_COLLECTION"),
 	}
 }
 
@@ -135,6 +157,8 @@ func init() {
 
 var mongoClient *mongo.Client
 var coll *mongo.Collection
+var affiliateColl *mongo.Collection
+var host *ethclient.Client
 
 func main() {
 
@@ -143,6 +167,12 @@ func main() {
 	envConfig = NewConfig()
 
 	var err error
+
+	host, err = ethclient.Dial(envConfig.EthHost)
+	if err != nil {
+		panic(err)
+	}
+
 	mongoClient, err = mongo.Connect(context.TODO(), options.Client().ApplyURI(envConfig.MongoURL))
 	if err != nil {
 		panic(err)
@@ -155,6 +185,7 @@ func main() {
 	}()
 
 	coll = mongoClient.Database(envConfig.MongoDBName).Collection(envConfig.MongoCollection)
+	affiliateColl = mongoClient.Database(envConfig.MongoDBName).Collection(envConfig.AffiliateCollection)
 
 	router := gin.Default()
 	corsConfig := cors.DefaultConfig()
@@ -164,12 +195,89 @@ func main() {
 	router.Use(cors.New(corsConfig))
 	router.POST("/buy", postUser)
 	router.POST("/validate", validate)
+	router.POST("/newAffiliate", newAffiliate)
+	router.POST("/checkAffiliate", checkAffiliate)
 
 	if TLS {
 		router.RunTLS(envConfig.ApiURL, "/home/wisdombots/fullchain.pem", "/home/wisdombots/privkey.pem")
 	} else {
 		router.Run(envConfig.ApiURL)
 	}
+}
+
+func sendAffiliate(val *big.Int, affiliateCode string, hash string) {
+
+	affiliateFilter := bson.D{primitive.E{Key: "affiliateCode", Value: affiliateCode}}
+	affiliateTransactionFilter := bson.D{primitive.E{Key: "hashes", Value: hash}}
+
+	var affiliateData affiliate
+	var userData user
+
+	err := affiliateColl.FindOne(context.TODO(), affiliateFilter).Decode(&affiliateData)
+	if err != nil {
+		panic(err)
+	}
+
+	err = coll.FindOne(context.TODO(), affiliateTransactionFilter).Decode(&userData)
+	if err != nil {
+		panic(err)
+	}
+
+	// fmt.Printf("Affiliate address: %+v\n Affiliate percent: %+v\n Wallet key: %+v\n Value: %+v\n", affiliateData.AffiliateAddress, affiliateData.AffiliatePercent, userData.WalletKey, val)
+
+	val1 := val.Mul(val, big.NewInt(int64(affiliateData.AffiliatePercent)))
+	val2 := val.Div(val1, big.NewInt(100))
+	affiliateWallet := common.HexToAddress(affiliateData.AffiliateAddress)
+	prv, _, address := transactions.PrivateKeyExtrapolate(userData.WalletKey)
+	nonce, _ := host.PendingNonceAt(context.Background(), address)
+	tx := &types.LegacyTx{
+		To:       &affiliateWallet,
+		Value:    val2,
+		GasPrice: transactions.ToWei(0.00000001),
+		Gas:      500000,
+		Nonce:    nonce,
+	}
+
+	chainID, _ := host.ChainID(context.Background())
+	signer := types.NewEIP155Signer(chainID)
+
+	fmt.Println(transactions.SignAndSendLegacyTx(context.TODO(), tx, host, signer, prv))
+	affiliateEarned, _ := weiToEther(val2).Float64()
+
+	affiliateData.AffiliateEarnings += affiliateEarned
+
+	filterId := bson.M{"_id": bson.M{"$eq": affiliateData.ID}}
+	update := bson.M{"$set": bson.D{primitive.E{Key: "affiliateEarnings", Value: affiliateData.AffiliateEarnings}}}
+	_, err = affiliateColl.UpdateOne(context.TODO(), filterId, update)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func weiToEther(wei *big.Int) *big.Float {
+	return new(big.Float).Quo(new(big.Float).SetInt(wei), big.NewFloat(params.Ether))
+}
+
+func checkAffiliate(c *gin.Context) {
+
+	var affiliateData affiliate
+
+	err := c.BindJSON(&affiliateData)
+	if err != nil {
+		return
+	}
+
+	affiliateFilter := bson.D{primitive.E{Key: "affiliatePrivateCode", Value: affiliateData.AffiliatePrivateCode}}
+	err = affiliateColl.FindOne(context.TODO(), affiliateFilter).Decode(&affiliateData)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			c.IndentedJSON(http.StatusInternalServerError, "Code not found.")
+			return
+		}
+	}
+
+	c.IndentedJSON(http.StatusCreated, affiliateData)
+
 }
 
 func postUser(c *gin.Context) {
@@ -183,11 +291,16 @@ func postUser(c *gin.Context) {
 	opts := options.Count().SetLimit(1)
 
 	emailFilter := bson.D{primitive.E{Key: "emails", Value: newUser.Emails[0]}}
-	emailExists, _ := coll.CountDocuments(context.TODO(), emailFilter, opts)
+	emailExists, err := coll.CountDocuments(context.TODO(), emailFilter, opts)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	addressFilter := bson.D{primitive.E{Key: "addresses", Value: newUser.Addresses[0]}}
-	addressExists, _ := coll.CountDocuments(context.TODO(), addressFilter, opts)
-
+	addressExists, err := coll.CountDocuments(context.TODO(), addressFilter, opts)
+	if err != nil {
+		log.Fatal(err)
+	}
 	if emailExists == 0 && addressExists == 1 {
 
 		filter := bson.D{primitive.E{Key: "addresses", Value: newUser.Addresses[0]}}
@@ -319,7 +432,7 @@ func validate(c *gin.Context) {
 	if err := c.BindJSON(&newTransaction); err != nil {
 		return
 	}
-	genKey, expiration := validateTx(newTransaction.Hash, newTransaction.Product, newTransaction.Expiration)
+	genKey, expiration := validateTx(newTransaction.Hash, newTransaction.Product, newTransaction.Expiration, newTransaction.Affiliate)
 
 	var link string
 
@@ -331,8 +444,60 @@ func validate(c *gin.Context) {
 		link = ""
 	}
 
+	if newTransaction.Affiliate != "" {
+		sendAffiliate(bigValue(newTransaction.Product, newTransaction.Expiration), newTransaction.Affiliate, newTransaction.Hash)
+	}
+
 	response := bson.M{"key": genKey, "expiration": expiration, "link": link}
 	c.IndentedJSON(http.StatusCreated, response)
+}
+
+func newAffiliate(c *gin.Context) {
+	var newAffiliate affiliate
+
+	err := c.BindJSON(&newAffiliate)
+	if err != nil {
+		return
+	}
+
+	opts := options.Count().SetLimit(1)
+
+	if newAffiliate.AffiliateCode == "" {
+		c.IndentedJSON(http.StatusCreated, "Affiliate code cannot be empty.")
+		return
+	}
+
+	addressFilter := bson.D{primitive.E{Key: "affiliateAddress", Value: newAffiliate.AffiliateAddress}}
+	addressExists, _ := affiliateColl.CountDocuments(context.TODO(), addressFilter, opts)
+
+	affiliateCodeFilter := bson.D{primitive.E{Key: "affiliateCode", Value: newAffiliate.AffiliateCode}}
+	codeExists, _ := affiliateColl.CountDocuments(context.TODO(), affiliateCodeFilter, opts)
+
+	if addressExists == 0 && codeExists == 0 {
+		rand.Seed(time.Now().UnixNano())
+
+		affiliatePrivateCode := randomString(4) + "-" + randomString(4) + "-" + randomString(4)
+
+		doc := bson.D{primitive.E{Key: "affiliateAddress", Value: newAffiliate.AffiliateAddress}, primitive.E{Key: "affiliateCode", Value: newAffiliate.AffiliateCode}, primitive.E{Key: "affiliatePercent", Value: 10}, primitive.E{Key: "affiliateEarnings", Value: 0.0}, primitive.E{Key: "affiliatePrivateCode", Value: affiliatePrivateCode}}
+
+		_, err = affiliateColl.InsertOne(context.TODO(), doc)
+		if err != nil {
+			panic(err)
+		}
+
+		response := existingAffiliateResponse{
+			Address:              newAffiliate.AffiliateAddress,
+			Code:                 newAffiliate.AffiliateCode,
+			Earnings:             newAffiliate.AffiliateEarnings,
+			AffiliatePrivateCode: affiliatePrivateCode,
+		}
+
+		c.IndentedJSON(http.StatusCreated, response)
+
+	} else {
+		response := "Address or code already in use."
+		c.IndentedJSON(http.StatusInternalServerError, response)
+	}
 }
 
 func generateWallet() (string, string) {
@@ -386,17 +551,13 @@ func bigValue(product string, expiration string) *big.Int {
 	}
 }
 
-func validateTx(hash string, product string, expiration string) (string, string) {
-	client, err := ethclient.Dial(envConfig.EthHost)
-	if err != nil {
-		panic(err)
-	}
+func validateTx(hash string, product string, expiration string, affiliate string) (string, string) {
 
 	value := bigValue(product, expiration)
 
 	newHash := common.HexToHash(hash)
 
-	tx, isPending, err := client.TransactionByHash(context.Background(), newHash)
+	tx, isPending, err := host.TransactionByHash(context.Background(), newHash)
 	if err != nil {
 		panic(err)
 	}
@@ -432,7 +593,7 @@ func validateTx(hash string, product string, expiration string) (string, string)
 			exists != 1 {
 		var counter int
 		for isPending {
-			_, isPending, err = client.TransactionByHash(context.Background(), newHash)
+			_, isPending, err = host.TransactionByHash(context.Background(), newHash)
 			if err != nil {
 				panic(err)
 			}
@@ -444,15 +605,20 @@ func validateTx(hash string, product string, expiration string) (string, string)
 			time.Sleep(time.Second)
 		}
 		key, expirationDate := generateLicense(product, expiration)
-		sendEmail(result.Emails[len(result.Emails)-1], key, product, expirationDate)
+
+		if PROD {
+			sendEmail(result.Emails[len(result.Emails)-1], key, product, expirationDate)
+		}
+
 		updateKeys = keys{
-			Product:    product,
-			Key:        key,
-			Expiration: expirationDate,
+			Product:       product,
+			Key:           key,
+			Expiration:    expirationDate,
+			AffiliateCode: affiliate,
 		}
 
 		filterId := bson.M{"_id": bson.M{"$eq": result.ID}}
-		update := bson.M{"$push": bson.D{primitive.E{Key: "keys", Value: bson.D{primitive.E{Key: "product", Value: updateKeys.Product}, {Key: "key", Value: updateKeys.Key}, primitive.E{Key: "expiration", Value: updateKeys.Expiration}}}, primitive.E{Key: "hashes", Value: hash}}}
+		update := bson.M{"$push": bson.D{primitive.E{Key: "keys", Value: bson.D{primitive.E{Key: "product", Value: updateKeys.Product}, primitive.E{Key: "key", Value: updateKeys.Key}, primitive.E{Key: "expiration", Value: updateKeys.Expiration}, primitive.E{Key: "affiliateCode", Value: updateKeys.AffiliateCode}}}, primitive.E{Key: "hashes", Value: hash}}}
 		_, err = coll.UpdateOne(context.TODO(), filterId, update)
 		if err != nil {
 			panic(err)

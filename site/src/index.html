@@ -368,9 +368,9 @@
               <br>
               <p class="text-center py-3">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-large"
-                  href="#lifetime" data-bind-href="pricing-1" data-monthly="#monthly" data-lifetime="#lifetime">Get
-                  Started</button>
+                  href="#lifetime" data-bind-href="pricing-1" data-monthly="#monthly" data-lifetime="#lifetime">Get Started</button>
               </p>
+
             </div>
           </div>
 
@@ -405,8 +405,6 @@
                     </select>
                   </div>
 
-
-
                 </form>
                 <button class="btn btn-xl btn-round btn-success" style="display: block; margin: 0 auto; margin-bottom: 10px;"
                   id="connect">Connect</button>
@@ -417,7 +415,91 @@
                 <h1 id="loading" class="text-center">Waiting for transaction to confirm...</h1>
                 <h1 id="result" class="text-center" style="word-wrap: break-word;"></h1>
               </div>
+            </div>
+          </div>
+        </div>
 
+      </div>
+    </section>
+
+    <!--
+      |‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒
+      | Affiliate
+      |‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒
+      !-->
+
+    <section class="section">
+      <div class="container">
+        <header class="section-header" id="faq">
+          <h1 class="ttlakes-bold">Affiliates</h1>
+          <br>
+          <p style="font-size: 2em;">Create an affiliate code that you can share for 10% of every transaction completed with your code.</p>
+        </header>
+
+
+        <div class="row">
+          <div class="col-md-8 mx-auto">
+
+            <p class="text-center py-3">
+              <button type="button" class="btn btn-primary btn-lg btn-block" data-toggle="modal" data-target="#modal-existing-affiliate"
+                href="#lifetime" data-bind-href="pricing-1" data-monthly="#monthly" data-lifetime="#lifetime">Existing Affiliate</button>
+            </p>
+            <p class="text-center py-3">
+              <button type="button" class="btn btn-primary btn-lg btn-block" data-toggle="modal" data-target="#modal-new-affiliate"
+                href="#lifetime" data-bind-href="pricing-1" data-monthly="#monthly" data-lifetime="#lifetime">New Affiliate</button>
+            </p>
+
+          </div>
+        </div>
+
+        <div class="modal fade" id="modal-existing-affiliate" tabindex="-1" role="dialog">
+          <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+
+              <div class="modal-body align-items-center">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+                <form class="input-round" id="existingAffiliateForm">
+
+                  <div class="form-group">
+                    <input class="form-control" type="text" name="affiliatePrivateCode" placeholder="Affiliate Private Code">
+                  </div>
+
+                </form>
+                <button class="btn btn-xl btn-round btn-success" style="display: block; margin: 0 auto;"
+                  id="existingAffiliateNext">Next</button>
+                <h1 id="existingAffiliateResult" class="text-center" style="word-wrap: break-word;"></h1>
+                <h1 id="existingAffiliateError" class="text-center" style="word-wrap: break-word;"></h1>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal fade" id="modal-new-affiliate" tabindex="-1" role="dialog">
+          <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+
+              <div class="modal-body align-items-center">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+                <form class="input-round" id="newAffiliateForm">
+
+                  <div class="form-group">
+                    <input class="form-control" type="text" name="code" placeholder="New Affiliate Code">
+                  </div>
+
+                  <div class="form-group">
+                    <input class="form-control" type="text" name="affiliateWallet" placeholder="Wallet Address">
+                  </div>
+
+                </form>
+                <button class="btn btn-xl btn-round btn-success" style="display: block; margin: 0 auto;"
+                  id="newAffiliateNext">Next</button>
+                <h1 id="newAffiliateResult" class="text-center" style="word-wrap: break-word;"></h1>
+                <h1 id="newAffiliateError" class="text-center" style="word-wrap: break-word;"></h1>
+              </div>
             </div>
           </div>
         </div>
